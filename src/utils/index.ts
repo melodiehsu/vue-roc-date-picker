@@ -14,39 +14,42 @@ export const formatDate = (date: any, pattern: string) => dayjs(date).format(pat
 
 export const getRepublicEraYear = (year: number) => year - 1911;
 
+const FORMAT_LOOKUP: Record<string, string> = {
+  date: 'YYYY-MM-DD',
+  month: 'YYYY-MM',
+  year: 'YYYY'
+};
+
+const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<string, string> = {
+  date: 'MM/DD',
+  month: 'MM',
+  year: ''
+};
+
 export const setDatePickerLabel = ({
   calendarYearType,
   selectedDateObject,
   formatYear,
-  datePickerType = 'date'
+  datePickerType
 }: {
   calendarYearType: string,
-  selectedDateObject: any,
+  selectedDateObject: Date,
   formatYear: number,
   datePickerType: string
 }) => {
-  const formatLookup: Record<string, any> = {
-    date: 'YYYY-MM-DD',
-    month: 'YYYY-MM',
-    year: 'YYYY'
-  };
+  const format = FORMAT_LOOKUP[datePickerType];
+  const republicEraYearFormat = REPUBLIC_ERA_YEAR_FORMAT_LOOKUP[datePickerType];
 
-  const republicEraYearFormatLookup: Record<string, any> = {
-    date: 'MM/DD',
-    month: 'MM',
-    year: ''
-  };
-
-  const format = formatLookup[datePickerType];
-  const republicEraYearFormat = republicEraYearFormatLookup[datePickerType];
-
-  let formattedLabel: string = formatDate(selectedDateObject, format);
+  let formattedLabel: string;
 
   if (calendarYearType === YEAR_TYPE.RepublicEraYear) {
-    formattedLabel = `${getRepublicEraYear(formatYear)}`;
-    if (datePickerType !== CALENDAR_TYPE.year) {
-      formattedLabel += `/${formatDate(selectedDateObject, republicEraYearFormat)}`;
-    }
+    const republicEraYear = getRepublicEraYear(formatYear);
+    const republicEraPart = datePickerType !== CALENDAR_TYPE.year
+      ? `/${formatDate(selectedDateObject, republicEraYearFormat)}`
+      : '';
+    formattedLabel = `${republicEraYear}${republicEraPart}`;
+  } else {
+    formattedLabel = formatDate(selectedDateObject, format);
   }
 
   return formattedLabel;

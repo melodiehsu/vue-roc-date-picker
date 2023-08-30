@@ -28,12 +28,13 @@
 </template>
 
 <script lang="ts">
-import { WEEK_DAYS } from '@/constants';
+import { CALENDAR_TYPE, WEEK_DAYS } from '@/constants';
 import { getCalendarLang, setDatePickerLabel } from '@/utils';
 import dayjs from 'dayjs';
+import type { SelectedTime } from 'my-date-picker';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs, watch
+  defineComponent, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';
 
 export default defineComponent({
@@ -55,7 +56,7 @@ export default defineComponent({
       type: String
     },
     defaultFullDate: {
-      type: Object,
+      type: Object as PropType<SelectedTime>,
       default: () => {}
     }
   },
@@ -64,41 +65,41 @@ export default defineComponent({
     const {
       calendarYear, calendarMonth, calendarYearType, defaultFullDate
     } = toRefs(props);
-    const datesOnCalendar = ref<number[]>([]);
-    const selectedFullDate = ref({});
+    const datesOnCalendar = ref<number[]>();
+    const selectedFullDate = ref();
 
     const selectedYear = computed(() => dayjs(selectedFullDate.value.timeValue).year());
-
     const selectedMonth = computed(() => dayjs(selectedFullDate.value.timeValue).month());
-
     const selectedDate = computed(() => dayjs(selectedFullDate.value.timeValue).date());
 
-    const isSelected = (date) => {
-      if (!selectedFullDate.value.timeValue) return;
-
+    const isSelected = (date: number): boolean => {
       if (
-        (calendarYear.value === selectedYear.value)
-        && (calendarMonth.value === selectedMonth.value)
-        && (date === selectedDate.value)
+        selectedFullDate.value.timeValue
+        && calendarYear.value === selectedYear.value
+        && calendarMonth.value === selectedMonth.value
+        && date === selectedDate.value
       ) {
         return true;
       }
+
+      return false;
     };
 
-    const handleSelectDate = (dateOnCalendar) => {
+    const handleSelectDate = (dateOnCalendar: number) => {
       selectedFullDate.value.timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
 
       selectedFullDate.value.label = setDatePickerLabel({
         calendarYearType: calendarYearType.value,
         selectedDateObject: selectedFullDate.value.timeValue,
-        formatYear: selectedYear.value
+        formatYear: selectedYear.value,
+        datePickerType: CALENDAR_TYPE.date
       });
 
       emit('click', selectedFullDate.value);
     };
 
     // TODO: consider use Array.fill to populate date calendar instead of using for loop
-    const populateDateCalendar = (year, month) => {
+    const populateDateCalendar = (year: number, month: number) => {
       const datesOfMonth = [];
       const momentYearMonth = dayjs(`${year}-${month + 1}`);
 
@@ -116,7 +117,7 @@ export default defineComponent({
         datesOfMonth.push(date + 1);
       }
 
-      return datesOfMonth;
+      return datesOfMonth as number[];
     };
 
     onMounted(() => {
@@ -153,7 +154,7 @@ export default defineComponent({
   grid-template-columns: repeat(7, minmax(0, 1fr));
   justify-items: stretch;
   padding: 4px 8px;
-  border-bottom: 1px solid #000000;
+  border-bottom: 1px solid #CFCFCF;
 
   .week-day-cell {
     text-align: center;
@@ -167,19 +168,34 @@ export default defineComponent({
   padding: 8px;
 
   .date-cell {
-    padding: 4px;
+    padding: 10px;
     text-align: center;
 
     &:hover {
-      color: blue;
+      color: #4390BC;
     }
   }
 
   .selected-date {
-    border-radius: 4px;
-    /* TODO(melody): color */
-    background: #000000;
+    position: relative;
     color: #ffffff;
+
+    &:hover {
+      color: #ffffff;
+    }
+
+    &::after {
+      position: absolute;
+      z-index: -1;
+      content: '';
+      width: 28px;
+      height: 28px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -47%);
+      border-radius: 50%;
+      background: #4390BC;
+    }
   }
 }
 </style>

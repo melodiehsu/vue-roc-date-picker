@@ -20,8 +20,9 @@
 <script lang="ts">
 import { CALENDAR_TYPE } from '@/constants';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
+import type { SelectedTime } from 'my-date-picker';
 import {
-  computed, defineComponent, onMounted, ref, toRefs, watch
+  computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';
 
 export default defineComponent({
@@ -35,7 +36,7 @@ export default defineComponent({
       type: String
     },
     defaultFullDate: {
-      type: Object,
+      type: Object as PropType<SelectedTime>,
       default: () => {}
     },
     type: {
@@ -44,7 +45,7 @@ export default defineComponent({
     },
     decadeRange: {
       required: true,
-      type: Array,
+      type: Array as PropType<number[]>,
       default: () => []
     }
   },
@@ -53,8 +54,8 @@ export default defineComponent({
     const {
       defaultFullDate, calendarYearType, type, decadeRange
     } = toRefs(props);
-    const selectedFullDate = ref({});
-    const years = ref([]);
+    const selectedFullDate = ref();
+    const years = ref<number[]>([]);
     const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue).getFullYear());
 
     const populateYearCalendar = () => {
@@ -69,15 +70,18 @@ export default defineComponent({
       }
     };
 
-    const isSelected = (year) => {
-      if (!selectedFullDate.value.timeValue) return;
-
-      if (year === selectedYear.value) {
+    const isSelected = (year: number): boolean => {
+      if (
+        selectedFullDate.value.timeValue
+        && year === selectedYear.value
+      ) {
         return true;
       }
+
+      return false;
     };
 
-    const handleSelectYear = (yearOnCalendar) => {
+    const handleSelectYear = (yearOnCalendar: number) => {
       selectedFullDate.value.timeValue = new Date(yearOnCalendar, 0);
 
       if (type.value === CALENDAR_TYPE.year) {
@@ -131,16 +135,13 @@ export default defineComponent({
     text-align: center;
 
     &:hover {
-      /* TODO(melody): color */
-      color: blue;
+      color: #4390BC;
     }
   }
 
   .selected-year {
-    border-radius: 4px;
-    /* TODO(melody): color */
-    background: #000000;
-    color: #ffffff;
+    font-weight: 600;
+    color: #4390BC;
   }
 }
 </style>

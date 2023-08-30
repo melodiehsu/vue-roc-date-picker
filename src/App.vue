@@ -4,7 +4,6 @@
 
     <div class="date-picker">
       <MyDatePicker
-        :type="CALENDAR_TYPE.date"
         @change="getSelectedTime"
       />
     </div>
@@ -22,9 +21,8 @@ export default defineComponent({
   },
   setup() {
     const selectedTime = ref();
-    const getSelectedTime = (time) => {
+    const getSelectedTime = (time: Date) => {
       selectedTime.value = time;
-      console.log('selectedTime', selectedTime.value);
     };
 
     return {

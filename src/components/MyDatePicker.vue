@@ -170,23 +170,23 @@
 
 <script lang="ts">
 import {
-  computed,
-  defineComponent, onMounted, ref, toRefs, watch
+  computed, defineComponent, onMounted, ref, toRefs, watch
 } from 'vue';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
-import CalendarDayIcon from '@/components/icons/CalendarDayIcon.vue';
+import type { SelectedTime } from 'my-date-picker';
 import { YEAR_TYPE, CALENDAR_TYPE } from '../constants/index';
-import XmarkIcon from './icons/XmarkIcon.vue';
-import AnglesLeftIcon from './icons/AnglesLeftIcon.vue';
-import AngleLeftIcon from './icons/AngleLeftIcon.vue';
-import AngleRightIcon from './icons/AngleRightIcon.vue';
-import AnglesRightIcon from './icons/AnglesRightIcon.vue';
 import DateCalendar from './calendar/DateCalendar.vue';
 import MonthCalendar from './calendar/MonthCalendar.vue';
 import YearCalendar from './calendar/YearCalendar.vue';
 import YearTypeSelector from './YearTypeSelector.vue';
+import XmarkIcon from './icons/XmarkIcon.vue';
+import AngleLeftIcon from './icons/AngleLeftIcon.vue';
+import AnglesLeftIcon from './icons/AnglesLeftIcon.vue';
+import AngleRightIcon from './icons/AngleRightIcon.vue';
+import CalendarDayIcon from './icons/CalendarDayIcon.vue';
+import AnglesRightIcon from './icons/AnglesRightIcon.vue';
 
-const DEFAULT_SELECTED_TIME = {
+const DEFAULT_SELECTED_TIME: SelectedTime = {
   label: '',
   timeValue: undefined
 };
@@ -492,16 +492,16 @@ button {
   display: flex;
   align-items: center;
   background: #ffffff;
-  border: 1px solid #000000;
+  border: 1px solid #cbd2d5;
 
   .input-icon {
-    padding-left: 2px;
+    padding: 0px 4px;
   }
 
   .date-picker-input {
     width: 100%;
     height: 100%;
-    padding: 8px;
+    padding: 2px;
     background:#ffffff;
     border-style: none;
 
@@ -529,9 +529,10 @@ button {
   border-radius: 4px;
   top: 120%;
   /* TODO(melody): color */
-  background: #9CA38F;
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  background: #ffffff;
   padding: 8px;
-  color: black;
+  color: #6a6c6d;
   width: 300px;
 }
 
@@ -553,7 +554,7 @@ button {
     .controller-button {
       &:hover {
         /* TODO(melody): color */
-        color: blue;
+        color: #4390BC;
       }
     }
   }

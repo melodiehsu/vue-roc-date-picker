@@ -20,9 +20,10 @@
 <script lang="ts">
 import { CALENDAR_TYPE, MONTHS } from '@/constants';
 import { getCalendarLang, setDatePickerLabel } from '@/utils';
+import type { SelectedTime } from 'my-date-picker';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs
+  defineComponent, onMounted, ref, toRefs, type PropType
 } from 'vue';
 
 export default defineComponent({
@@ -40,7 +41,7 @@ export default defineComponent({
       type: String
     },
     defaultFullDate: {
-      type: Object,
+      type: Object as PropType<SelectedTime>,
       default: () => {}
     },
     type: {
@@ -54,23 +55,23 @@ export default defineComponent({
       calendarYear, defaultFullDate, calendarYearType, type
     } = toRefs(props);
 
-    const selectedFullDate = ref({});
+    const selectedFullDate = ref();
     const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue).getFullYear());
-
     const selectedMonth = computed(() => new Date(selectedFullDate.value.timeValue).getMonth());
 
-    const isSelected = (month) => {
-      if (!selectedFullDate.value.timeValue) return;
-
+    const isSelected = (month: number): boolean => {
       if (
-        (calendarYear.value === selectedYear.value)
-        && (month === selectedMonth.value)
+        selectedFullDate.value?.timeValue
+        && calendarYear.value === selectedYear.value
+        && month === selectedMonth.value
       ) {
         return true;
       }
+
+      return false;
     };
 
-    const handleSelectMonth = (monthOnCalendar) => {
+    const handleSelectMonth = (monthOnCalendar: number) => {
       selectedFullDate.value.timeValue = new Date(calendarYear.value, monthOnCalendar);
 
       if (type.value === CALENDAR_TYPE.month) {
@@ -118,16 +119,13 @@ export default defineComponent({
     text-align: center;
 
     &:hover {
-      /* TODO(melody): color */
-      color: blue;
+      color: #4390BC;
     }
   }
 
   .selected-month {
-    border-radius: 4px;
-    /* TODO(melody): color */
-    background: #000000;
-    color: #ffffff;
+    font-weight: 600;
+    color: #4390BC;
   }
 }
 </style>

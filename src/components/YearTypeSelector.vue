@@ -43,7 +43,7 @@ export default defineComponent({
   },
   emits: ['change'],
   setup(_, { emit }) {
-    const changeYearType = (yearType) => {
+    const changeYearType = (yearType: string) => {
       emit('change', yearType);
     };
 
@@ -64,13 +64,15 @@ button {
   width: 100%;
   padding: 0 12px;
   font-size: 14px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .controller {
-  width: 100%;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   padding: 2px;
+  color: #6a6c6d;
+  cursor: pointer;
 }
 </style>
