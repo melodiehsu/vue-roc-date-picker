@@ -75,7 +75,7 @@
           <div class="year-month-controller">
             <button
               type="button"
-              class="controller-button hover:text-blue-100"
+              class="controller-button"
               @click="setCalendarVisibility(isYearCalendarVisible ? '' : CALENDAR_TYPE.year)"
             >
               {{ displayYear }}
@@ -85,7 +85,7 @@
               type="button"
               :class="
                 ['controller-button',
-                 !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block hover:text-blue-100' : 'hidden',
+                 !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden',
                 ]"
               @click="setCalendarVisibility(CALENDAR_TYPE.month)"
             >
@@ -528,7 +528,6 @@ button {
   position: absolute;
   border-radius: 4px;
   top: 120%;
-  /* TODO(melody): color */
   box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
   background: #ffffff;
   padding: 8px;
@@ -542,24 +541,29 @@ button {
   align-items: center;
   padding: 8px 2px;
 
-  .prev-controller .next-controller {
+  .prev-controller, .next-controller {
     display: flex;
+    align-items: center;
+    height: 100%;
   }
 
   .year-month-controller {
     display: flex;
     flex-grow: 1;
     justify-content: center;
+    transform: translate(0, -1px);
 
     .controller-button {
+      font-size: 16px;
       &:hover {
-        /* TODO(melody): color */
         color: #4390BC;
       }
     }
   }
 
   .controller-button {
+    display: flex;
+    align-items: center;
     cursor: pointer;
     padding: 0 4px;
   }
