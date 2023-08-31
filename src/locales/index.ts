@@ -23,6 +23,10 @@ export const TRANSLATE = {
       Fri: '五',
       Sat: '六',
       Sun: '日'
+    },
+    yearType: {
+      RepublicEraYear: '民國',
+      CE: '西元'
     }
   },
   en: {
@@ -48,6 +52,10 @@ export const TRANSLATE = {
       Fri: 'Fri',
       Sat: 'Sat',
       Sun: 'Sun'
+    },
+    yearType: {
+      RepublicEraYear: 'ROC',
+      CE: 'CE'
     }
   }
 };

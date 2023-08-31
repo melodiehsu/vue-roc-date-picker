@@ -85,7 +85,7 @@
               type="button"
               :class="
                 ['controller-button',
-                 !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden',
+                 !isYearCalendarVisible ? 'inline-block' : 'hidden',
                 ]"
               @click="setCalendarVisibility(CALENDAR_TYPE.month)"
             >
@@ -161,6 +161,7 @@
         <YearTypeSelector
           :calendar-year-type="yearType"
           :has-republic-era-year="getRepublicEraYear(yearOnCalendar) > 0"
+          :lang="lang"
           @change="handleChangeYearType"
         />
       </div>
@@ -241,7 +242,7 @@ export default defineComponent({
   emits: ['change'],
   setup(props, { emit }) {
     const {
-      type, defaultValue, disabled, calendarYearType
+      type, defaultValue, disabled, calendarYearType, lang
     } = toRefs(props);
     const isCalendarVisible = ref(false);
     const isDateCalendarVisible = ref(false);
@@ -435,7 +436,11 @@ export default defineComponent({
       }
       const startYear = Math.max(getRepublicEraYear(decadeRange?.value[0]), 1);
       const endYear = getRepublicEraYear(decadeRange?.value[1]);
-      return isYearCalendarVisible.value ? `民國 ${startYear} - ${endYear} 年` : `民國 ${getRepublicEraYear(yearOnCalendar.value)} 年`;
+
+      if (lang.value === 'zhTW') {
+        return isYearCalendarVisible.value ? `民國 ${startYear} - ${endYear} 年` : `民國 ${getRepublicEraYear(yearOnCalendar.value)} 年`;
+      }
+      return isYearCalendarVisible.value ? `${startYear} - ${endYear}` : `ROC ${getRepublicEraYear(yearOnCalendar.value)}`;
     });
 
     return {

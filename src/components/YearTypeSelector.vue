@@ -8,7 +8,7 @@
         @click="changeYearType('CE')"
       >
         <RotateIcon style="margin-right: 6px;" />
-        <div>西元</div>
+        <div>{{ getCalendarLang(lang).yearType[calendarYearType] }}</div>
       </button>
 
       <button
@@ -18,7 +18,7 @@
         @click="changeYearType('RepublicEraYear')"
       >
         <RotateIcon style="margin-right: 6px;" />
-        <div>民國</div>
+        <div>{{ getCalendarLang(lang).yearType[calendarYearType] }}</div>
       </button>
     </div>
   </div>
@@ -26,6 +26,7 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue';
+import { getCalendarLang } from '@/utils';
 import RotateIcon from './icons/RotateIcon.vue';
 
 export default defineComponent({
@@ -39,6 +40,10 @@ export default defineComponent({
       required: true,
       type: Boolean,
       default: true
+    },
+    lang: {
+      type: String,
+      required: true
     }
   },
   emits: ['change'],
@@ -48,7 +53,8 @@ export default defineComponent({
     };
 
     return {
-      changeYearType
+      changeYearType,
+      getCalendarLang
     };
   }
 });
