@@ -24,7 +24,7 @@
           v-show="showClearButton"
           type="button"
           :class="[
-            'clear-input-button',
+            'hidden',
             {
               'clear-input-button__active': !disabled && selectedTime.label,
             }]"
@@ -76,7 +76,7 @@
             <button
               type="button"
               class="controller-button"
-              @click="setCalendarVisibility(isYearCalendarVisible ? '' : CALENDAR_TYPE.year)"
+              @click="setCalendarVisibility(CALENDAR_TYPE.year)"
             >
               {{ displayYear }}
             </button>
@@ -85,7 +85,7 @@
               type="button"
               :class="
                 ['controller-button',
-                 !isYearCalendarVisible ? 'inline-block' : 'hidden',
+                 !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden',
                 ]"
               @click="setCalendarVisibility(CALENDAR_TYPE.month)"
             >
@@ -216,7 +216,7 @@ export default defineComponent({
     },
     placeholder: {
       type: String,
-      default: '請選擇時間'
+      default: ''
     },
     type: {
       type: String,
@@ -262,27 +262,15 @@ export default defineComponent({
     const selectedTime = ref({ ...DEFAULT_SELECTED_TIME });
 
     const setCalendarVisibility = (calendarType: string) => {
-      switch (calendarType) {
-        case CALENDAR_TYPE.date:
-          isDateCalendarVisible.value = true;
-          isYearCalendarVisible.value = false;
-          isMonthCalendarVisible.value = false;
-          break;
-        case CALENDAR_TYPE.month:
-          isMonthCalendarVisible.value = true;
-          isDateCalendarVisible.value = false;
-          isYearCalendarVisible.value = false;
-          break;
-        case CALENDAR_TYPE.year:
-          isYearCalendarVisible.value = true;
-          isDateCalendarVisible.value = false;
-          isMonthCalendarVisible.value = false;
-          break;
-        default:
-          isDateCalendarVisible.value = true;
-          isYearCalendarVisible.value = false;
-          isMonthCalendarVisible.value = false;
-      }
+      const visibilityMap = {
+        [CALENDAR_TYPE.date]: [true, false, false],
+        [CALENDAR_TYPE.month]: [false, true, false],
+        [CALENDAR_TYPE.year]: [false, false, true]
+      };
+
+      [isDateCalendarVisible.value,
+        isMonthCalendarVisible.value,
+        isYearCalendarVisible.value] = visibilityMap[calendarType];
     };
 
     const getDecadeRange = () => {
@@ -322,8 +310,6 @@ export default defineComponent({
 
         monthOnCalendar.value = new Date(defaultTime).getMonth();
         yearOnCalendar.value = new Date(defaultTime).getFullYear();
-      } else {
-        selectedTime.value = { ...DEFAULT_SELECTED_TIME };
       }
     };
 
@@ -418,10 +404,6 @@ export default defineComponent({
       initCalendar();
     });
 
-    watch(props, () => {
-      initCalendar();
-    }, { deep: true });
-
     watch([yearOnCalendar, yearType], () => {
       if ((yearOnCalendar.value <= 1912) && (yearType.value === YEAR_TYPE.RepublicEraYear)) {
         canGoLastYear.value = false;
@@ -440,7 +422,7 @@ export default defineComponent({
       if (lang.value === 'zhTW') {
         return isYearCalendarVisible.value ? `民國 ${startYear} - ${endYear} 年` : `民國 ${getRepublicEraYear(yearOnCalendar.value)} 年`;
       }
-      return isYearCalendarVisible.value ? `${startYear} - ${endYear}` : `ROC ${getRepublicEraYear(yearOnCalendar.value)}`;
+      return isYearCalendarVisible.value ? `ROC ${startYear} - ${endYear}` : `ROC ${getRepublicEraYear(yearOnCalendar.value)}`;
     });
 
     return {
@@ -515,16 +497,14 @@ button {
     }
   }
 
-  .clear-input-button {
-    margin-right: 2px;
-    padding: 0 2px;
-    display: none;
-  }
-
   &:hover {
     .clear-input-button__active {
-      display: block;
+      position: absolute;
+      display: block !important;
       cursor: pointer;
+      right: 4px;
+      top: 0;
+      bottom: 0;
     }
   }
 }
