@@ -5,8 +5,13 @@
         <div
           v-for="(year, index) in years"
           :key="index"
-          class="year-cell cursor-pointer"
-          :class="{ 'selected-year': isSelected(year) }"
+          :class="[
+            'year-cell cursor-pointer',
+            {
+              'selected-year': isSelected(year),
+            },
+          ]
+          "
           @keypress="handleSelectYear(year)"
           @click="handleSelectYear(year)"
         >
@@ -65,7 +70,10 @@ export default defineComponent({
         years.value.push(decadeRange.value[0] + yearCount);
       }
 
-      if ((calendarYearType.value === 'RepublicEraYear') && ((years.value[0] - 1911) < 1)) {
+      if (
+        (calendarYearType.value === 'RepublicEraYear')
+        && ((years.value[0] - 1911) < 1)
+      ) {
         years.value = years.value.filter((year) => year > 1911);
       }
     };
