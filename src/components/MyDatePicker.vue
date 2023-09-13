@@ -261,6 +261,19 @@ export default defineComponent({
     const canGoLastDecade = ref(true);
     const selectedTime = ref({ ...DEFAULT_SELECTED_TIME });
 
+    const displayYear = computed(() => {
+      if (yearType.value === YEAR_TYPE.CE) {
+        return isYearCalendarVisible.value ? `${decadeRange?.value[0]} - ${decadeRange?.value[1]}` : yearOnCalendar.value;
+      }
+      const startYear = Math.max(getRepublicEraYear(decadeRange?.value[0]), 1);
+      const endYear = getRepublicEraYear(decadeRange?.value[1]);
+
+      if (lang.value === 'zhTW') {
+        return isYearCalendarVisible.value ? `民國 ${startYear} - ${endYear} 年` : `民國 ${getRepublicEraYear(yearOnCalendar.value)} 年`;
+      }
+      return isYearCalendarVisible.value ? `ROC ${startYear} - ${endYear}` : `ROC ${getRepublicEraYear(yearOnCalendar.value)}`;
+    });
+
     const setCalendarVisibility = (calendarType: string) => {
       const visibilityMap = {
         [CALENDAR_TYPE.date]: [true, false, false],
@@ -277,7 +290,12 @@ export default defineComponent({
       const decade: number = Math.floor(yearOnCalendar.value / 10) * 10;
       decadeRange.value = [decade, decade + 9];
 
-      if ((yearType.value === YEAR_TYPE.RepublicEraYear) && (getRepublicEraYear(decadeRange?.value[0]) < 1)) {
+      if (
+        (yearType.value === YEAR_TYPE.RepublicEraYear)
+        && (getRepublicEraYear(decadeRange?.value[0]) < 1)
+      ) {
+        canGoLastDecade.value = false;
+      } else if (decadeRange?.value[0] <= 100) {
         canGoLastDecade.value = false;
       } else {
         canGoLastDecade.value = true;
@@ -407,22 +425,11 @@ export default defineComponent({
     watch([yearOnCalendar, yearType], () => {
       if ((yearOnCalendar.value <= 1912) && (yearType.value === YEAR_TYPE.RepublicEraYear)) {
         canGoLastYear.value = false;
+      } else if (decadeRange?.value[0] <= 100) {
+        canGoLastYear.value = false;
       } else {
         canGoLastYear.value = true;
       }
-    });
-
-    const displayYear = computed(() => {
-      if (yearType.value === YEAR_TYPE.CE) {
-        return isYearCalendarVisible.value ? `${decadeRange?.value[0]} - ${decadeRange?.value[1]}` : yearOnCalendar.value;
-      }
-      const startYear = Math.max(getRepublicEraYear(decadeRange?.value[0]), 1);
-      const endYear = getRepublicEraYear(decadeRange?.value[1]);
-
-      if (lang.value === 'zhTW') {
-        return isYearCalendarVisible.value ? `民國 ${startYear} - ${endYear} 年` : `民國 ${getRepublicEraYear(yearOnCalendar.value)} 年`;
-      }
-      return isYearCalendarVisible.value ? `ROC ${startYear} - ${endYear}` : `ROC ${getRepublicEraYear(yearOnCalendar.value)}`;
     });
 
     return {
