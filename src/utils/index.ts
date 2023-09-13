@@ -1,18 +1,6 @@
 import dayjs from 'dayjs';
+import { CALENDAR_TYPE, YEAR_TYPE } from '@/constants';
 import locales from '../locales/index';
-import { YEAR_TYPE, CALENDAR_TYPE } from '../constants/index';
-
-export const getCalendarLang = (lang: string) => {
-  const langLookup: Record<string, any> = {
-    zhTW: locales.zhTW,
-    en: locales.en
-  };
-  return langLookup[lang];
-};
-
-export const formatDate = (date: any, pattern: string) => dayjs(date).format(pattern);
-
-export const getRepublicEraYear = (year: number) => year - 1911;
 
 const FORMAT_LOOKUP: Record<string, string> = {
   date: 'YYYY-MM-DD',
@@ -25,6 +13,24 @@ const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<string, string> = {
   month: 'MM',
   year: ''
 };
+
+export const getCalendarLang = (lang: string) => {
+  const langLookup: Record<string, any> = {
+    zhTW: locales.zhTW,
+    en: locales.en
+  };
+  return langLookup[lang];
+};
+
+export const formatDate = (date: any, pattern: string) => {
+  if (!date) {
+    return '';
+  }
+
+  return dayjs(date).format(pattern);
+};
+
+export const getRepublicEraYear = (year: number) => year - 1911;
 
 export const setDatePickerLabel = ({
   calendarYearType,
