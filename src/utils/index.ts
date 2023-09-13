@@ -19,6 +19,9 @@ export const getCalendarLang = (lang: string) => {
     zhTW: locales.zhTW,
     en: locales.en
   };
+  const unsupportedLang = lang in langLookup;
+
+  if (!lang || !unsupportedLang) return langLookup.en;
   return langLookup[lang];
 };
 
@@ -53,6 +56,7 @@ export const setDatePickerLabel = ({
     const republicEraPart = datePickerType !== CALENDAR_TYPE.year
       ? `/${formatDate(selectedDateObject, republicEraYearFormat)}`
       : '';
+
     formattedLabel = `${republicEraYear}${republicEraPart}`;
   } else {
     formattedLabel = formatDate(selectedDateObject, format);
