@@ -2,7 +2,7 @@
   <div>
     <div class="calendar-wrapper">
       <div class="year-container">
-        <div
+        <button
           v-for="(year, index) in years"
           :key="index"
           :class="[
@@ -12,11 +12,11 @@
             },
           ]
           "
-          @keypress="handleSelectYear(year)"
+          type="button"
           @click="handleSelectYear(year)"
         >
           {{ calendarYearType === 'CE' ? year : getRepublicEraYear(year) }}
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -50,8 +50,7 @@ export default defineComponent({
     },
     decadeRange: {
       required: true,
-      type: Array as PropType<number[]>,
-      default: () => []
+      type: Array as PropType<number[]>
     }
   },
   emits: ['click'],
@@ -128,6 +127,13 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+button {
+  background: transparent;
+  border-style: none;
+  font-size: 16px;
+  color: #6a6c6d;
+}
+
 .calendar-wrapper {
   width: 100%;
   height: 100%;
