@@ -64,7 +64,7 @@
               type="button"
               :class="[
                 'controller-button',
-                !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden',
+                !isMonthCalendarVisible && !isYearCalendarVisible && canGoLastMonth ? 'inline-block' : 'hidden',
               ]"
               @click="goToLastMonth"
             >
@@ -258,6 +258,7 @@ export default defineComponent({
 
     const yearType = ref(calendarYearType.value);
     const canGoLastYear = ref(true);
+    const canGoLastMonth = ref(true);
     const canGoLastDecade = ref(true);
     const selectedTime = ref({ ...DEFAULT_SELECTED_TIME });
 
@@ -423,12 +424,27 @@ export default defineComponent({
     });
 
     watch([yearOnCalendar, yearType], () => {
-      if ((yearOnCalendar.value <= 1912) && (yearType.value === YEAR_TYPE.RepublicEraYear)) {
+      if (
+        yearType.value === YEAR_TYPE.RepublicEraYear
+        && yearOnCalendar.value <= 1912
+      ) {
         canGoLastYear.value = false;
       } else if (decadeRange?.value[0] <= 100) {
         canGoLastYear.value = false;
       } else {
         canGoLastYear.value = true;
+      }
+    });
+
+    watch([yearOnCalendar, yearType, monthOnCalendar], () => {
+      if (
+        yearType.value === YEAR_TYPE.RepublicEraYear
+        && yearOnCalendar.value <= 1912
+        && monthOnCalendar.value === 0
+      ) {
+        canGoLastMonth.value = false;
+      } else {
+        canGoLastMonth.value = true;
       }
     });
 
@@ -439,6 +455,7 @@ export default defineComponent({
       selectedTime,
       canGoLastYear,
       yearOnCalendar,
+      canGoLastMonth,
       canGoLastDecade,
       monthOnCalendar,
       isCalendarVisible,
