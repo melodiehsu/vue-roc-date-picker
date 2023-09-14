@@ -3,15 +3,15 @@ import { TRANSLATE } from '@/locales';
 import { getCalendarLang } from '../index';
 
 describe('Test getCalendarLang', () => {
-  it('Pass \'zhTW\' returns zhTW locale', () => {
+  it('pass \'zhTW\' returns zhTW locale', () => {
     expect(getCalendarLang('zhTW')).toEqual(TRANSLATE.zhTW);
   });
 
-  it('Pass \'en\' returns en locale', () => {
+  it('pass \'en\' returns en locale', () => {
     expect(getCalendarLang('en')).toEqual(TRANSLATE.en);
   });
 
-  it('Pass unsupported language returns en locale', () => {
+  it('pass unsupported language returns en locale', () => {
     expect(getCalendarLang('zhCN')).toEqual(TRANSLATE.en);
   });
 });
