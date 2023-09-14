@@ -59,9 +59,9 @@ export default defineComponent({
     const {
       defaultFullDate, calendarYearType, type, decadeRange
     } = toRefs(props);
-    const selectedFullDate = ref();
+    const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue).getFullYear());
+    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
 
     const populateYearCalendar = () => {
       years.value = [];
@@ -80,7 +80,7 @@ export default defineComponent({
 
     const isSelected = (year: number): boolean => {
       if (
-        selectedFullDate.value.timeValue
+        selectedFullDate.value?.timeValue
         && year === selectedYear.value
       ) {
         return true;
@@ -117,6 +117,7 @@ export default defineComponent({
 
     return {
       years,
+      selectedFullDate,
       isSelected,
       handleSelectYear,
       getCalendarLang,
