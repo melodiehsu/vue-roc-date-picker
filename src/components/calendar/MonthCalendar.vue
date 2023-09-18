@@ -2,16 +2,20 @@
   <div>
     <div class="calendar-wrapper">
       <div class="month-container">
-        <div
+        <button
           v-for="(month, index) in MONTHS"
           :key="index"
-          class="month-cell cursor-pointer"
-          :class="{ 'selected-month': isSelected(month) }"
-          @keypress="handleSelectMonth(month)"
+          :class="[
+            'month-cell cursor-pointer',
+            {
+              'selected-month': isSelected(month),
+            },
+          ]"
+          type="button"
           @click="handleSelectMonth(month)"
         >
           {{ getCalendarLang(lang).month[month] }}
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -55,9 +59,9 @@ export default defineComponent({
       calendarYear, defaultFullDate, calendarYearType, type
     } = toRefs(props);
 
-    const selectedFullDate = ref();
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue).getFullYear());
-    const selectedMonth = computed(() => new Date(selectedFullDate.value.timeValue).getMonth());
+    const selectedFullDate = ref<SelectedTime>({});
+    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
+    const selectedMonth = computed(() => new Date(selectedFullDate.value.timeValue as Date).getMonth());
 
     const isSelected = (month: number): boolean => {
       if (
@@ -94,6 +98,7 @@ export default defineComponent({
 
     return {
       MONTHS,
+      selectedFullDate,
       isSelected,
       handleSelectMonth,
       getCalendarLang
@@ -103,6 +108,12 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+button {
+  background: transparent;
+  border-style: none;
+  font-size: 16px;
+  color: #6a6c6d;
+}
 .calendar-wrapper {
   width: 100%;
   height: 100%;
