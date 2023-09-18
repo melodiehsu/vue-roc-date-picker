@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "vite --port 5566",
+    "dev": "vite --port 5566 --open",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "test:unit": "vitest",
