@@ -98,21 +98,15 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    // TODO: consider use Array.fill to populate date calendar instead of using for loop
     const populateDateCalendar = (year: number, month: number) => {
-      const datesOfMonth = [];
-      const momentYearMonth = dayjs(`${year}-${month + 1}`);
+      const targetMonth = dayjs(`${year}-${month + 1}`);
+      const firstDayOfTheWeek = targetMonth.day() ? targetMonth.day() : 7;
+      //  returns 7 instead of returning 0 for Sunday
+      const daysBeforeFirstDay = firstDayOfTheWeek - 1;
+      const daysInMonth = targetMonth.daysInMonth();
 
-      const firstDay = momentYearMonth.day() ? momentYearMonth.day() : 7;
-      // instead of returning 0 for Sunday, returns 7 so that it can push correct numbers of null to datesOfMonth
-      const daysInMonth = momentYearMonth.daysInMonth();
-
-      // if the first day is Tuesday, the date shall be filled from the 2nd value in the array
-      for (let weekDay = 1; weekDay < firstDay; weekDay += 1) {
-        datesOfMonth.push(null);
-      }
-
-      // fill out the dates
+      // create an array for v-for to render dates on calendar which matches the day of the week
+      const datesOfMonth = new Array(daysBeforeFirstDay).fill(null);
       for (let date = 0; date < daysInMonth; date += 1) {
         datesOfMonth.push(date + 1);
       }
