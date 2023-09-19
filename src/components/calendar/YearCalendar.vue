@@ -79,7 +79,7 @@ export default defineComponent({
 
     const isSelected = (year: number): boolean => {
       if (
-        selectedFullDate.value?.timeValue
+        selectedFullDate.value.timeValue
         && year === selectedYear.value
       ) {
         return true;

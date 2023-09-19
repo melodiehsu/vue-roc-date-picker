@@ -65,7 +65,7 @@ export default defineComponent({
 
     const isSelected = (month: number): boolean => {
       if (
-        selectedFullDate.value?.timeValue
+        selectedFullDate.value.timeValue
         && calendarYear.value === selectedYear.value
         && month === selectedMonth.value
       ) {

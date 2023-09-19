@@ -12,16 +12,20 @@
       </div>
 
       <div class="date-container">
-        <div
-          v-for="(date, index) in datesOnCalendar"
+        <button
+          v-for="(date, index) in dateCells"
           :key="index"
-          class="date-cell"
-          :class="{ 'cursor-pointer': date, 'selected-date': isSelected(date) }"
-          @keypress="handleSelectDate(date)"
+          :class="[
+            'date-cell',
+            {
+              'cursor-pointer': date, 'selected-date': isSelected(date),
+            },
+          ]"
+          type="button"
           @click="handleSelectDate(date)"
         >
           {{ date }}
-        </div>
+        </button>
       </div>
     </div>
   </div>
@@ -65,8 +69,8 @@ export default defineComponent({
     const {
       calendarYear, calendarMonth, calendarYearType, defaultFullDate
     } = toRefs(props);
-    const datesOnCalendar = ref<number[]>();
-    const selectedFullDate = ref();
+    const dateCells = ref<number[]>();
+    const selectedFullDate = ref<SelectedTime>({});
 
     const selectedYear = computed(() => dayjs(selectedFullDate.value.timeValue).year());
     const selectedMonth = computed(() => dayjs(selectedFullDate.value.timeValue).month());
@@ -98,8 +102,8 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    const populateDateCalendar = (year: number, month: number) => {
-      const targetMonth = dayjs(`${year}-${month + 1}`);
+    const populateDateCalendar = () => {
+      const targetMonth = dayjs(`${calendarYear.value}-${calendarMonth.value + 1}`);
       const firstDayOfTheWeek = targetMonth.day() ? targetMonth.day() : 7;
       //  returns 7 instead of returning 0 for Sunday
       const daysBeforeFirstDay = firstDayOfTheWeek - 1;
@@ -110,25 +114,23 @@ export default defineComponent({
       for (let date = 0; date < daysInMonth; date += 1) {
         datesOfMonth.push(date + 1);
       }
-
-      return datesOfMonth as number[];
+      dateCells.value = datesOfMonth;
     };
 
     onMounted(() => {
       if (defaultFullDate.value) {
         selectedFullDate.value = defaultFullDate.value;
       }
-
-      datesOnCalendar.value = populateDateCalendar(calendarYear.value, calendarMonth.value);
+      populateDateCalendar();
     });
 
-    watch([calendarYear, calendarMonth], ([newCalendarYear, newCalendarMonth]) => {
-      datesOnCalendar.value = populateDateCalendar(newCalendarYear, newCalendarMonth);
+    watch([calendarYear, calendarMonth], () => {
+      populateDateCalendar();
     });
 
     return {
       WEEK_DAYS,
-      datesOnCalendar,
+      dateCells,
       isSelected,
       handleSelectDate,
       getCalendarLang
@@ -138,6 +140,12 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
+button {
+  background: transparent;
+  border-style: none;
+  font-size: 16px;
+  color: #6a6c6d;
+}
 .calendar-wrapper {
   width: 100%;
   height: 100%;
