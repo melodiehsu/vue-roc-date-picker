@@ -69,7 +69,7 @@ export default defineComponent({
     const {
       calendarYear, calendarMonth, calendarYearType, defaultFullDate
     } = toRefs(props);
-    const dateCells = ref<number[]>();
+    const dateCells = ref<number[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
 
     const selectedYear = computed(() => dayjs(selectedFullDate.value.timeValue).year());
@@ -110,11 +110,10 @@ export default defineComponent({
       const daysInMonth = targetMonth.daysInMonth();
 
       // create an array for v-for to render dates on calendar which matches the day of the week
-      const datesOfMonth = new Array(daysBeforeFirstDay).fill(null);
+      dateCells.value = new Array(daysBeforeFirstDay).fill(null);
       for (let date = 0; date < daysInMonth; date += 1) {
-        datesOfMonth.push(date + 1);
+        dateCells.value.push(date + 1);
       }
-      dateCells.value = datesOfMonth;
     };
 
     onMounted(() => {
@@ -131,6 +130,8 @@ export default defineComponent({
     return {
       WEEK_DAYS,
       dateCells,
+      selectedFullDate,
+      populateDateCalendar,
       isSelected,
       handleSelectDate,
       getCalendarLang
