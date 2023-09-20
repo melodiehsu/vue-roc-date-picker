@@ -43,11 +43,11 @@ describe('Test Component MonthCalendar', () => {
     expect(monthLabel).toBe(getCalendarLang(wrapper.vm.lang).month[MONTHS[randomIndex]]);
 
     await wrapper.setProps({ type: CALENDAR_TYPE.month });
-    await monthCells.at(randomIndex)!.trigger('click', {
-      data: monthLabel
-    });
+    await monthCells.at(randomIndex)!.trigger('click');
 
     const selectedTimeLabel = wrapper.vm!.selectedFullDate.label as string;
+    expect(selectedTimeLabel).toBeTruthy();
+
     const labelPattern = /^\d+\/(0[1-9]|1[0-2])$/;
     expect(labelPattern.test(selectedTimeLabel)).toBe(true);
   });
