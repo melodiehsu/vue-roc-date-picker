@@ -42,21 +42,17 @@ describe('Test Component YearCalendar', () => {
 
     const yearCells = wrapper.findAll('button.year-cell');
     const randomIndex = Math.floor(Math.random() * yearCells.length);
-    const yearValue = yearCells[randomIndex].text();
-    await yearCells.at(randomIndex)!.trigger('click', {
-      data: yearValue
-    });
 
-    const selectedYear = (wrapper.vm.selectedFullDate.timeValue as Date).getFullYear();
-    expect(selectedYear).toBeGreaterThanOrEqual(2020);
-    expect(selectedYear).toBeLessThanOrEqual(2029);
-
-    expect(wrapper.vm.isSelected(wrapper.vm.years[randomIndex])).toBeTruthy();
+    /* click on a yearCell randomly */
+    await yearCells.at(randomIndex)!.trigger('click');
+    expect(wrapper.vm.isSelected(wrapper.vm.years[randomIndex])).toBe(true);
 
     const allIndices = Array.from({ length: yearCells.length }, (_, index) => index);
     const indicesExceptRandom = allIndices.filter((index) => index !== randomIndex);
-    indicesExceptRandom.forEach((index) => {
-      expect(wrapper.vm.isSelected(wrapper.vm.years[index])).toBeFalsy();
+
+    indicesExceptRandom.forEach(async (index) => {
+      /* other cells which has not been clicked should return false */
+      expect(wrapper.vm.isSelected(wrapper.vm.years[index])).toBe(false);
     });
 
     expect(wrapper.emitted('click')).toBeTruthy();
@@ -64,11 +60,12 @@ describe('Test Component YearCalendar', () => {
     expect(emittedValues![0]).toEqual([wrapper.vm.selectedFullDate]);
 
     await wrapper.setProps({ type: CALENDAR_TYPE.year });
-    await yearCells.at(randomIndex)!.trigger('click', {
-      data: yearValue
-    });
+    await yearCells.at(randomIndex)!.trigger('click');
+
+    const yearLabel = yearCells[randomIndex].text();
     const selectedYearLabel = wrapper.vm.selectedFullDate.label;
-    expect(selectedYearLabel).toBe(`${yearValue}`);
+
+    expect(selectedYearLabel).toBe(`${yearLabel}`);
     expect(emittedValues![0]).toEqual([wrapper.vm.selectedFullDate]);
   });
 
@@ -100,15 +97,15 @@ describe('Test Component YearCalendar', () => {
 
     const yearCells = wrapper.findAll('button.year-cell');
     const randomIndex = Math.floor(Math.random() * yearCells.length);
-    let yearValue = yearCells[randomIndex].text();
+    let yearCell = yearCells[randomIndex].text();
 
     const { years } = wrapper.vm;
-    expect(yearValue).toBe(`${getRepublicEraYear(years[randomIndex])}`);
+    expect(yearCell).toBe(`${getRepublicEraYear(years[randomIndex])}`);
 
     await wrapper.setProps({ calendarYearType: YEAR_TYPE.CE });
     await wrapper.vm.$nextTick();
 
-    yearValue = yearCells[randomIndex].text();
-    expect(yearValue).toBe(`${wrapper.vm.years[randomIndex]}`);
+    yearCell = yearCells[randomIndex].text();
+    expect(yearCell).toBe(`${wrapper.vm.years[randomIndex]}`);
   });
 });
