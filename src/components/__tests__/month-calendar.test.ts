@@ -26,8 +26,7 @@ describe('Test Component MonthCalendar', () => {
   it('handle select month properly', async () => {
     const wrapper = mount(MonthCalendar, {
       props: {
-        ...defaultProps,
-        decadeRange: [2020, 2029]
+        ...defaultProps
       }
     });
 
@@ -36,20 +35,21 @@ describe('Test Component MonthCalendar', () => {
     const monthCells = wrapper.findAll('button.month-cell');
     const randomIndex = Math.floor(Math.random() * monthCells.length);
 
-    const monthValue = monthCells[randomIndex].text();
+    const monthLabel = monthCells[randomIndex].text();
     await monthCells.at(randomIndex)!.trigger('click', {
-      data: monthValue
+      data: monthLabel
     });
 
-    expect(monthValue).toBe(getCalendarLang(wrapper.vm.lang).month[MONTHS[randomIndex]]);
+    expect(monthLabel).toBe(getCalendarLang(wrapper.vm.lang).month[MONTHS[randomIndex]]);
 
     await wrapper.setProps({ type: CALENDAR_TYPE.month });
     await monthCells.at(randomIndex)!.trigger('click', {
-      data: monthValue
+      data: monthLabel
     });
 
-    const selectedTimeLabel = wrapper.vm.selectedFullDate.label;
-    expect(selectedTimeLabel).toBeTruthy();
+    const selectedTimeLabel = wrapper.vm!.selectedFullDate.label as string;
+    const labelPattern = /^\d+\/(0[1-9]|1[0-2])$/;
+    expect(labelPattern.test(selectedTimeLabel)).toBe(true);
   });
 
   it('selectedFullDate equals to defaultFullDate if it exists', () => {
