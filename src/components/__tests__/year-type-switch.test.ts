@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils';
 import {
   describe, expect, it
 } from 'vitest';
+import { getCalendarLang } from '@/utils';
 import YearTypeSwitch from '../YearTypeSwitch.vue';
 
 describe('Test Component YearTypeSwitch', async () => {
@@ -25,8 +26,11 @@ describe('Test Component YearTypeSwitch', async () => {
       yearTypeButtonText = yearTypeButton?.text();
     };
 
+    const getMappedText = () => getCalendarLang(wrapper.vm.lang)
+      .yearType[wrapper.vm.calendarYearType];
+
     getCurrentSwitch();
-    expect(yearTypeButtonText).toBe('民國');
+    expect(yearTypeButtonText).toBe(getMappedText());
     await yearTypeButton!.trigger('click');
 
     expect(wrapper.emitted('click')).toBeTruthy();
@@ -38,11 +42,18 @@ describe('Test Component YearTypeSwitch', async () => {
     });
     await wrapper.vm.$nextTick();
     getCurrentSwitch();
-    expect(yearTypeButtonText).toBe('西元');
+    expect(yearTypeButtonText).toBe((getMappedText()));
 
     await yearTypeButton!.trigger('click');
     expect(wrapper.emitted('click')).toBeTruthy();
     expect(emittedValues![1]).toEqual(['RepublicEraYear']);
+
+    wrapper.setProps({
+      lang: 'en'
+    });
+    await wrapper.vm.$nextTick();
+    getCurrentSwitch();
+    expect(yearTypeButtonText).toBe((getMappedText()));
 
     wrapper.setProps({
       hasRepublicEraYear: false
