@@ -2,20 +2,9 @@
   <div>
     <div v-if="hasRepublicEraYear" class="wrapper">
       <button
-        v-if="calendarYearType === 'RepublicEraYear'"
         type="button"
         class="controller"
-        @click="changeYearType('CE')"
-      >
-        <RotateIcon style="margin-right: 6px;" />
-        <div>{{ getCalendarLang(lang).yearType[calendarYearType] }}</div>
-      </button>
-
-      <button
-        v-if="calendarYearType === 'CE'"
-        type="button"
-        class="controller"
-        @click="changeYearType('RepublicEraYear')"
+        @click="changeYearType"
       >
         <RotateIcon style="margin-right: 6px;" />
         <div>{{ getCalendarLang(lang).yearType[calendarYearType] }}</div>
@@ -25,8 +14,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, toRefs } from 'vue';
 import { getCalendarLang } from '@/utils';
+import { YEAR_TYPE } from '@/constants';
 import RotateIcon from './icons/RotateIcon.vue';
 
 export default defineComponent({
@@ -47,8 +37,16 @@ export default defineComponent({
     }
   },
   emits: ['click'],
-  setup(_, { emit }) {
-    const changeYearType = (yearType: string) => {
+  setup(props, { emit }) {
+    const { calendarYearType } = toRefs(props);
+    const changeYearType = () => {
+      let yearType;
+      if (calendarYearType.value === YEAR_TYPE.CE) {
+        yearType = YEAR_TYPE.RepublicEraYear;
+      } else {
+        yearType = YEAR_TYPE.CE;
+      }
+
       emit('click', yearType);
     };
 
