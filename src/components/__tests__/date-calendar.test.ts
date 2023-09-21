@@ -41,16 +41,30 @@ describe('Test Component DateCalendar', () => {
 
     await wrapper.vm.$nextTick();
 
+    // get date cells
     const dateCells = wrapper.findAll('button.date-cell');
-    const randomIndex = Math.floor(Math.random() * dateCells.length);
 
-    await dateCells.at(randomIndex)!.trigger('click');
+    // get random index
+    let randomIndex: number;
+    const getRandomIndex = () => {
+      randomIndex = Math.floor(Math.random() * dateCells.length);
+      return randomIndex;
+    };
 
-    expect(wrapper.vm.isSelected(wrapper.vm.dateCells[randomIndex])).toBe(true);
+    // get valid date cell
+    let dateCell;
+    do {
+      getRandomIndex();
+      dateCell = dateCells.at(getRandomIndex());
+    } while (!dateCell?.text());
+
+    await dateCell.trigger('click');
+    expect(wrapper.vm.isSelected(Number(dateCell.text()))).toBe(true);
 
     const allIndices = Array.from({ length: dateCells.length }, (_, index) => index);
     const indicesExceptRandom = allIndices.filter((index) => index !== randomIndex);
 
+    // test the other cells
     indicesExceptRandom.forEach((index) => {
       expect(wrapper.vm.isSelected(wrapper.vm.dateCells[index])).toBe(false);
     });
