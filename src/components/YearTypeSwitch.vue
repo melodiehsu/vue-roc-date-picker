@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="wrapper">
+    <div v-if="hasRepublicEraYear" class="wrapper">
       <button
         v-if="calendarYearType === 'RepublicEraYear'"
         type="button"
@@ -12,7 +12,7 @@
       </button>
 
       <button
-        v-if="(calendarYearType === 'CE') && hasRepublicEraYear"
+        v-if="calendarYearType === 'CE'"
         type="button"
         class="controller"
         @click="changeYearType('RepublicEraYear')"
@@ -46,10 +46,10 @@ export default defineComponent({
       required: true
     }
   },
-  emits: ['change'],
+  emits: ['click'],
   setup(_, { emit }) {
     const changeYearType = (yearType: string) => {
-      emit('change', yearType);
+      emit('click', yearType);
     };
 
     return {

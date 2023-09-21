@@ -158,11 +158,11 @@
           />
         </div>
 
-        <YearTypeSelector
+        <YearTypeSwitch
           :calendar-year-type="yearType"
           :has-republic-era-year="getRepublicEraYear(yearOnCalendar) > 0"
           :lang="lang"
-          @change="handleChangeYearType"
+          @click="handleChangeYearType"
         />
       </div>
     </div>
@@ -179,7 +179,7 @@ import { YEAR_TYPE, CALENDAR_TYPE } from '../constants/index';
 import DateCalendar from './calendar/DateCalendar.vue';
 import MonthCalendar from './calendar/MonthCalendar.vue';
 import YearCalendar from './calendar/YearCalendar.vue';
-import YearTypeSelector from './YearTypeSelector.vue';
+import YearTypeSwitch from './YearTypeSwitch.vue';
 import XmarkIcon from './icons/XmarkIcon.vue';
 import AngleLeftIcon from './icons/AngleLeftIcon.vue';
 import AnglesLeftIcon from './icons/AnglesLeftIcon.vue';
@@ -203,7 +203,7 @@ export default defineComponent({
     DateCalendar,
     YearCalendar,
     MonthCalendar,
-    YearTypeSelector
+    YearTypeSwitch
   },
   props: {
     lang: {
