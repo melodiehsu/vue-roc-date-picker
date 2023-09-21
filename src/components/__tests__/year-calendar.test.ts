@@ -50,7 +50,7 @@ describe('Test Component YearCalendar', () => {
     const allIndices = Array.from({ length: yearCells.length }, (_, index) => index);
     const indicesExceptRandom = allIndices.filter((index) => index !== randomIndex);
 
-    indicesExceptRandom.forEach(async (index) => {
+    indicesExceptRandom.forEach((index) => {
       /* other cells which has not been clicked should return false */
       expect(wrapper.vm.isSelected(wrapper.vm.years[index])).toBe(false);
     });

@@ -6,7 +6,7 @@ import {
 import { getCalendarLang } from '@/utils';
 import YearTypeSwitch from '../YearTypeSwitch.vue';
 
-describe('Test Component YearTypeSwitch', async () => {
+describe('Test Component YearTypeSwitch', () => {
   const defaultProps = {
     lang: 'zhTW',
     calendarYearType: YEAR_TYPE.RepublicEraYear,

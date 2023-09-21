@@ -51,7 +51,7 @@ describe('Test Component DateCalendar', () => {
     const allIndices = Array.from({ length: dateCells.length }, (_, index) => index);
     const indicesExceptRandom = allIndices.filter((index) => index !== randomIndex);
 
-    indicesExceptRandom.forEach(async (index) => {
+    indicesExceptRandom.forEach((index) => {
       expect(wrapper.vm.isSelected(wrapper.vm.dateCells[index])).toBe(false);
     });
   });
