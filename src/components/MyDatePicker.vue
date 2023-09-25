@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="date-picker-container">
-      <div
+      <button
         class="input-container"
-        @keypress="toggleCalender"
+        type="button"
         @click="toggleCalender"
       >
         <div class="input-icon">
@@ -32,7 +32,7 @@
         >
           <XmarkIcon />
         </button>
-      </div>
+      </button>
 
       <!-- calendar -->
       <div
@@ -45,7 +45,7 @@
             <button
               v-if="isYearCalendarVisible && canGoLastDecade"
               type="button"
-              class="controller-button"
+              class="controller-button last-decade"
               @click="goToLastDecade"
             >
               <AnglesLeftIcon />
@@ -54,7 +54,7 @@
             <button
               v-if="!isYearCalendarVisible && canGoLastYear"
               type="button"
-              class="controller-button"
+              class="controller-button last-year"
               @click="goToLastYear"
             >
               <AnglesLeftIcon />
@@ -63,7 +63,7 @@
             <button
               type="button"
               :class="[
-                'controller-button',
+                'controller-button last-month',
                 !isMonthCalendarVisible && !isYearCalendarVisible && canGoLastMonth ? 'inline-block' : 'hidden',
               ]"
               @click="goToLastMonth"
@@ -75,7 +75,7 @@
           <div class="year-month-controller">
             <button
               type="button"
-              class="controller-button"
+              class="controller-button year-button"
               @click="setCalendarVisibility(CALENDAR_TYPE.year)"
             >
               {{ displayYear }}
@@ -84,7 +84,7 @@
             <button
               type="button"
               :class="
-                ['controller-button',
+                ['controller-button month-button',
                  !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden',
                 ]"
               @click="setCalendarVisibility(CALENDAR_TYPE.month)"
@@ -97,7 +97,7 @@
             <button
               type="button"
               :class="[
-                'controller-button',
+                'controller-button next-month',
                 !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden']"
               @click="goToNextMonth"
             >
@@ -107,7 +107,7 @@
             <button
               v-if="isYearCalendarVisible"
               type="button"
-              class="controller-button"
+              class="controller-button next-decade"
               @click="goToNextDecade"
             >
               <AnglesRightIcon />
@@ -116,7 +116,7 @@
             <button
               v-else
               type="button"
-              class="controller-button"
+              class="controller-button next-year"
               @click="goToNextYear"
             >
               <AnglesRightIcon />
