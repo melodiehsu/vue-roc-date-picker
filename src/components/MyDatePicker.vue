@@ -263,16 +263,17 @@ export default defineComponent({
     const selectedTime = ref({ ...DEFAULT_SELECTED_TIME });
 
     const displayYear = computed(() => {
-      if (yearType.value === YEAR_TYPE.CE) {
-        return isYearCalendarVisible.value ? `${decadeRange?.value[0]} - ${decadeRange?.value[1]}` : yearOnCalendar.value;
-      }
-      const startYear = Math.max(getRepublicEraYear(decadeRange?.value[0]), 1);
-      const endYear = getRepublicEraYear(decadeRange?.value[1]);
+      const startYear = decadeRange?.value[0];
+      const endYear = decadeRange?.value[1];
+      const startYearLabel = lang.value === 'zhTW' ? '民國' : 'ROC';
 
-      if (lang.value === 'zhTW') {
-        return isYearCalendarVisible.value ? `民國 ${startYear} - ${endYear} 年` : `民國 ${getRepublicEraYear(yearOnCalendar.value)} 年`;
+      if (yearType.value === YEAR_TYPE.CE) {
+        return isYearCalendarVisible.value ? `${startYear} - ${endYear}` : yearOnCalendar.value;
       }
-      return isYearCalendarVisible.value ? `ROC ${startYear} - ${endYear}` : `ROC ${getRepublicEraYear(yearOnCalendar.value)}`;
+
+      return isYearCalendarVisible.value
+        ? `${startYearLabel} ${Math.max(getRepublicEraYear(startYear), 1)} - ${getRepublicEraYear(endYear)} 年`
+        : `${startYearLabel} ${getRepublicEraYear(yearOnCalendar.value)} 年`;
     });
 
     const setCalendarVisibility = (calendarType: string) => {
