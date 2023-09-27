@@ -7,6 +7,20 @@ import { CALENDAR_TYPE } from '@/constants';
 import MyDatePicker from '../MyDatePicker.vue';
 
 describe('Test Component MyDatePicker', () => {
+  it('init calendar properly', async () => {
+    const wrapper = mount(MyDatePicker, {
+      props: {
+        defaultValue: '1879-12-01'
+      }
+    });
+
+    const datePickerInput = wrapper.find('.date-picker-input');
+    await datePickerInput!.trigger('click');
+
+    const displayYear = wrapper.find('.year-button').text();
+    expect(displayYear).toBe(`${wrapper.vm.yearOnCalendar}`);
+  });
+
   it('test click on go to last decade button', async () => {
     const wrapper = mount(MyDatePicker);
 
@@ -36,22 +50,30 @@ describe('Test Component MyDatePicker', () => {
   });
 
   it('test click on go to last month button', async () => {
-    const wrapper = mount(MyDatePicker);
+    const wrapper = mount(MyDatePicker, {
+      props: {
+        defaultValue: '2023-01-01'
+      }
+    });
 
     const datePickerInput = wrapper.find('.date-picker-input');
     await datePickerInput!.trigger('click');
 
-    const originMonth = wrapper.vm.monthOnCalendar;
+    let originMonth = wrapper.vm.monthOnCalendar;
     const originYear = wrapper.vm.yearOnCalendar;
-    const goToLastMonthButton = wrapper.find('.last-month');
+
+    let goToLastMonthButton = wrapper.find('.last-month');
     await goToLastMonthButton!.trigger('click');
 
-    if (originMonth !== 0) {
-      expect(wrapper.vm.monthOnCalendar).toBe(originMonth - 1);
-    } else {
-      expect(wrapper.vm.monthOnCalendar).toBe(11);
-      expect(wrapper.vm.yearOnCalendar).toBe(originYear - 1);
-    }
+    expect(wrapper.vm.monthOnCalendar).toBe(11);
+    expect(wrapper.vm.yearOnCalendar).toBe(originYear - 1);
+
+    wrapper.setProps({ defaultValue: '2023-02-01' });
+    originMonth = wrapper.vm.monthOnCalendar;
+    goToLastMonthButton = wrapper.find('.last-month');
+    await goToLastMonthButton!.trigger('click');
+
+    expect(wrapper.vm.monthOnCalendar).toBe(originMonth - 1);
   });
 
   it('test click on go to next decade button', async () => {
@@ -83,22 +105,29 @@ describe('Test Component MyDatePicker', () => {
   });
 
   it('test click on go to next month button', async () => {
-    const wrapper = mount(MyDatePicker);
+    const wrapper = mount(MyDatePicker, {
+      props: {
+        defaultValue: '2023-12-01'
+      }
+    });
 
     const datePickerInput = wrapper.find('.date-picker-input');
     await datePickerInput!.trigger('click');
-    const originMonth = wrapper.vm.monthOnCalendar;
+    let originMonth = wrapper.vm.monthOnCalendar;
     const originYear = wrapper.vm.yearOnCalendar;
 
-    const goToNextMonthButton = wrapper.find('.next-month');
+    let goToNextMonthButton = wrapper.find('.next-month');
     await goToNextMonthButton!.trigger('click');
 
-    if (originMonth !== 11) {
-      expect(wrapper.vm.monthOnCalendar).toBe(originMonth + 1);
-    } else {
-      expect(wrapper.vm.monthOnCalendar).toBe(0);
-      expect(wrapper.vm.yearOnCalendar).toBe(originYear + 1);
-    }
+    expect(wrapper.vm.monthOnCalendar).toBe(0);
+    expect(wrapper.vm.yearOnCalendar).toBe(originYear + 1);
+
+    wrapper.setProps({ defaultValue: '2023-11-01' });
+    originMonth = wrapper.vm.monthOnCalendar;
+    goToNextMonthButton = wrapper.find('.next-month');
+    await goToNextMonthButton!.trigger('click');
+
+    expect(wrapper.vm.monthOnCalendar).toBe(originMonth + 1);
   });
 
   it('render year display properly and test year button', async () => {
@@ -168,4 +197,22 @@ describe('Test Component MyDatePicker', () => {
     expect(yearButtonStyles.display).toBe('inline-block');
     expect(monthButtonStyles.display).toBe('none');
   });
+
+  it('should not show calendar when date picker is disabled', async () => {
+    const wrapper = mount(MyDatePicker, {
+      props: {
+        disabled: true
+      }
+    });
+    const datePickerInput = wrapper.find('.date-picker-input');
+    await datePickerInput!.trigger('click');
+
+    expect(wrapper.vm.isCalendarVisible).toBe(false);
+  });
+
+  it.todo('handleDateChange');
+  it.todo('handleMonthChange');
+  it.todo('handleYearChange');
+  it.todo('clearSelectedTime');
+  it.todo('watch canGoLastMonth');
 });
