@@ -23,13 +23,13 @@
         <button
           v-show="showClearButton"
           type="button"
-          :class="[
-            'hidden',
-            {
-              'clear-input-button__active': !disabled && selectedTime.label,
-            }]"
+          :class="['clear-input-button',
+                   {
+                     'clear-input-button--hover': !disabled && selectedTime.label,
+                   }]"
           @click.stop="clearSelectedTime"
         >
+          <!-- class="clear-input-button--hover" -->
           <XmarkIcon />
         </button>
       </button>
@@ -61,11 +61,9 @@
             </button>
 
             <button
+              v-show="isDateCalendarVisible && canGoLastMonth"
               type="button"
-              :class="[
-                'controller-button last-month',
-                !isMonthCalendarVisible && !isYearCalendarVisible && canGoLastMonth ? 'inline-block' : 'hidden',
-              ]"
+              class="controller-button last-month"
               @click="goToLastMonth"
             >
               <AngleLeftIcon />
@@ -82,11 +80,9 @@
             </button>
 
             <button
+              v-show="isDateCalendarVisible"
               type="button"
-              :class="
-                ['controller-button month-button',
-                 !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden',
-                ]"
+              class="controller-button month-button"
               @click="setCalendarVisibility(CALENDAR_TYPE.month)"
             >
               {{ getCalendarLang(lang).month[monthOnCalendar] }}
@@ -95,10 +91,9 @@
 
           <div class="next-controller">
             <button
+              v-show="isDateCalendarVisible"
               type="button"
-              :class="[
-                'controller-button next-month',
-                !isMonthCalendarVisible && !isYearCalendarVisible ? 'inline-block' : 'hidden']"
+              class="controller-button next-month"
               @click="goToNextMonth"
             >
               <AngleRightIcon />
@@ -523,14 +518,19 @@ button {
     }
   }
 
+  .clear-input-button {
+    display: none;
+    position: absolute;
+    cursor: pointer;
+    right: 4px;
+    top: 0;
+    bottom: 0;
+  }
+
   &:hover {
-    .clear-input-button__active {
-      position: absolute;
-      display: block !important;
-      cursor: pointer;
-      right: 4px;
-      top: 0;
-      bottom: 0;
+    .clear-input-button--hover {
+      display: flex;
+      align-items: center;
     }
   }
 }
