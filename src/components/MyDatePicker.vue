@@ -265,15 +265,16 @@ export default defineComponent({
     const displayYear = computed(() => {
       const startYear = decadeRange?.value[0];
       const endYear = decadeRange?.value[1];
-      const startYearLabel = lang.value === 'zhTW' ? '民國' : 'ROC';
+      const startYearLabel = lang.value === 'zhTW' ? '民國 ' : 'ROC ';
+      const endYearLabel = lang.value === 'zhTW' ? ' 年' : '';
 
       if (yearType.value === YEAR_TYPE.CE) {
         return isYearCalendarVisible.value ? `${startYear} - ${endYear}` : yearOnCalendar.value;
       }
 
       return isYearCalendarVisible.value
-        ? `${startYearLabel} ${Math.max(getRepublicEraYear(startYear), 1)} - ${getRepublicEraYear(endYear)} 年`
-        : `${startYearLabel} ${getRepublicEraYear(yearOnCalendar.value)} 年`;
+        ? `${startYearLabel}${Math.max(getRepublicEraYear(startYear), 1)} - ${getRepublicEraYear(endYear)}${endYearLabel}`
+        : `${startYearLabel}${getRepublicEraYear(yearOnCalendar.value)}${endYearLabel}`;
     });
 
     const setCalendarVisibility = (calendarType: string) => {
