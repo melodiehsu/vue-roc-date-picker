@@ -285,19 +285,14 @@ export default defineComponent({
     };
 
     const getDecadeRange = () => {
-      const decade: number = Math.floor(yearOnCalendar.value / 10) * 10;
-      decadeRange.value = [decade, decade + 9];
+      const decadeStartYear: number = Math.floor(yearOnCalendar.value / 10) * 10;
+      decadeRange.value = [decadeStartYear, decadeStartYear + 9];
 
-      if (
-        (yearType.value === YEAR_TYPE.RepublicEraYear)
-        && (getRepublicEraYear(decadeRange?.value[0]) < 1)
-      ) {
-        canGoLastDecade.value = false;
-      } else if (decadeRange?.value[0] <= 100) {
-        canGoLastDecade.value = false;
-      } else {
-        canGoLastDecade.value = true;
-      }
+      const republicEraYear = getRepublicEraYear(decadeRange.value[0]);
+      const isRepublicEra = yearType.value === YEAR_TYPE.RepublicEraYear;
+      canGoLastDecade.value = isRepublicEra
+        ? republicEraYear >= 1
+        : decadeRange.value[0] > 100;
     };
 
     const initCalendar = () => {
@@ -330,18 +325,15 @@ export default defineComponent({
     };
 
     const toggleCalender = () => {
-      if (disabled.value) return;
-      isCalendarVisible.value = !isCalendarVisible.value;
+      if (!disabled.value) isCalendarVisible.value = !isCalendarVisible.value;
     };
 
     const goToNextMonth = () => {
-      if (type.value === CALENDAR_TYPE.month) return;
       yearOnCalendar.value = (monthOnCalendar.value === 11) ? yearOnCalendar.value + 1 : yearOnCalendar.value;
       monthOnCalendar.value = (monthOnCalendar.value + 1) % 12;
     };
 
     const goToLastMonth = () => {
-      if (type.value === CALENDAR_TYPE.month) return;
       yearOnCalendar.value = (monthOnCalendar.value === 0) ? yearOnCalendar.value - 1 : yearOnCalendar.value;
       monthOnCalendar.value = (monthOnCalendar.value === 0) ? 11 : monthOnCalendar.value - 1;
     };
@@ -367,20 +359,20 @@ export default defineComponent({
       goToYear(yearOnCalendar.value - 10);
     };
 
-    const handleDateChange = (time: any) => {
+    const handleDateChange = (time: SelectedTime) => {
       selectedTime.value = time;
       isCalendarVisible.value = false;
 
       emit('change', selectedTime.value.timeValue);
     };
 
-    const handleMonthChange = (time: any) => {
+    const handleMonthChange = (time: SelectedTime) => {
       selectedTime.value = time;
 
       if (type.value === CALENDAR_TYPE.date) {
         setCalendarVisibility(CALENDAR_TYPE.date);
 
-        monthOnCalendar.value = new Date(time.timeValue).getMonth();
+        monthOnCalendar.value = new Date(time.timeValue as Date).getMonth();
         return;
       }
 
@@ -389,13 +381,13 @@ export default defineComponent({
       emit('change', selectedTime.value.timeValue);
     };
 
-    const handleYearChange = (time: any) => {
+    const handleYearChange = (time: SelectedTime) => {
       selectedTime.value = time;
 
       if (type.value !== CALENDAR_TYPE.year) {
         setCalendarVisibility(CALENDAR_TYPE.month);
 
-        yearOnCalendar.value = new Date(time.timeValue).getFullYear();
+        yearOnCalendar.value = new Date(time.timeValue as Date).getFullYear();
         return;
       }
 
@@ -409,7 +401,6 @@ export default defineComponent({
     };
 
     const clearSelectedTime = () => {
-      if (disabled.value) return;
       selectedTime.value = { ...DEFAULT_SELECTED_TIME };
       isCalendarVisible.value = false;
 
@@ -421,28 +412,16 @@ export default defineComponent({
     });
 
     watch([yearOnCalendar, yearType], () => {
-      if (
-        yearType.value === YEAR_TYPE.RepublicEraYear
-        && yearOnCalendar.value <= 1912
-      ) {
-        canGoLastYear.value = false;
-      } else if (decadeRange?.value[0] <= 100) {
-        canGoLastYear.value = false;
-      } else {
-        canGoLastYear.value = true;
-      }
+      canGoLastYear.value = !((yearType.value === YEAR_TYPE.RepublicEraYear
+        && yearOnCalendar.value <= 1912)
+        || (decadeRange?.value[0] <= 100)
+      );
     });
 
     watch([yearOnCalendar, yearType, monthOnCalendar], () => {
-      if (
-        yearType.value === YEAR_TYPE.RepublicEraYear
-        && yearOnCalendar.value <= 1912
-        && monthOnCalendar.value === 0
-      ) {
-        canGoLastMonth.value = false;
-      } else {
-        canGoLastMonth.value = true;
-      }
+      canGoLastMonth.value = !(yearType.value === YEAR_TYPE.RepublicEraYear
+      && yearOnCalendar.value <= 1912
+      && monthOnCalendar.value === 0);
     });
 
     return {
