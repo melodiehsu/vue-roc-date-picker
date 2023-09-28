@@ -242,9 +242,9 @@ describe('Test Component MyDatePicker', () => {
     await getMonthButton().trigger('click');
     await getMonthCells().at(8)?.trigger('click');
 
-    expect(wrapper.findAll('[data-test="date-calendar"]').length).toBe(1);
-    expect(wrapper.findAll('[data-test="month-calendar"]').length).toBe(0);
-    expect(wrapper.findAll('[data-test="year-calendar"]').length).toBe(0);
+    expect(wrapper.find('[data-test="date-calendar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="month-calendar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="year-calendar"]').exists()).toBe(false);
   });
 
   it('test select year', async () => {
@@ -272,16 +272,16 @@ describe('Test Component MyDatePicker', () => {
     await datePickerInput!.trigger('click');
     await getYearCells().at(3)?.trigger('click');
 
-    expect(wrapper.findAll('[data-test="date-calendar"]').length).toBe(0);
-    expect(wrapper.findAll('[data-test="month-calendar"]').length).toBe(1);
-    expect(wrapper.findAll('[data-test="year-calendar"]').length).toBe(0);
+    expect(wrapper.find('[data-test="date-calendar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="month-calendar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="year-calendar"]').exists()).toBe(false);
 
     const getMonthCells = () => wrapper.findAll('[data-test="month-cell"]');
     await getMonthCells().at(4)?.trigger('click');
 
-    expect(wrapper.findAll('[data-test="date-calendar"]').length).toBe(1);
-    expect(wrapper.findAll('[data-test="month-calendar"]').length).toBe(0);
-    expect(wrapper.findAll('[data-test="year-calendar"]').length).toBe(0);
+    expect(wrapper.find('[data-test="date-calendar"]').exists()).toBe(true);
+    expect(wrapper.find('[data-test="month-calendar"]').exists()).toBe(false);
+    expect(wrapper.find('[data-test="year-calendar"]').exists()).toBe(false);
   });
 
   it('watch canGoLastMonth', async () => {
