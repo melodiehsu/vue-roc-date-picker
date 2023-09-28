@@ -31,10 +31,10 @@
         <div class="date-picker-examples">
           <div class="date-picker">
             <span>{{ lang === 'zhTW' ? '年曆' : 'Year' }}</span>
-            <MyDatePicker
+            <ROCDatePicker
+              v-model="selectedYear"
               :type="CALENDAR_TYPE.year"
               :lang="lang"
-              @change="getSelectedYear"
             />
             <div class="selected-value">
               {{ selectedYear }}
@@ -43,10 +43,10 @@
 
           <div class="date-picker">
             <span>{{ lang === 'zhTW' ? '月曆' : 'Month' }}</span>
-            <MyDatePicker
+            <ROCDatePicker
+              v-model="selectedMonth"
               :type="CALENDAR_TYPE.month"
               :lang="lang"
-              @change="getSelectedMonth"
             />
             <div class="selected-value">
               {{ selectedMonth }}
@@ -55,10 +55,10 @@
 
           <div class="date-picker">
             <span>{{ lang === 'zhTW' ? '日曆' : 'Date' }}</span>
-            <MyDatePicker
+            <ROCDatePicker
+              v-model="selectedDate"
               :type="CALENDAR_TYPE.date"
               :lang="lang"
-              @change="getSelectedDate"
             />
             <div class="selected-value">
               {{ selectedDate }}
@@ -72,13 +72,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import MyDatePicker from './components/MyDatePicker.vue';
+import ROCDatePicker from './components/ROCDatePicker.vue';
 import { CALENDAR_TYPE } from './constants';
 import RotateIcon from './components/icons/RotateIcon.vue';
 
 export default defineComponent({
   components: {
-    MyDatePicker,
+    ROCDatePicker,
     RotateIcon
   },
   setup() {

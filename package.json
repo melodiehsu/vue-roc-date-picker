@@ -1,10 +1,34 @@
 {
-  "name": "roc-date-picker",
-  "version": "0.0.0",
-  "private": true,
+  "name": "vue3-roc-date-picker",
+  "version": "0.1.0",
+  "description": "A date picker UI component which shows ROC year on calendar",
+  "author": {
+    "name" : "melodiehsu",
+    "url" : "https://github.com/melodiehsu"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/melodiehsu/vue-roc-date-picker.git"
+  },
+  "bugs": { 
+    "url" : "https://github.com/melodiehsu/vue-roc-date-picker/issues"
+  },
+  "license": "MIT",
+  "type": "module",
+  "files": ["dist"],
+  "main": "./dist/vue-roc-date-picker.umd.js",
+  "module": "./dist/vue-roc-date-picker.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/vue-roc-date-picker.es.js",
+      "require": "./dist/vue-roc-date-picker.umd.js"
+    },
+    "./dist/style.css": "./dist/style.css"
+  },
   "scripts": {
     "dev": "vite --port 5566 --open",
     "build": "run-p type-check build-only",
+    "build:lib": "run-p type-check  && vite build --config vite.config.lib.ts",
     "preview": "vite preview",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",

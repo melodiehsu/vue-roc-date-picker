@@ -177,7 +177,7 @@ import {
   computed, defineComponent, onMounted, ref, toRefs, watch
 } from 'vue';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
-import type { SelectedTime } from 'my-date-picker';
+import type { SelectedTime } from 'roc-date-picker';
 import { YEAR_TYPE, CALENDAR_TYPE } from '../constants/index';
 import DateCalendar from './calendar/DateCalendar.vue';
 import MonthCalendar from './calendar/MonthCalendar.vue';
@@ -209,6 +209,10 @@ export default defineComponent({
     YearTypeSwitch
   },
   props: {
+    modelValue: {
+      type: String,
+      default: ''
+    },
     lang: {
       type: String,
       default: 'zhTW'
@@ -242,7 +246,7 @@ export default defineComponent({
       default: true
     }
   },
-  emits: ['change'],
+  emits: ['update:modelValue'],
   setup(props, { emit }) {
     const {
       type, defaultValue, disabled, calendarYearType, lang
@@ -370,8 +374,6 @@ export default defineComponent({
     const handleDateChange = (time: SelectedTime) => {
       selectedTime.value = time;
       isCalendarVisible.value = false;
-
-      emit('change', selectedTime.value.timeValue);
     };
 
     const handleMonthChange = (time: SelectedTime) => {
@@ -384,8 +386,6 @@ export default defineComponent({
       }
 
       isCalendarVisible.value = false;
-
-      emit('change', selectedTime.value.timeValue);
     };
 
     const handleYearChange = (time: SelectedTime) => {
@@ -398,7 +398,6 @@ export default defineComponent({
       }
 
       isCalendarVisible.value = false;
-      emit('change', selectedTime.value.timeValue);
     };
 
     const handleChangeYearType = (selectedYearType: string) => {
@@ -410,7 +409,7 @@ export default defineComponent({
       selectedTime.value = { ...DEFAULT_SELECTED_TIME };
       isCalendarVisible.value = false;
 
-      emit('change', selectedTime.value.timeValue);
+      emit('update:modelValue', selectedTime.value.timeValue);
     };
 
     onMounted(() => {
@@ -429,6 +428,12 @@ export default defineComponent({
       && yearOnCalendar.value <= 1912
       && monthOnCalendar.value === 0);
     }, { immediate: true });
+
+    watch(selectedTime, () => {
+      if (!isCalendarVisible.value && selectedTime.value.timeValue) {
+        emit('update:modelValue', selectedTime.value.timeValue);
+      }
+    }, { deep: true });
 
     return {
       yearType,

@@ -25,7 +25,7 @@
 <script lang="ts">
 import { CALENDAR_TYPE, MONTHS } from '@/constants';
 import { getCalendarLang, setDatePickerLabel } from '@/utils';
-import type { SelectedTime } from 'my-date-picker';
+import type { SelectedTime } from 'roc-date-picker';
 import {
   computed,
   defineComponent, onMounted, ref, toRefs, type PropType

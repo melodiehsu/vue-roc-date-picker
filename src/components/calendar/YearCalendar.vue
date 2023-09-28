@@ -25,7 +25,7 @@
 <script lang="ts">
 import { CALENDAR_TYPE } from '@/constants';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
-import type { SelectedTime } from 'my-date-picker';
+import type { SelectedTime } from 'roc-date-picker';
 import {
   computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';

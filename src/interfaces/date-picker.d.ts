@@ -1,4 +1,5 @@
-declare module 'my-date-picker' {
+/* TODO(melody): types 補充 */
+declare module 'roc-date-picker' {
   export interface SelectedTime {
     label?: string;
     timeValue?: Date | undefined;
@@ -6,6 +7,6 @@ declare module 'my-date-picker' {
 
   import { ComponentOptions } from 'vue';
 
-  const MyDatePicker: ComponentOptions;
-  export default MyDatePicker;
+  const ROCDatePicker: ComponentOptions;
+  export default ROCDatePicker;
 }

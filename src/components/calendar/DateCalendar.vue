@@ -36,7 +36,7 @@
 import { CALENDAR_TYPE, WEEK_DAYS } from '@/constants';
 import { getCalendarLang, setDatePickerLabel } from '@/utils';
 import dayjs from 'dayjs';
-import type { SelectedTime } from 'my-date-picker';
+import type { SelectedTime } from 'roc-date-picker';
 import {
   computed,
   defineComponent, onMounted, ref, toRefs, watch, type PropType
