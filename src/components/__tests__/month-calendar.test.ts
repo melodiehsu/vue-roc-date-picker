@@ -17,7 +17,7 @@ describe('Test Component MonthCalendar', () => {
       props: { ...defaultProps }
     });
     await wrapper.vm.$nextTick();
-    const monthCells = wrapper.findAll('div.month-cell');
+    const monthCells = wrapper.findAll('[data-test="month-cell"]');
     monthCells.forEach((monthCell) => {
       expect(monthCell.exists()).toBe(true);
     });
@@ -32,7 +32,7 @@ describe('Test Component MonthCalendar', () => {
 
     await wrapper.vm.$nextTick();
 
-    const monthCells = wrapper.findAll('button.month-cell');
+    const monthCells = wrapper.findAll('[data-test="month-cell"]');
     const randomIndex = Math.floor(Math.random() * monthCells.length);
 
     const monthLabel = monthCells[randomIndex].text();

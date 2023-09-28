@@ -4,6 +4,7 @@
       <button
         type="button"
         class="controller"
+        data-test="year-type-switch"
         @click="changeYearType"
       >
         <RotateIcon style="margin-right: 6px;" />

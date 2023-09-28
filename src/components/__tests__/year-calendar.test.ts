@@ -40,7 +40,7 @@ describe('Test Component YearCalendar', () => {
 
     await wrapper.vm.$nextTick();
 
-    const yearCells = wrapper.findAll('button.year-cell');
+    const yearCells = wrapper.findAll('[data-test="year-cell"]');
     const randomIndex = Math.floor(Math.random() * yearCells.length);
 
     /* click on a yearCell randomly */
@@ -95,7 +95,7 @@ describe('Test Component YearCalendar', () => {
 
     await wrapper.vm.$nextTick();
 
-    const yearCells = wrapper.findAll('button.year-cell');
+    const yearCells = wrapper.findAll('[data-test="year-cell"]');
     const randomIndex = Math.floor(Math.random() * yearCells.length);
     let yearCell = yearCells[randomIndex].text();
 

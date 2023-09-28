@@ -42,7 +42,7 @@ describe('Test Component DateCalendar', () => {
     await wrapper.vm.$nextTick();
 
     // get date cells
-    const dateCells = wrapper.findAll('button.date-cell');
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
 
     // get random index
     let randomIndex: number;

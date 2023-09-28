@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="calendar-wrapper">
+    <div class="calendar-wrapper" data-test="year-calendar">
       <div class="year-container">
         <button
           v-for="(year, index) in years"
@@ -10,8 +10,8 @@
             {
               'selected-year': isSelected(year),
             },
-          ]
-          "
+          ]"
+          data-test="year-cell"
           type="button"
           @click="handleSelectYear(year)"
         >

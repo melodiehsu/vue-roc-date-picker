@@ -12,6 +12,7 @@
 
         <input
           class="date-picker-input"
+          data-test="date-picker-input"
           :class="[
             `${ disabled ? 'cursor-not-allowed' : 'cursor-pointer' }`,
           ]"
@@ -29,7 +30,6 @@
                    }]"
           @click.stop="clearSelectedTime"
         >
-          <!-- class="clear-input-button--hover" -->
           <XmarkIcon />
         </button>
       </button>
@@ -45,7 +45,8 @@
             <button
               v-if="isYearCalendarVisible && canGoLastDecade"
               type="button"
-              class="controller-button last-decade"
+              class="controller-button"
+              data-test="last-decade"
               @click="goToLastDecade"
             >
               <AnglesLeftIcon />
@@ -54,7 +55,8 @@
             <button
               v-if="!isYearCalendarVisible && canGoLastYear"
               type="button"
-              class="controller-button last-year"
+              class="controller-button"
+              data-test="last-year"
               @click="goToLastYear"
             >
               <AnglesLeftIcon />
@@ -63,7 +65,8 @@
             <button
               v-show="isDateCalendarVisible && canGoLastMonth"
               type="button"
-              class="controller-button last-month"
+              class="controller-button"
+              data-test="last-month"
               @click="goToLastMonth"
             >
               <AngleLeftIcon />
@@ -73,7 +76,8 @@
           <div class="year-month-controller">
             <button
               type="button"
-              class="controller-button year-button"
+              class="controller-button"
+              data-test="year-button"
               @click="setCalendarVisibility(CALENDAR_TYPE.year)"
             >
               {{ displayYear }}
@@ -82,7 +86,8 @@
             <button
               v-show="isDateCalendarVisible"
               type="button"
-              class="controller-button month-button"
+              class="controller-button"
+              data-test="month-button"
               @click="setCalendarVisibility(CALENDAR_TYPE.month)"
             >
               {{ getCalendarLang(lang).month[monthOnCalendar] }}
@@ -93,7 +98,8 @@
             <button
               v-show="isDateCalendarVisible"
               type="button"
-              class="controller-button next-month"
+              class="controller-button"
+              data-test="next-month"
               @click="goToNextMonth"
             >
               <AngleRightIcon />
@@ -102,7 +108,8 @@
             <button
               v-if="isYearCalendarVisible"
               type="button"
-              class="controller-button next-decade"
+              class="controller-button"
+              data-test="next-decade"
               @click="goToNextDecade"
             >
               <AnglesRightIcon />
@@ -111,7 +118,8 @@
             <button
               v-else
               type="button"
-              class="controller-button next-year"
+              class="controller-button"
+              data-test="next-year"
               @click="goToNextYear"
             >
               <AnglesRightIcon />
@@ -368,11 +376,10 @@ export default defineComponent({
 
     const handleMonthChange = (time: SelectedTime) => {
       selectedTime.value = time;
+      monthOnCalendar.value = new Date(time.timeValue as Date).getMonth();
 
       if (type.value === CALENDAR_TYPE.date) {
         setCalendarVisibility(CALENDAR_TYPE.date);
-
-        monthOnCalendar.value = new Date(time.timeValue as Date).getMonth();
         return;
       }
 
@@ -386,7 +393,6 @@ export default defineComponent({
 
       if (type.value !== CALENDAR_TYPE.year) {
         setCalendarVisibility(CALENDAR_TYPE.month);
-
         yearOnCalendar.value = new Date(time.timeValue as Date).getFullYear();
         return;
       }
@@ -416,13 +422,13 @@ export default defineComponent({
         && yearOnCalendar.value <= 1912)
         || (decadeRange?.value[0] <= 100)
       );
-    });
+    }, { immediate: true });
 
     watch([yearOnCalendar, yearType, monthOnCalendar], () => {
       canGoLastMonth.value = !(yearType.value === YEAR_TYPE.RepublicEraYear
       && yearOnCalendar.value <= 1912
       && monthOnCalendar.value === 0);
-    });
+    }, { immediate: true });
 
     return {
       yearType,

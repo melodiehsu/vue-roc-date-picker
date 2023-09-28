@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="calendar-wrapper">
+    <div class="calendar-wrapper" data-test="month-calendar">
       <div class="month-container">
         <button
           v-for="(month, index) in MONTHS"
@@ -11,6 +11,7 @@
               'selected-month': isSelected(month),
             },
           ]"
+          data-test="month-cell"
           type="button"
           @click="handleSelectMonth(month)"
         >

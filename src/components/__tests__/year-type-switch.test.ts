@@ -22,7 +22,7 @@ describe('Test Component YearTypeSwitch', () => {
     let yearTypeButton;
 
     const getCurrentSwitch = () => {
-      yearTypeButton = wrapper.findAll('button')?.at(0);
+      yearTypeButton = wrapper.findAll('[data-test="year-type-switch"]').at(0);
       yearTypeButtonText = yearTypeButton?.text();
     };
 

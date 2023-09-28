@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="calendar-wrapper">
+    <div class="calendar-wrapper" data-test="date-calendar">
       <div class="week-day-container">
         <div
           v-for="day in WEEK_DAYS"
@@ -21,6 +21,7 @@
               'cursor-pointer': date, 'selected-date': isSelected(date),
             },
           ]"
+          data-test="date-cell"
           type="button"
           @click="handleSelectDate(date)"
         >
