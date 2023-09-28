@@ -8,6 +8,7 @@ export default defineConfig({
   build: {
     outDir: 'docs'
   },
+  base: '/roc-date-picker/',
   plugins: [
     vue()
   ],
