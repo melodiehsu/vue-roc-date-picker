@@ -9,20 +9,19 @@
     "ui-component",
     "typescript"
   ],
-  "author": {
-    "name" : "melodiehsu",
-    "url" : "https://github.com/melodiehsu"
-  },
+  "author": "melodiehsu (https://github.com/melodiehsu)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/melodiehsu/vue-roc-date-picker.git"
+    "url": "git+https://github.com/melodiehsu/vue-roc-date-picker.git"
   },
-  "bugs": { 
-    "url" : "https://github.com/melodiehsu/vue-roc-date-picker/issues"
+  "bugs": {
+    "url": "https://github.com/melodiehsu/vue-roc-date-picker/issues"
   },
   "license": "MIT",
   "type": "module",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "main": "./dist/vue-roc-date-picker.umd.js",
   "module": "./dist/vue-roc-date-picker.es.js",
   "typings": "./src/interfaces/index.d.ts",
@@ -71,5 +70,9 @@
     "vite": "^4.4.9",
     "vitest": "^0.34.2",
     "vue-tsc": "^1.8.8"
+  },
+  "homepage": "https://github.com/melodiehsu/vue-roc-date-picker#readme",
+  "directories": {
+    "doc": "docs"
   }
 }
