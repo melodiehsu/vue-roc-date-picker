@@ -23,9 +23,11 @@
 </template>
 
 <script lang="ts">
-import { CALENDAR_TYPE, MONTHS } from '@/constants';
+import { MONTHS } from '@/constants';
 import { getCalendarLang, setDatePickerLabel } from '@/utils';
-import type { SelectedTime } from 'roc-date-picker';
+import {
+  CalendarType, Language, YearType, type SelectedTime
+} from '@/interfaces';
 import {
   computed,
   defineComponent, onMounted, ref, toRefs, type PropType
@@ -35,7 +37,7 @@ export default defineComponent({
   props: {
     calendarYearType: {
       required: true,
-      type: String
+      type: String as PropType<YearType>
     },
     calendarYear: {
       required: true,
@@ -43,7 +45,7 @@ export default defineComponent({
     },
     lang: {
       required: true,
-      type: String
+      type: String as PropType<Language>
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
@@ -51,7 +53,7 @@ export default defineComponent({
     },
     type: {
       required: true,
-      type: String
+      type: String as PropType<CalendarType>
     }
   },
   emits: ['click'],
@@ -79,12 +81,12 @@ export default defineComponent({
     const handleSelectMonth = (monthOnCalendar: number) => {
       selectedFullDate.value.timeValue = new Date(calendarYear.value, monthOnCalendar);
 
-      if (type.value === CALENDAR_TYPE.month) {
+      if (type.value === CalendarType.MONTH) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDateObject: selectedFullDate.value.timeValue,
+          selectedDate: selectedFullDate.value.timeValue,
           formatYear: selectedYear.value,
-          datePickerType: CALENDAR_TYPE.month
+          datePickerType: CalendarType.MONTH
         });
       }
 

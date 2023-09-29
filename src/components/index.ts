@@ -1,7 +1,7 @@
 import type { App } from 'vue';
 import ROCDatePicker from './ROCDatePicker.vue';
 
-const install = (app: App) => {
+const install: (app: import('vue').App<any>) => void = (app: App) => {
   app.component('ROCDatePicker', ROCDatePicker);
 };
 export { ROCDatePicker };

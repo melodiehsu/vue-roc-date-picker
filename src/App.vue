@@ -8,7 +8,7 @@
 
         <div class="lang-selector">
           <button
-            v-if="lang === 'en'"
+            v-if="lang === Language.EN"
             type="button"
             class="controller"
             @click="switchLang"
@@ -18,7 +18,7 @@
           </button>
 
           <button
-            v-if="lang === 'zhTW'"
+            v-if="lang === Language.ZH_TW"
             type="button"
             class="controller"
             @click="switchLang"
@@ -30,10 +30,10 @@
 
         <div class="date-picker-examples">
           <div class="date-picker">
-            <span>{{ lang === 'zhTW' ? '年曆' : 'Year' }}</span>
+            <span>{{ lang === Language.ZH_TW ? '年曆' : 'Year' }}</span>
             <ROCDatePicker
               v-model="selectedYear"
-              :type="CALENDAR_TYPE.year"
+              :type="CalendarType.YEAR"
               :lang="lang"
             />
             <div class="selected-value">
@@ -42,10 +42,10 @@
           </div>
 
           <div class="date-picker">
-            <span>{{ lang === 'zhTW' ? '月曆' : 'Month' }}</span>
+            <span>{{ lang === Language.ZH_TW ? '月曆' : 'Month' }}</span>
             <ROCDatePicker
               v-model="selectedMonth"
-              :type="CALENDAR_TYPE.month"
+              :type="CalendarType.MONTH"
               :lang="lang"
             />
             <div class="selected-value">
@@ -54,10 +54,10 @@
           </div>
 
           <div class="date-picker">
-            <span>{{ lang === 'zhTW' ? '日曆' : 'Date' }}</span>
+            <span>{{ lang === Language.ZH_TW ? '日曆' : 'Date' }}</span>
             <ROCDatePicker
               v-model="selectedDate"
-              :type="CALENDAR_TYPE.date"
+              :type="CalendarType.DATE"
               :lang="lang"
             />
             <div class="selected-value">
@@ -73,8 +73,8 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import ROCDatePicker from './components/ROCDatePicker.vue';
-import { CALENDAR_TYPE } from './constants';
 import RotateIcon from './components/icons/RotateIcon.vue';
+import { CalendarType, Language } from './interfaces';
 
 export default defineComponent({
   components: {
@@ -98,22 +98,23 @@ export default defineComponent({
       selectedDate.value = time;
     };
 
-    const lang = ref('zhTW');
+    const lang = ref(Language.ZH_TW);
 
     const switchLang = () => {
-      if (lang.value === 'en') {
-        lang.value = 'zhTW';
+      if (lang.value === Language.EN) {
+        lang.value = Language.ZH_TW;
       } else {
-        lang.value = 'en';
+        lang.value = Language.EN;
       }
     };
 
     return {
+      Language,
       lang,
       selectedYear,
       selectedMonth,
       selectedDate,
-      CALENDAR_TYPE,
+      CalendarType,
       switchLang,
       getSelectedYear,
       getSelectedMonth,

@@ -16,17 +16,17 @@ export const TRANSLATE = {
       11: '十二月'
     },
     week: {
-      Mon: '一',
-      Tue: '二',
-      Wed: '三',
-      Thu: '四',
-      Fri: '五',
-      Sat: '六',
-      Sun: '日'
+      1: '一',
+      2: '二',
+      3: '三',
+      4: '四',
+      5: '五',
+      6: '六',
+      7: '日'
     },
     yearType: {
-      RepublicEraYear: '民國',
-      CE: '西元'
+      RepublicEra: '民國',
+      CommonEra: '西元'
     }
   },
   en: {
@@ -45,17 +45,17 @@ export const TRANSLATE = {
       11: 'Dec'
     },
     week: {
-      Mon: 'Mon',
-      Tue: 'Tue',
-      Wed: 'Wed',
-      Thu: 'Thu',
-      Fri: 'Fri',
-      Sat: 'Sat',
-      Sun: 'Sun'
+      1: 'Mon',
+      2: 'Tue',
+      3: 'Wed',
+      4: 'Thu',
+      5: 'Fri',
+      6: 'Sat',
+      7: 'Sun'
     },
     yearType: {
-      RepublicEraYear: 'ROC',
-      CE: 'CE'
+      RepublicEra: 'ROC',
+      CommonEra: 'CE'
     }
   }
 };

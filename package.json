@@ -1,7 +1,7 @@
 {
   "name": "vue3-roc-date-picker",
   "version": "0.1.0",
-  "description": "A date picker UI component which shows ROC year on calendar",
+  "description": "A date picker UI component displays year in Republic Era or Common Era",
   "author": {
     "name" : "melodiehsu",
     "url" : "https://github.com/melodiehsu"
@@ -18,6 +18,7 @@
   "files": ["dist"],
   "main": "./dist/vue-roc-date-picker.umd.js",
   "module": "./dist/vue-roc-date-picker.es.js",
+  "typings": "./src/interfaces/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/vue-roc-date-picker.es.js",

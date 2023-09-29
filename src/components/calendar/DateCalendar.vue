@@ -33,10 +33,12 @@
 </template>
 
 <script lang="ts">
-import { CALENDAR_TYPE, WEEK_DAYS } from '@/constants';
+import { WEEK_DAYS } from '@/constants';
+import {
+  CalendarType, Language, YearType, type SelectedTime
+} from '@/interfaces';
 import { getCalendarLang, setDatePickerLabel } from '@/utils';
 import dayjs from 'dayjs';
-import type { SelectedTime } from 'roc-date-picker';
 import {
   computed,
   defineComponent, onMounted, ref, toRefs, watch, type PropType
@@ -54,11 +56,11 @@ export default defineComponent({
     },
     lang: {
       required: true,
-      type: String
+      type: String as PropType<Language>
     },
     calendarYearType: {
       required: true,
-      type: String
+      type: String as PropType<YearType>
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
@@ -96,9 +98,9 @@ export default defineComponent({
 
       selectedFullDate.value.label = setDatePickerLabel({
         calendarYearType: calendarYearType.value,
-        selectedDateObject: selectedFullDate.value.timeValue,
+        selectedDate: selectedFullDate.value.timeValue,
         formatYear: selectedYear.value,
-        datePickerType: CALENDAR_TYPE.date
+        datePickerType: CalendarType.DATE
       });
 
       emit('click', selectedFullDate.value);

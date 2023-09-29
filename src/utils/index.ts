@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { CALENDAR_TYPE, YEAR_TYPE } from '@/constants';
+import { CalendarType, Language, YearType } from '@/interfaces';
 import locales from '../locales/index';
 
 const FORMAT_LOOKUP: Record<string, string> = {
@@ -14,7 +14,7 @@ const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<string, string> = {
   year: ''
 };
 
-export const getCalendarLang = (lang: string) => {
+export const getCalendarLang = (lang: Language) => {
   const langLookup: Record<string, any> = {
     zhTW: locales.zhTW,
     en: locales.en
@@ -37,12 +37,12 @@ export const getRepublicEraYear = (year: number) => year - 1911;
 
 export const setDatePickerLabel = ({
   calendarYearType,
-  selectedDateObject,
+  selectedDate,
   formatYear,
   datePickerType
 }: {
-  calendarYearType: string,
-  selectedDateObject: Date,
+  calendarYearType: YearType,
+  selectedDate: Date,
   formatYear: number,
   datePickerType: string
 }) => {
@@ -51,15 +51,15 @@ export const setDatePickerLabel = ({
 
   let formattedLabel: string;
 
-  if (calendarYearType === YEAR_TYPE.RepublicEraYear) {
+  if (calendarYearType === YearType.RepublicEra) {
     const republicEraYear = getRepublicEraYear(formatYear);
-    const republicEraPart = datePickerType !== CALENDAR_TYPE.year
-      ? `/${formatDate(selectedDateObject, republicEraYearFormat)}`
+    const republicEraPart = datePickerType !== CalendarType.YEAR
+      ? `/${formatDate(selectedDate, republicEraYearFormat)}`
       : '';
 
     formattedLabel = `${republicEraYear}${republicEraPart}`;
   } else {
-    formattedLabel = formatDate(selectedDateObject, format);
+    formattedLabel = formatDate(selectedDate, format);
   }
 
   return formattedLabel;

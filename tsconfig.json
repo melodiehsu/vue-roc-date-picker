@@ -10,5 +10,6 @@
     {
       "path": "./tsconfig.vitest.json"
     }
-  ]
+  ],
+  "include": ["src/interfaces/index.d.ts"]
 }

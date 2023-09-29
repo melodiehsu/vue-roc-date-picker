@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
 import { getRepublicEraYear } from '@/utils';
-import { CALENDAR_TYPE } from '@/constants';
+import { CalendarType, Language, YearType } from '@/interfaces';
 import ROCDatePicker from '../ROCDatePicker.vue';
 
 describe('Test Component ROCDatePicker', () => {
@@ -153,18 +153,18 @@ describe('Test Component ROCDatePicker', () => {
     expect(getYearButtonText()).toBe(`${startYearLabel()}${Math.max(getRepublicEraYear(startYear), 1)} - ${getRepublicEraYear(endYear)}${endYearLabel()}`);
 
     /* show ROC year in English version */
-    await wrapper.setProps({ lang: 'en' });
+    await wrapper.setProps({ lang: Language.EN });
     await wrapper.vm.$nextTick();
     expect(getYearButtonText()).toBe(`${startYearLabel()}${Math.max(getRepublicEraYear(startYear), 1)} - ${getRepublicEraYear(endYear)}${endYearLabel()}`);
 
     /* show current decade in CE */
-    wrapper.vm.handleChangeYearType('CE');
+    wrapper.vm.handleChangeYearType(YearType.CommonEra);
     await wrapper.vm.$nextTick();
 
     expect(getYearButtonText()).toBe(`${startYear} - ${endYear}`);
 
     /* show current year in CE */
-    wrapper.vm.setCalendarVisibility(CALENDAR_TYPE.date);
+    wrapper.vm.setCalendarVisibility(CalendarType.DATE);
     await wrapper.vm.$nextTick();
 
     expect(getYearButtonText()).toBe(`${wrapper.vm.yearOnCalendar}`);
@@ -219,7 +219,7 @@ describe('Test Component ROCDatePicker', () => {
 
   it('test select month', async () => {
     const wrapper = mount(ROCDatePicker, {
-      props: { type: CALENDAR_TYPE.month }
+      props: { type: CalendarType.MONTH }
     });
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -237,7 +237,7 @@ describe('Test Component ROCDatePicker', () => {
     wrapper.vm.clearSelectedTime();
     await wrapper.vm.$nextTick();
     expect(getInputText()).toBe('');
-    wrapper.setProps({ type: CALENDAR_TYPE.date });
+    wrapper.setProps({ type: CalendarType.DATE });
 
     await datePickerInput!.trigger('click');
     const getMonthButton = () => wrapper.find('[data-test="month-button"]');
@@ -251,7 +251,7 @@ describe('Test Component ROCDatePicker', () => {
 
   it('test select year', async () => {
     const wrapper = mount(ROCDatePicker, {
-      props: { type: CALENDAR_TYPE.year }
+      props: { type: CalendarType.YEAR }
     });
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -269,7 +269,7 @@ describe('Test Component ROCDatePicker', () => {
 
     wrapper.vm.clearSelectedTime();
     await wrapper.vm.$nextTick();
-    wrapper.setProps({ type: CALENDAR_TYPE.date });
+    wrapper.setProps({ type: CalendarType.DATE });
 
     await datePickerInput!.trigger('click');
     await getYearCells().at(3)?.trigger('click');

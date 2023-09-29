@@ -1,15 +1,15 @@
-import { YEAR_TYPE } from '@/constants';
 import { mount } from '@vue/test-utils';
 import {
   describe, expect, it
 } from 'vitest';
 import { getCalendarLang } from '@/utils';
+import { Language, YearType } from '@/interfaces';
 import YearTypeSwitch from '../YearTypeSwitch.vue';
 
 describe('Test Component YearTypeSwitch', () => {
   const defaultProps = {
-    lang: 'zhTW',
-    calendarYearType: YEAR_TYPE.RepublicEraYear,
+    lang: Language.ZH_TW,
+    calendarYearType: YearType.RepublicEra,
     hasRepublicEraYear: true
   };
 
@@ -35,10 +35,10 @@ describe('Test Component YearTypeSwitch', () => {
 
     expect(wrapper.emitted('click')).toBeTruthy();
     const emittedValues = wrapper.emitted('click');
-    expect(emittedValues![0]).toEqual(['CE']);
+    expect(emittedValues![0]).toEqual([YearType.CommonEra]);
 
     wrapper.setProps({
-      calendarYearType: YEAR_TYPE.CE
+      calendarYearType: YearType.CommonEra
     });
     await wrapper.vm.$nextTick();
     getCurrentSwitch();
@@ -46,10 +46,10 @@ describe('Test Component YearTypeSwitch', () => {
 
     await yearTypeButton!.trigger('click');
     expect(wrapper.emitted('click')).toBeTruthy();
-    expect(emittedValues![1]).toEqual(['RepublicEraYear']);
+    expect(emittedValues![1]).toEqual([YearType.RepublicEra]);
 
     wrapper.setProps({
-      lang: 'en'
+      lang: Language.EN
     });
     await wrapper.vm.$nextTick();
     getCurrentSwitch();

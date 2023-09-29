@@ -1,32 +1,32 @@
 import { describe, it, expect } from 'vitest';
-import { CALENDAR_TYPE, YEAR_TYPE } from '@/constants';
+import { CalendarType, YearType } from '@/interfaces';
 import { setDatePickerLabel } from '../index';
 
 describe('Test setDatePickerLabel', () => {
   it('should return string of time according to different arguments', () => {
     const baseTestCase = {
-      selectedDateObject: new Date('2023/09/11'),
+      selectedDate: new Date('2023/09/11'),
       formatYear: 2023,
-      datePickerType: CALENDAR_TYPE.date,
-      calendarYearType: YEAR_TYPE.RepublicEraYear
+      datePickerType: CalendarType.DATE,
+      calendarYearType: YearType.RepublicEra
     };
 
     expect(setDatePickerLabel(baseTestCase)).toBe('112/09/11');
 
     expect(setDatePickerLabel({
       ...baseTestCase,
-      datePickerType: CALENDAR_TYPE.year,
-      calendarYearType: YEAR_TYPE.RepublicEraYear
+      datePickerType: CalendarType.YEAR,
+      calendarYearType: YearType.RepublicEra
     })).toBe('112');
 
     expect(setDatePickerLabel({
       ...baseTestCase,
-      datePickerType: CALENDAR_TYPE.month
+      datePickerType: CalendarType.MONTH
     })).toBe('112/09');
 
     expect(setDatePickerLabel({
       ...baseTestCase,
-      calendarYearType: YEAR_TYPE.CE
+      calendarYearType: YearType.CommonEra
     })).toBe('2023-09-11');
   });
 });

@@ -2,16 +2,16 @@ import {
   describe, it, expect
 } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { YEAR_TYPE } from '@/constants';
+import { Language, YearType } from '@/interfaces';
 import DateCalendar from '../calendar/DateCalendar.vue';
 
 describe('Test Component DateCalendar', () => {
   const defaultProps = {
-    lang: 'zhTW',
+    lang: Language.ZH_TW,
     calendarYear: 2023,
     /* month Sep */
     calendarMonth: 8,
-    calendarYearType: YEAR_TYPE.RepublicEraYear
+    calendarYearType: YearType.RepublicEra
   };
 
   it('populate date cells properly', async () => {

@@ -1,14 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { CALENDAR_TYPE, MONTHS, YEAR_TYPE } from '@/constants';
+import { MONTHS } from '@/constants';
 import { getCalendarLang } from '@/utils';
+import { CalendarType, Language, YearType } from '@/interfaces';
 import MonthCalendar from '../calendar/MonthCalendar.vue';
 
 describe('Test Component MonthCalendar', () => {
   const defaultProps = {
-    lang: 'zhTW',
-    calendarYearType: YEAR_TYPE.RepublicEraYear,
-    type: CALENDAR_TYPE.date,
+    lang: Language.ZH_TW,
+    calendarYearType: YearType.RepublicEra,
+    type: CalendarType.DATE,
     calendarYear: new Date().getFullYear()
   };
 
@@ -42,7 +43,7 @@ describe('Test Component MonthCalendar', () => {
 
     expect(monthLabel).toBe(getCalendarLang(wrapper.vm.lang).month[MONTHS[randomIndex]]);
 
-    await wrapper.setProps({ type: CALENDAR_TYPE.month });
+    await wrapper.setProps({ type: CalendarType.MONTH });
     await monthCells.at(randomIndex)!.trigger('click');
 
     const selectedTimeLabel = wrapper.vm!.selectedFullDate.label as string;

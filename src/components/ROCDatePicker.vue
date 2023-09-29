@@ -78,7 +78,7 @@
               type="button"
               class="controller-button"
               data-test="year-button"
-              @click="setCalendarVisibility(CALENDAR_TYPE.year)"
+              @click="setCalendarVisibility(CalendarType.YEAR)"
             >
               {{ displayYear }}
             </button>
@@ -88,7 +88,7 @@
               type="button"
               class="controller-button"
               data-test="month-button"
-              @click="setCalendarVisibility(CALENDAR_TYPE.month)"
+              @click="setCalendarVisibility(CalendarType.MONTH)"
             >
               {{ getCalendarLang(lang).month[monthOnCalendar] }}
             </button>
@@ -174,11 +174,12 @@
 
 <script lang="ts">
 import {
-  computed, defineComponent, onMounted, ref, toRefs, watch
+  computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
-import type { SelectedTime } from 'roc-date-picker';
-import { YEAR_TYPE, CALENDAR_TYPE } from '../constants/index';
+import {
+  Language, YearType, type SelectedTime, CalendarType
+} from '@/interfaces';
 import DateCalendar from './calendar/DateCalendar.vue';
 import MonthCalendar from './calendar/MonthCalendar.vue';
 import YearCalendar from './calendar/YearCalendar.vue';
@@ -214,20 +215,20 @@ export default defineComponent({
       default: ''
     },
     lang: {
-      type: String,
-      default: 'zhTW'
+      type: String as PropType<Language>,
+      default: Language.ZH_TW
     },
     calendarYearType: {
-      type: String,
-      default: YEAR_TYPE.RepublicEraYear
+      type: String as PropType<YearType>,
+      default: YearType.RepublicEra
     },
     placeholder: {
       type: String,
       default: ''
     },
     type: {
-      type: String,
-      default: CALENDAR_TYPE.date
+      type: String as PropType<CalendarType>,
+      default: CalendarType.DATE
     },
     defaultValue: {
       type: String,
@@ -263,7 +264,7 @@ export default defineComponent({
     const yearOnCalendar = ref(currentYear);
     const monthOnCalendar = ref(currentMonth);
 
-    const yearType = ref(calendarYearType.value);
+    const yearType = ref<YearType>(calendarYearType.value);
     const canGoLastYear = ref(true);
     const canGoLastMonth = ref(true);
     const canGoLastDecade = ref(true);
@@ -275,7 +276,7 @@ export default defineComponent({
       const startYearLabel = lang.value === 'zhTW' ? '民國 ' : 'ROC ';
       const endYearLabel = lang.value === 'zhTW' ? ' 年' : '';
 
-      if (yearType.value === YEAR_TYPE.CE) {
+      if (yearType.value === YearType.CommonEra) {
         return isYearCalendarVisible.value ? `${startYear} - ${endYear}` : yearOnCalendar.value;
       }
 
@@ -284,11 +285,11 @@ export default defineComponent({
         : `${startYearLabel}${getRepublicEraYear(yearOnCalendar.value)}${endYearLabel}`;
     });
 
-    const setCalendarVisibility = (calendarType: string) => {
+    const setCalendarVisibility = (calendarType: CalendarType) => {
       const visibilityMap = {
-        [CALENDAR_TYPE.date]: [true, false, false],
-        [CALENDAR_TYPE.month]: [false, true, false],
-        [CALENDAR_TYPE.year]: [false, false, true]
+        [CalendarType.DATE]: [true, false, false],
+        [CalendarType.MONTH]: [false, true, false],
+        [CalendarType.YEAR]: [false, false, true]
       };
 
       [isDateCalendarVisible.value,
@@ -301,7 +302,7 @@ export default defineComponent({
       decadeRange.value = [decadeStartYear, decadeStartYear + 9];
 
       const republicEraYear = getRepublicEraYear(decadeRange.value[0]);
-      const isRepublicEra = yearType.value === YEAR_TYPE.RepublicEraYear;
+      const isRepublicEra = yearType.value === YearType.RepublicEra;
       canGoLastDecade.value = isRepublicEra
         ? republicEraYear >= 1
         : decadeRange.value[0] > 100;
@@ -316,15 +317,15 @@ export default defineComponent({
         const defaultTime = new Date(defaultValue.value);
         const defaultYear = defaultTime.getFullYear();
 
-        if ((yearType.value === YEAR_TYPE.RepublicEraYear) && (defaultYear <= 1911)) {
-          yearType.value = YEAR_TYPE.CE;
+        if ((yearType.value === YearType.RepublicEra) && (defaultYear <= 1911)) {
+          yearType.value = YearType.CommonEra;
         } else {
           yearType.value = calendarYearType.value;
         }
 
         selectedTime.value.label = setDatePickerLabel({
           calendarYearType: yearType.value,
-          selectedDateObject: defaultTime,
+          selectedDate: defaultTime,
           formatYear: defaultYear,
           datePickerType: type.value
         });
@@ -380,8 +381,8 @@ export default defineComponent({
       selectedTime.value = time;
       monthOnCalendar.value = new Date(time.timeValue as Date).getMonth();
 
-      if (type.value === CALENDAR_TYPE.date) {
-        setCalendarVisibility(CALENDAR_TYPE.date);
+      if (type.value === CalendarType.DATE) {
+        setCalendarVisibility(CalendarType.DATE);
         return;
       }
 
@@ -391,8 +392,8 @@ export default defineComponent({
     const handleYearChange = (time: SelectedTime) => {
       selectedTime.value = time;
 
-      if (type.value !== CALENDAR_TYPE.year) {
-        setCalendarVisibility(CALENDAR_TYPE.month);
+      if (type.value !== CalendarType.YEAR) {
+        setCalendarVisibility(CalendarType.MONTH);
         yearOnCalendar.value = new Date(time.timeValue as Date).getFullYear();
         return;
       }
@@ -400,7 +401,7 @@ export default defineComponent({
       isCalendarVisible.value = false;
     };
 
-    const handleChangeYearType = (selectedYearType: string) => {
+    const handleChangeYearType = (selectedYearType: YearType) => {
       yearType.value = selectedYearType;
       getDecadeRange();
     };
@@ -417,14 +418,14 @@ export default defineComponent({
     });
 
     watch([yearOnCalendar, yearType], () => {
-      canGoLastYear.value = !((yearType.value === YEAR_TYPE.RepublicEraYear
+      canGoLastYear.value = !((yearType.value === YearType.RepublicEra
         && yearOnCalendar.value <= 1912)
         || (decadeRange?.value[0] <= 100)
       );
     }, { immediate: true });
 
     watch([yearOnCalendar, yearType, monthOnCalendar], () => {
-      canGoLastMonth.value = !(yearType.value === YEAR_TYPE.RepublicEraYear
+      canGoLastMonth.value = !(yearType.value === YearType.RepublicEra
       && yearOnCalendar.value <= 1912
       && monthOnCalendar.value === 0);
     }, { immediate: true });
@@ -449,7 +450,7 @@ export default defineComponent({
       isDateCalendarVisible,
       isMonthCalendarVisible,
       isYearCalendarVisible,
-      CALENDAR_TYPE,
+      CalendarType,
       goToNextYear,
       goToLastYear,
       goToNextMonth,

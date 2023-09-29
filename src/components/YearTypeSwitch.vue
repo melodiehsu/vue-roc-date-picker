@@ -15,9 +15,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, toRefs } from 'vue';
+import { defineComponent, toRefs, type PropType } from 'vue';
 import { getCalendarLang } from '@/utils';
-import { YEAR_TYPE } from '@/constants';
+import { Language, YearType } from '@/interfaces';
 import RotateIcon from './icons/RotateIcon.vue';
 
 export default defineComponent({
@@ -25,7 +25,7 @@ export default defineComponent({
   props: {
     calendarYearType: {
       required: true,
-      type: String
+      type: String as PropType<YearType>
     },
     hasRepublicEraYear: {
       required: true,
@@ -33,7 +33,7 @@ export default defineComponent({
       default: true
     },
     lang: {
-      type: String,
+      type: String as PropType<Language>,
       required: true
     }
   },
@@ -42,10 +42,10 @@ export default defineComponent({
     const { calendarYearType } = toRefs(props);
     const changeYearType = () => {
       let yearType;
-      if (calendarYearType.value === YEAR_TYPE.CE) {
-        yearType = YEAR_TYPE.RepublicEraYear;
+      if (calendarYearType.value === YearType.CommonEra) {
+        yearType = YearType.RepublicEra;
       } else {
-        yearType = YEAR_TYPE.CE;
+        yearType = YearType.CommonEra;
       }
 
       emit('click', yearType);

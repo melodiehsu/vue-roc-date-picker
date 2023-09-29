@@ -15,7 +15,7 @@
           type="button"
           @click="handleSelectYear(year)"
         >
-          {{ calendarYearType === 'CE' ? year : getRepublicEraYear(year) }}
+          {{ calendarYearType === YearType.CommonEra ? year : getRepublicEraYear(year) }}
         </button>
       </div>
     </div>
@@ -23,9 +23,8 @@
 </template>
 
 <script lang="ts">
-import { CALENDAR_TYPE } from '@/constants';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
-import type { SelectedTime } from 'roc-date-picker';
+import { CalendarType, YearType, type SelectedTime } from '@/interfaces';
 import {
   computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';
@@ -38,7 +37,7 @@ export default defineComponent({
     },
     calendarYearType: {
       required: true,
-      type: String
+      type: String as PropType<YearType>
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
@@ -46,7 +45,7 @@ export default defineComponent({
     },
     type: {
       required: true,
-      type: String
+      type: String as PropType<CalendarType>
     },
     decadeRange: {
       required: true,
@@ -70,7 +69,7 @@ export default defineComponent({
       }
 
       if (
-        (calendarYearType.value === 'RepublicEraYear')
+        (calendarYearType.value === YearType.RepublicEra)
         && ((years.value[0] - 1911) < 1)
       ) {
         years.value = years.value.filter((year) => year > 1911);
@@ -91,12 +90,12 @@ export default defineComponent({
     const handleSelectYear = (yearOnCalendar: number) => {
       selectedFullDate.value.timeValue = new Date(yearOnCalendar, 0);
 
-      if (type.value === CALENDAR_TYPE.year) {
+      if (type.value === CalendarType.YEAR) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDateObject: selectedFullDate.value.timeValue,
+          selectedDate: selectedFullDate.value.timeValue,
           formatYear: selectedYear.value,
-          datePickerType: CALENDAR_TYPE.year
+          datePickerType: CalendarType.YEAR
         });
       }
 
@@ -115,6 +114,7 @@ export default defineComponent({
     }, { deep: true });
 
     return {
+      YearType,
       years,
       selectedFullDate,
       isSelected,

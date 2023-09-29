@@ -1,8 +1,10 @@
-# roc-date-picker
+# vue-roc-date-picker
 
-This template should help get you started developing with Vue 3 in Vite.
+A date picker UI component displays year in Republic Era or Common Era.<br>
+可顯示民國 / 西元年的 UI 套件
+### See demo [here](https://melodiehsu.github.io/vue-roc-date-picker/)
 
-## Recommended IDE Setup
+<!-- ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
 
@@ -49,4 +51,4 @@ npm run test:unit
 
 ```sh
 npm run lint
-```
+``` -->

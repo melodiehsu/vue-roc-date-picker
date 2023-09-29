@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { CALENDAR_TYPE, YEAR_TYPE } from '@/constants';
 import { getRepublicEraYear } from '@/utils';
+import { CalendarType, Language, YearType } from '@/interfaces';
 import YearCalendar from '../calendar/YearCalendar.vue';
 
 describe('Test Component YearCalendar', () => {
   const defaultProps = {
-    lang: 'zhTW',
-    calendarYearType: YEAR_TYPE.RepublicEraYear,
-    type: CALENDAR_TYPE.date,
+    lang: Language.ZH_TW,
+    calendarYearType: YearType.RepublicEra,
+    type: CalendarType.DATE,
     decadeRange: []
   };
 
@@ -59,7 +59,7 @@ describe('Test Component YearCalendar', () => {
     const emittedValues = wrapper.emitted('click');
     expect(emittedValues![0]).toEqual([wrapper.vm.selectedFullDate]);
 
-    await wrapper.setProps({ type: CALENDAR_TYPE.year });
+    await wrapper.setProps({ type: CalendarType.YEAR });
     await yearCells.at(randomIndex)!.trigger('click');
 
     const yearLabel = yearCells[randomIndex].text();
@@ -102,7 +102,7 @@ describe('Test Component YearCalendar', () => {
     const { years } = wrapper.vm;
     expect(yearCell).toBe(`${getRepublicEraYear(years[randomIndex])}`);
 
-    await wrapper.setProps({ calendarYearType: YEAR_TYPE.CE });
+    await wrapper.setProps({ calendarYearType: YearType.CommonEra });
     await wrapper.vm.$nextTick();
 
     yearCell = yearCells[randomIndex].text();
