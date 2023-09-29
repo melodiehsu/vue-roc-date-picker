@@ -2,6 +2,13 @@
   "name": "vue3-roc-date-picker",
   "version": "0.1.0",
   "description": "A date picker UI component displays year in Republic Era or Common Era",
+  "keywords": [
+    "vue3",
+    "date-picker",
+    "calendar",
+    "ui-component",
+    "typescript"
+  ],
   "author": {
     "name" : "melodiehsu",
     "url" : "https://github.com/melodiehsu"
