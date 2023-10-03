@@ -163,7 +163,7 @@
 
         <YearTypeSwitch
           :calendar-year-type="yearType"
-          :has-republic-era-year="getRepublicEraYear(yearOnCalendar) > 0"
+          :has-republic-era-year="isAllowYearTypeSwitch"
           :lang="lang"
           @click="handleChangeYearType"
         />
@@ -263,6 +263,14 @@ export default defineComponent({
     const decadeRange = ref<number[]>([]);
     const yearOnCalendar = ref(currentYear);
     const monthOnCalendar = ref(currentMonth);
+    const isAllowYearTypeSwitch = computed(() => {
+      // if currently selecting year, return the year on calendar is larger than the decade
+      if (isYearCalendarVisible.value) {
+        const beginDecadeYearOnCalendar = yearOnCalendar.value - (yearOnCalendar.value % 10);
+        return beginDecadeYearOnCalendar >= 1910; // 1912 - (1912 % 10)
+      }
+      return getRepublicEraYear(yearOnCalendar.value) > 0;
+    });
 
     const yearType = ref<YearType>(calendarYearType.value);
     const canGoLastYear = ref(true);
@@ -446,6 +454,7 @@ export default defineComponent({
       canGoLastMonth,
       canGoLastDecade,
       monthOnCalendar,
+      isAllowYearTypeSwitch,
       isCalendarVisible,
       isDateCalendarVisible,
       isMonthCalendarVisible,

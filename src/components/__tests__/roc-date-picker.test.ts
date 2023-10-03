@@ -299,4 +299,25 @@ describe('Test Component ROCDatePicker', () => {
 
     expect(monthButtonStyles.display).toBe('none');
   });
+
+  // see: issue #1
+  it('render year type switch properly', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        defaultValue: '1900-01-01'
+      }
+    });
+
+    // open date picker input
+    const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
+    await datePickerInput!.trigger('click');
+
+    // click year button
+    await wrapper.find('[data-test="year-button"]').trigger('click');
+    expect(wrapper.find('[data-test="year-type-switch"]').exists()).toBe(false);
+
+    // click next decade (1910-1919)
+    await wrapper.find('[data-test="next-decade"]').trigger('click');
+    expect(wrapper.find('[data-test="year-type-switch"]').exists()).toBe(true);
+  });
 });
