@@ -264,7 +264,7 @@ export default defineComponent({
     const yearOnCalendar = ref(currentYear);
     const monthOnCalendar = ref(currentMonth);
     const isAllowYearTypeSwitch = computed(() => {
-      // if currently selecting year, return the year on calendar is larger then the decade
+      // if currently selecting year, return the year on calendar is larger than the decade
       if (isYearCalendarVisible.value) {
         const beginDecadeYearOnCalendar = yearOnCalendar.value - (yearOnCalendar.value % 10);
         return beginDecadeYearOnCalendar >= 1910; // 1912 - (1912 % 10)
