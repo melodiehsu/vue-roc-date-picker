@@ -301,7 +301,7 @@ describe('Test Component ROCDatePicker', () => {
   });
 
   // see: issue #1
-  it('test begin roc year of selecting decade', async () => {
+  it('render year type switch properly', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         defaultValue: '1900-01-01'
