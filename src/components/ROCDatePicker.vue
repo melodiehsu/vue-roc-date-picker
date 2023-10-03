@@ -163,7 +163,7 @@
 
         <YearTypeSwitch
           :calendar-year-type="yearType"
-          :has-republic-era-year="isAllowYearTypeSwitch"
+          :is-visible="isSwitchAllowed"
           :lang="lang"
           @click="handleChangeYearType"
         />
@@ -263,14 +263,6 @@ export default defineComponent({
     const decadeRange = ref<number[]>([]);
     const yearOnCalendar = ref(currentYear);
     const monthOnCalendar = ref(currentMonth);
-    const isAllowYearTypeSwitch = computed(() => {
-      // if currently selecting year, return the year on calendar is larger than the decade
-      if (isYearCalendarVisible.value) {
-        const beginDecadeYearOnCalendar = yearOnCalendar.value - (yearOnCalendar.value % 10);
-        return beginDecadeYearOnCalendar >= 1910; // 1912 - (1912 % 10)
-      }
-      return getRepublicEraYear(yearOnCalendar.value) > 0;
-    });
 
     const yearType = ref<YearType>(calendarYearType.value);
     const canGoLastYear = ref(true);
@@ -293,17 +285,14 @@ export default defineComponent({
         : `${startYearLabel}${getRepublicEraYear(yearOnCalendar.value)}${endYearLabel}`;
     });
 
-    const setCalendarVisibility = (calendarType: CalendarType) => {
-      const visibilityMap = {
-        [CalendarType.DATE]: [true, false, false],
-        [CalendarType.MONTH]: [false, true, false],
-        [CalendarType.YEAR]: [false, false, true]
-      };
-
-      [isDateCalendarVisible.value,
-        isMonthCalendarVisible.value,
-        isYearCalendarVisible.value] = visibilityMap[calendarType];
-    };
+    const isSwitchAllowed = computed(() => {
+      // if currently selecting year, return the year on calendar is larger than the decade
+      if (isYearCalendarVisible.value) {
+        const beginDecadeYearOnCalendar = yearOnCalendar.value - (yearOnCalendar.value % 10);
+        return beginDecadeYearOnCalendar >= 1910; // 1912 - (1912 % 10)
+      }
+      return getRepublicEraYear(yearOnCalendar.value) > 0;
+    });
 
     const getDecadeRange = () => {
       const decadeStartYear: number = Math.floor(yearOnCalendar.value / 10) * 10;
@@ -316,9 +305,20 @@ export default defineComponent({
         : decadeRange.value[0] > 100;
     };
 
-    const initCalendar = () => {
+    const setCalendarVisibility = (calendarType: CalendarType) => {
       getDecadeRange();
+      const visibilityMap = {
+        [CalendarType.DATE]: [true, false, false],
+        [CalendarType.MONTH]: [false, true, false],
+        [CalendarType.YEAR]: [false, false, true]
+      };
 
+      [isDateCalendarVisible.value,
+        isMonthCalendarVisible.value,
+        isYearCalendarVisible.value] = visibilityMap[calendarType];
+    };
+
+    const initCalendar = () => {
       setCalendarVisibility(type.value);
 
       if (defaultValue.value) {
@@ -454,7 +454,7 @@ export default defineComponent({
       canGoLastMonth,
       canGoLastDecade,
       monthOnCalendar,
-      isAllowYearTypeSwitch,
+      isSwitchAllowed,
       isCalendarVisible,
       isDateCalendarVisible,
       isMonthCalendarVisible,

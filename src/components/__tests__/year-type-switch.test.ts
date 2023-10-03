@@ -10,7 +10,7 @@ describe('Test Component YearTypeSwitch', () => {
   const defaultProps = {
     lang: Language.ZH_TW,
     calendarYearType: YearType.RepublicEra,
-    hasRepublicEraYear: true
+    isVisible: true
   };
 
   it('render switch properly', async () => {
@@ -56,7 +56,7 @@ describe('Test Component YearTypeSwitch', () => {
     expect(yearTypeButtonText).toBe((getMappedText()));
 
     wrapper.setProps({
-      hasRepublicEraYear: false
+      isVisible: false
     });
     await wrapper.vm.$nextTick();
     getCurrentSwitch();

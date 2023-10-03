@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="hasRepublicEraYear" class="wrapper">
+    <div v-if="isVisible" class="wrapper">
       <button
         type="button"
         class="controller"
@@ -27,7 +27,7 @@ export default defineComponent({
       required: true,
       type: String as PropType<YearType>
     },
-    hasRepublicEraYear: {
+    isVisible: {
       required: true,
       type: Boolean,
       default: true
