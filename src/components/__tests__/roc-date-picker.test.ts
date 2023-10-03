@@ -314,22 +314,10 @@ describe('Test Component ROCDatePicker', () => {
 
     // click year button
     await wrapper.find('[data-test="year-button"]').trigger('click');
+    expect(wrapper.find('[data-test="year-type-switch"]').exists()).toBe(false);
 
-    // click next decade (1910-1920)
+    // click next decade (1910-1919)
     await wrapper.find('[data-test="next-decade"]').trigger('click');
-
-    // click next decade (1920-1930)
-    await wrapper.find('[data-test="next-decade"]').trigger('click');
-
-    // click year type switch
-    const yearTypeSwitch = wrapper.find('[data-test="year-type-switch"]');
-    expect(yearTypeSwitch.exists()).toBe(true);
-    await yearTypeSwitch.trigger('click');
-
-    // click last decade (1910-1920)
-    await wrapper.find('[data-test="last-decade"]').trigger('click');
-
-    // expect year type switch visible
     expect(wrapper.find('[data-test="year-type-switch"]').exists()).toBe(true);
   });
 });
