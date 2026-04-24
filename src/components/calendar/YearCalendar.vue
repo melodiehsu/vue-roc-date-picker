@@ -59,7 +59,10 @@ export default defineComponent({
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
+    const selectedYear = computed(() => {
+      if (!selectedFullDate.value.timeValue) return undefined;
+      return new Date(selectedFullDate.value.timeValue as Date).getFullYear();
+    });
 
     const populateYearCalendar = () => {
       years.value = [];

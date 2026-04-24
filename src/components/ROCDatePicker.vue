@@ -211,7 +211,7 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: Date || String,
+      type: [Date, String] as PropType<Date | String>,
       default: ''
     },
     lang: {

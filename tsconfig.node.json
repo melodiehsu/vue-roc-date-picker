@@ -13,6 +13,6 @@
     "moduleResolution": "Bundler",
     "types": ["node"],
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
   }
 }

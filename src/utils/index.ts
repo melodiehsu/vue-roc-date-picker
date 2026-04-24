@@ -19,9 +19,9 @@ export const getCalendarLang = (lang: Language) => {
     zhTW: locales.zhTW,
     en: locales.en
   };
-  const unsupportedLang = lang in langLookup;
+  const isValidLang = lang in langLookup;
 
-  if (!lang || !unsupportedLang) return langLookup.en;
+  if (!lang || !isValidLang) return langLookup.en;
   return langLookup[lang];
 };
 

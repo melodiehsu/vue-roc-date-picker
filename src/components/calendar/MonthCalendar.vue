@@ -63,8 +63,14 @@ export default defineComponent({
     } = toRefs(props);
 
     const selectedFullDate = ref<SelectedTime>({});
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
-    const selectedMonth = computed(() => new Date(selectedFullDate.value.timeValue as Date).getMonth());
+    const selectedYear = computed(() => {
+      if (!selectedFullDate.value.timeValue) return undefined;
+      return new Date(selectedFullDate.value.timeValue as Date).getFullYear();
+    });
+    const selectedMonth = computed(() => {
+      if (!selectedFullDate.value.timeValue) return undefined;
+      return new Date(selectedFullDate.value.timeValue as Date).getMonth();
+    });
 
     const isSelected = (month: number): boolean => {
       if (

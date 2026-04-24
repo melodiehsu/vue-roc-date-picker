@@ -75,9 +75,18 @@ export default defineComponent({
     const dateCells = ref<(number | null)[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
 
-    const selectedYear = computed(() => dayjs(selectedFullDate.value.timeValue).year());
-    const selectedMonth = computed(() => dayjs(selectedFullDate.value.timeValue).month());
-    const selectedDate = computed(() => dayjs(selectedFullDate.value.timeValue).date());
+    const selectedYear = computed(() => {
+      if (!selectedFullDate.value.timeValue) return undefined;
+      return dayjs(selectedFullDate.value.timeValue).year();
+    });
+    const selectedMonth = computed(() => {
+      if (!selectedFullDate.value.timeValue) return undefined;
+      return dayjs(selectedFullDate.value.timeValue).month();
+    });
+    const selectedDate = computed(() => {
+      if (!selectedFullDate.value.timeValue) return undefined;
+      return dayjs(selectedFullDate.value.timeValue).date();
+    });
 
     const isSelected = (date: number | null): boolean => {
       if (
