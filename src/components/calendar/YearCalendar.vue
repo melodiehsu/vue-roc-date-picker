@@ -57,8 +57,10 @@ export default defineComponent({
     const {
       defaultFullDate, calendarYearType, type, decadeRange
     } = toRefs(props);
+    const currentYear = new Date().getFullYear();
     const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
+
     const selectedYear = computed(() => {
       if (!selectedFullDate.value.timeValue) return undefined;
       return new Date(selectedFullDate.value.timeValue as Date).getFullYear();
@@ -97,7 +99,7 @@ export default defineComponent({
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
           selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value,
+          formatYear: selectedYear.value || currentYear,
           datePickerType: CalendarType.YEAR
         });
       }

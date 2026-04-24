@@ -322,7 +322,8 @@ export default defineComponent({
       setCalendarVisibility(type.value);
 
       if (defaultValue.value || modelValue.value) {
-        const defaultTime = new Date(defaultValue.value || modelValue.value);
+        const timeValue = defaultValue.value || modelValue.value;
+        const defaultTime = new Date(timeValue as string | number | Date);
         const defaultYear = defaultTime.getFullYear();
 
         if ((yearType.value === YearType.RepublicEra) && (defaultYear <= 1911)) {

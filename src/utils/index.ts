@@ -15,6 +15,11 @@ const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<string, string> = {
 };
 
 export const getCalendarLang = (lang: Language) => {
+  /**
+   * Get calendar localization strings for the specified language
+   * @param lang - Language code (e.g., 'zhTW', 'en')
+   * @returns Localized calendar strings object
+   */
   const langLookup: Record<string, any> = {
     zhTW: locales.zhTW,
     en: locales.en
@@ -25,6 +30,12 @@ export const getCalendarLang = (lang: Language) => {
   return langLookup[lang];
 };
 
+/**
+ * Format a date using dayjs with the specified pattern
+ * @param date - Date object or date string
+ * @param pattern - Format pattern (e.g., 'YYYY-MM-DD')
+ * @returns Formatted date string
+ */
 export const formatDate = (date: any, pattern: string) => {
   if (!date) {
     return '';
@@ -33,8 +44,22 @@ export const formatDate = (date: any, pattern: string) => {
   return dayjs(date).format(pattern);
 };
 
+/**
+ * Convert Gregorian year to Republic Era year (Taiwan calendar)
+ * @param year - Gregorian year
+ * @returns Republic Era year (year - 1911)
+ */
 export const getRepublicEraYear = (year: number) => year - 1911;
 
+/**
+ * Generate formatted label for date picker based on selected date and calendar type
+ * @param options - Configuration object
+ * @param options.calendarYearType - Calendar year type (CommonEra or RepublicEra)
+ * @param options.selectedDate - Selected date
+ * @param options.formatYear - Year to format
+ * @param options.datePickerType - Type of date picker (date, month, or year)
+ * @returns Formatted date picker label string
+ */
 export const setDatePickerLabel = ({
   calendarYearType,
   selectedDate,
