@@ -201,6 +201,37 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.isCalendarVisible).toBe(false);
   });
 
+  it('syncs external modelValue updates', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        modelValue: new Date(2024, 0, 15)
+      }
+    });
+
+    expect(wrapper.vm.yearOnCalendar).toBe(2024);
+    expect(wrapper.vm.monthOnCalendar).toBe(0);
+
+    await wrapper.setProps({
+      modelValue: new Date(2025, 4, 6)
+    });
+
+    expect(wrapper.vm.yearOnCalendar).toBe(2025);
+    expect(wrapper.vm.monthOnCalendar).toBe(4);
+    expect(wrapper.vm.selectedTime.timeValue).toStrictEqual(new Date(2025, 4, 6));
+  });
+
+  it('prefers modelValue over defaultValue when both are provided', () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        defaultValue: '2023-01-01',
+        modelValue: new Date(2024, 7, 8)
+      }
+    });
+
+    expect(wrapper.vm.selectedTime.timeValue).toStrictEqual(new Date(2024, 7, 8));
+    expect(wrapper.vm.yearOnCalendar).toBe(2024);
+  });
+
   it('test select date', async () => {
     const wrapper = mount(ROCDatePicker);
 
@@ -237,7 +268,7 @@ describe('Test Component ROCDatePicker', () => {
     wrapper.vm.clearSelectedTime();
     await wrapper.vm.$nextTick();
     expect(getInputText()).toBe('');
-    wrapper.setProps({ type: CalendarType.DATE });
+    await wrapper.setProps({ type: CalendarType.DATE });
 
     await datePickerInput!.trigger('click');
     const getMonthButton = () => wrapper.find('[data-test="month-button"]');
@@ -269,9 +300,10 @@ describe('Test Component ROCDatePicker', () => {
 
     wrapper.vm.clearSelectedTime();
     await wrapper.vm.$nextTick();
-    wrapper.setProps({ type: CalendarType.DATE });
+    await wrapper.setProps({ type: CalendarType.DATE });
 
     await datePickerInput!.trigger('click');
+    await wrapper.find('[data-test="year-button"]').trigger('click');
     await getYearCells().at(3)?.trigger('click');
 
     expect(wrapper.find('[data-test="date-calendar"]').exists()).toBe(false);
@@ -319,5 +351,18 @@ describe('Test Component ROCDatePicker', () => {
     // click next decade (1910-1919)
     await wrapper.find('[data-test="next-decade"]').trigger('click');
     expect(wrapper.find('[data-test="year-type-switch"]').exists()).toBe(true);
+  });
+
+  it('emits empty model value when selection is cleared', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        modelValue: new Date(2024, 0, 15)
+      }
+    });
+
+    wrapper.vm.clearSelectedTime();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('update:modelValue')?.at(-1)).toStrictEqual([undefined]);
   });
 });

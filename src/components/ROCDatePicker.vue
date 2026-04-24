@@ -1,10 +1,17 @@
 <template>
   <div>
     <div class="date-picker-container">
-      <button
+      <div
         class="input-container"
-        type="button"
-        @click="toggleCalender"
+        :class="{ 'input-container--disabled': disabled }"
+        tabindex="0"
+        role="button"
+        aria-haspopup="dialog"
+        :aria-disabled="disabled"
+        :aria-expanded="isCalendarVisible"
+        @click="toggleCalendar"
+        @keydown.enter.prevent="toggleCalendar"
+        @keydown.space.prevent="toggleCalendar"
       >
         <div class="input-icon">
           <CalendarDayIcon />
@@ -19,11 +26,14 @@
           :value="selectedTime.label"
           :placeholder="placeholder"
           :disabled="disabled"
+          readonly
+          tabindex="-1"
         />
 
         <button
           v-show="showClearButton"
           type="button"
+          aria-label="Clear selected date"
           :class="['clear-input-button',
                    {
                      'clear-input-button--hover': !disabled && selectedTime.label,
@@ -32,7 +42,7 @@
         >
           <XmarkIcon />
         </button>
-      </button>
+      </div>
 
       <!-- calendar -->
       <div
@@ -174,8 +184,9 @@
 
 <script lang="ts">
 import {
-  computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
+  computed, defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
+import dayjs, { type ConfigType } from 'dayjs';
 import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
 import {
   Language, YearType, type SelectedTime, CalendarType
@@ -196,6 +207,8 @@ const DEFAULT_SELECTED_TIME: SelectedTime = {
   timeValue: undefined
 };
 
+const EMPTY_VALUE = '';
+
 export default defineComponent({
   components: {
     XmarkIcon,
@@ -211,8 +224,8 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: Date || String,
-      default: ''
+      type: [Date, String] as PropType<Date | string>,
+      default: EMPTY_VALUE
     },
     lang: {
       type: String as PropType<Language>,
@@ -268,7 +281,7 @@ export default defineComponent({
     const canGoLastYear = ref(true);
     const canGoLastMonth = ref(true);
     const canGoLastDecade = ref(true);
-    const selectedTime = ref({ ...DEFAULT_SELECTED_TIME });
+    const selectedTime = ref<SelectedTime>({ ...DEFAULT_SELECTED_TIME });
 
     const displayYear = computed(() => {
       const startYear = decadeRange?.value[0];
@@ -305,6 +318,23 @@ export default defineComponent({
         : decadeRange.value[0] > 100;
     };
 
+    const getResolvedValue = () => {
+      if (modelValue.value instanceof Date || modelValue.value) {
+        return modelValue.value;
+      }
+
+      return defaultValue.value;
+    };
+
+    const getParsedDate = (value: ConfigType) => {
+      if (!value) return null;
+
+      const parsedDate = dayjs(value);
+      if (!parsedDate.isValid()) return null;
+
+      return parsedDate.toDate();
+    };
+
     const setCalendarVisibility = (calendarType: CalendarType) => {
       getDecadeRange();
       const visibilityMap = {
@@ -318,34 +348,40 @@ export default defineComponent({
         isYearCalendarVisible.value] = visibilityMap[calendarType];
     };
 
-    const initCalendar = () => {
+    const syncSelectedTimeFromProps = () => {
       setCalendarVisibility(type.value);
+      const resolvedDate = getParsedDate(getResolvedValue());
 
-      if (defaultValue.value || modelValue.value) {
-        const defaultTime = new Date(defaultValue.value || modelValue.value);
-        const defaultYear = defaultTime.getFullYear();
-
-        if ((yearType.value === YearType.RepublicEra) && (defaultYear <= 1911)) {
-          yearType.value = YearType.CommonEra;
-        } else {
-          yearType.value = calendarYearType.value;
-        }
-
-        selectedTime.value.label = setDatePickerLabel({
-          calendarYearType: yearType.value,
-          selectedDate: defaultTime,
-          formatYear: defaultYear,
-          datePickerType: type.value
-        });
-
-        selectedTime.value.timeValue = defaultTime;
-
-        monthOnCalendar.value = new Date(defaultTime).getMonth();
-        yearOnCalendar.value = new Date(defaultTime).getFullYear();
+      if (!resolvedDate) {
+        yearType.value = calendarYearType.value;
+        selectedTime.value = { ...DEFAULT_SELECTED_TIME };
+        monthOnCalendar.value = currentMonth;
+        yearOnCalendar.value = currentYear;
+        getDecadeRange();
+        return;
       }
+
+      const resolvedYear = resolvedDate.getFullYear();
+      yearType.value = calendarYearType.value === YearType.RepublicEra && resolvedYear <= 1911
+        ? YearType.CommonEra
+        : calendarYearType.value;
+
+      selectedTime.value = {
+        label: setDatePickerLabel({
+          calendarYearType: yearType.value,
+          selectedDate: resolvedDate,
+          formatYear: resolvedYear,
+          datePickerType: type.value
+        }),
+        timeValue: resolvedDate
+      };
+
+      monthOnCalendar.value = resolvedDate.getMonth();
+      yearOnCalendar.value = resolvedYear;
+      getDecadeRange();
     };
 
-    const toggleCalender = () => {
+    const toggleCalendar = () => {
       if (!disabled.value) isCalendarVisible.value = !isCalendarVisible.value;
     };
 
@@ -383,6 +419,7 @@ export default defineComponent({
     const handleDateChange = (time: SelectedTime) => {
       selectedTime.value = time;
       isCalendarVisible.value = false;
+      emit('update:modelValue', time.timeValue);
     };
 
     const handleMonthChange = (time: SelectedTime) => {
@@ -395,6 +432,7 @@ export default defineComponent({
       }
 
       isCalendarVisible.value = false;
+      emit('update:modelValue', time.timeValue);
     };
 
     const handleYearChange = (time: SelectedTime) => {
@@ -407,6 +445,7 @@ export default defineComponent({
       }
 
       isCalendarVisible.value = false;
+      emit('update:modelValue', time.timeValue);
     };
 
     const handleChangeYearType = (selectedYearType: YearType) => {
@@ -421,9 +460,11 @@ export default defineComponent({
       emit('update:modelValue', selectedTime.value.timeValue);
     };
 
-    onMounted(() => {
-      initCalendar();
-    });
+    watch(
+      [modelValue, defaultValue, calendarYearType, type],
+      syncSelectedTimeFromProps,
+      { immediate: true }
+    );
 
     watch([yearOnCalendar, yearType], () => {
       canGoLastYear.value = !((yearType.value === YearType.RepublicEra
@@ -437,12 +478,6 @@ export default defineComponent({
       && yearOnCalendar.value <= 1912
       && monthOnCalendar.value === 0);
     }, { immediate: true });
-
-    watch(selectedTime, () => {
-      if (!isCalendarVisible.value && selectedTime.value.timeValue) {
-        emit('update:modelValue', selectedTime.value.timeValue);
-      }
-    }, { deep: true });
 
     return {
       yearType,
@@ -464,7 +499,7 @@ export default defineComponent({
       goToLastYear,
       goToNextMonth,
       goToLastMonth,
-      toggleCalender,
+      toggleCalendar,
       goToNextDecade,
       goToLastDecade,
       getCalendarLang,
@@ -501,17 +536,28 @@ button {
   align-items: center;
   background: #ffffff;
   border: 1px solid #cbd2d5;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid #4390BC;
+    outline-offset: 2px;
+  }
+
+  &--disabled {
+    cursor: not-allowed;
+  }
 
   .input-icon {
-    padding: 0px 4px;
+    padding: 0 4px;
   }
 
   .date-picker-input {
     width: 100%;
     height: 100%;
     padding: 2px;
-    background:#ffffff;
+    background: #ffffff;
     border-style: none;
+    cursor: inherit;
 
     &:focus {
       outline-style: none;
