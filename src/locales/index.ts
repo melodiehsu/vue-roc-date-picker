@@ -1,5 +1,13 @@
+import { type YearType } from '@/interfaces';
+
+export type LocaleDictionary = {
+  month: Record<number, string>;
+  week: Record<number, string>;
+  yearType: Record<YearType, string>;
+};
+
 // TODO: i18n if possible
-export const TRANSLATE = {
+export const TRANSLATE: Record<'zhTW' | 'en', LocaleDictionary> = {
   zhTW: {
     month: {
       0: '一月',

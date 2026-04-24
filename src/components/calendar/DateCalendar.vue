@@ -64,7 +64,7 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => {}
+      default: () => ({})
     }
   },
   emits: ['click'],
