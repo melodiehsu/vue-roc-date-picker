@@ -99,11 +99,15 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    watch(defaultFullDate, (value) => {
-      selectedFullDate.value = value?.timeValue
-        ? { ...value }
-        : { ...DEFAULT_SELECTED_TIME };
-    }, { deep: true, immediate: true });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+      },
+      { immediate: true }
+    );
 
     return {
       MONTHS,

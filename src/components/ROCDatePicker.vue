@@ -318,21 +318,11 @@ export default defineComponent({
         : decadeRange.value[0] > 100;
     };
 
-    const getResolvedValue = () => {
-      if (modelValue.value instanceof Date || modelValue.value) {
-        return modelValue.value;
-      }
-
-      return defaultValue.value;
-    };
-
+    const getResolvedValue = () => modelValue.value ?? defaultValue.value;
     const getParsedDate = (value: ConfigType) => {
-      if (!value) return null;
-
+      if (value == null) return null;
       const parsedDate = dayjs(value);
-      if (!parsedDate.isValid()) return null;
-
-      return parsedDate.toDate();
+      return parsedDate.isValid() ? parsedDate.toDate() : null;
     };
 
     const setCalendarVisibility = (calendarType: CalendarType) => {

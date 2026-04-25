@@ -126,12 +126,16 @@ export default defineComponent({
       ];
     };
 
-    watch(defaultFullDate, (value) => {
-      selectedFullDate.value = value?.timeValue
-        ? { ...value }
-        : { ...DEFAULT_SELECTED_TIME };
-      populateDateCalendar();
-    }, { deep: true, immediate: true });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+        populateDateCalendar();
+      },
+      { immediate: true }
+    );
 
     watch([calendarYear, calendarMonth], () => {
       populateDateCalendar();
