@@ -41,8 +41,13 @@ import { getCalendarLang, setDatePickerLabel } from '@/utils';
 import dayjs from 'dayjs';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs, watch, type PropType
+  defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
+
+const DEFAULT_SELECTED_TIME: SelectedTime = {
+  label: '',
+  timeValue: undefined
+};
 
 export default defineComponent({
   props: {
@@ -64,7 +69,7 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => ({})
+      default: () => ({ ...DEFAULT_SELECTED_TIME })
     }
   },
   emits: ['click'],
@@ -126,12 +131,16 @@ export default defineComponent({
       ];
     };
 
-    onMounted(() => {
-      if (defaultFullDate.value) {
-        selectedFullDate.value = defaultFullDate.value;
-      }
-      populateDateCalendar();
-    });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+        populateDateCalendar();
+      },
+      { immediate: true }
+    );
 
     watch([calendarYear, calendarMonth], () => {
       populateDateCalendar();

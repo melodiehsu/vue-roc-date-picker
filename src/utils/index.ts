@@ -1,18 +1,18 @@
-import dayjs from 'dayjs';
+import dayjs, { type ConfigType } from 'dayjs';
 import { CalendarType, Language, YearType } from '@/interfaces';
 import locales from '../locales/index';
 import type { LocaleDictionary } from '../locales/index';
 
 const FORMAT_LOOKUP: Record<CalendarType, string> = {
-  date: 'YYYY-MM-DD',
-  month: 'YYYY-MM',
-  year: 'YYYY'
+  [CalendarType.DATE]: 'YYYY-MM-DD',
+  [CalendarType.MONTH]: 'YYYY-MM',
+  [CalendarType.YEAR]: 'YYYY'
 };
 
 const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<CalendarType, string> = {
-  date: 'MM/DD',
-  month: 'MM',
-  year: ''
+  [CalendarType.DATE]: 'MM/DD',
+  [CalendarType.MONTH]: 'MM',
+  [CalendarType.YEAR]: ''
 };
 
 export const getCalendarLang = (lang: Language): LocaleDictionary => {
@@ -37,7 +37,7 @@ export const getCalendarLang = (lang: Language): LocaleDictionary => {
  * @param pattern - Format pattern (e.g., 'YYYY-MM-DD')
  * @returns Formatted date string
  */
-export const formatDate = (date: dayjs.ConfigType, pattern: string) => {
+export const formatDate = (date: ConfigType, pattern: string) => {
   if (!date) {
     return '';
   }

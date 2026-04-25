@@ -9,6 +9,7 @@
     "src/**/__tests__/*"
   ],
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "composite": true,
     "baseUrl": ".",
     "ignoreDeprecations": "6.0",

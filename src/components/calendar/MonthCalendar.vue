@@ -30,9 +30,14 @@ import {
 } from '@/interfaces';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs, type PropType
+  defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
 import dayjs from 'dayjs';
+
+const DEFAULT_SELECTED_TIME: SelectedTime = {
+  label: '',
+  timeValue: undefined
+};
 
 export default defineComponent({
   props: {
@@ -50,7 +55,7 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => ({})
+      default: () => ({ ...DEFAULT_SELECTED_TIME })
     },
     type: {
       required: true,
@@ -99,11 +104,15 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    onMounted(() => {
-      if (defaultFullDate.value) {
-        selectedFullDate.value = defaultFullDate.value;
-      }
-    });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+      },
+      { immediate: true }
+    );
 
     return {
       MONTHS,
