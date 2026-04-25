@@ -18,11 +18,14 @@
           :class="[
             'date-cell',
             {
-              'cursor-pointer': date, 'selected-date': isSelected(date),
+              'cursor-pointer': date && !isDateDisabled(date),
+              'disabled-date': date && isDateDisabled(date),
+              'selected-date': isSelected(date),
             },
           ]"
           data-test="date-cell"
           type="button"
+          :disabled="!date || isDateDisabled(date)"
           @click="handleSelectDate(date)"
         >
           {{ date }}
@@ -65,13 +68,72 @@ export default defineComponent({
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
       default: () => ({})
+    },
+    minDate: {
+      type: [Date, String] as PropType<Date | string | undefined>,
+      default: undefined
+    },
+    maxDate: {
+      type: [Date, String] as PropType<Date | string | undefined>,
+      default: undefined
+    },
+    disableWeekends: {
+      type: Boolean,
+      default: false
+    },
+    disabledDates: {
+      type: Array as PropType<(Date | string)[]>,
+      default: () => []
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, calendarMonth, calendarYearType, defaultFullDate
+      calendarYear,
+      calendarMonth,
+      calendarYearType,
+      defaultFullDate,
+      minDate,
+      maxDate,
+      disableWeekends,
+      disabledDates
     } = toRefs(props);
+    const toDateOnlyTimestamp = (input?: Date | string) => {
+      if (!input) return undefined;
+      const parsed = dayjs(input);
+      if (!parsed.isValid()) return undefined;
+      return parsed.startOf('day').valueOf();
+    };
+
+    const disabledDateSet = computed(() => new Set(
+      disabledDates.value
+        .map((date) => toDateOnlyTimestamp(date))
+        .filter((date): date is number => date !== undefined)
+    ));
+
+    const minDateTimestamp = computed(() => toDateOnlyTimestamp(minDate.value));
+    const maxDateTimestamp = computed(() => toDateOnlyTimestamp(maxDate.value));
+
+    const isDateDisabled = (dateOnCalendar: number | null) => {
+      if (!dateOnCalendar) return true;
+      const targetDate = dayjs(new Date(calendarYear.value, calendarMonth.value, dateOnCalendar));
+      const targetDateTimestamp = targetDate.startOf('day').valueOf();
+
+      if (minDateTimestamp.value !== undefined && targetDateTimestamp < minDateTimestamp.value) {
+        return true;
+      }
+
+      if (maxDateTimestamp.value !== undefined && targetDateTimestamp > maxDateTimestamp.value) {
+        return true;
+      }
+
+      if (disableWeekends.value && [0, 6].includes(targetDate.day())) {
+        return true;
+      }
+
+      return disabledDateSet.value.has(targetDateTimestamp);
+    };
+
     const dateCells = ref<(number | null)[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
 
@@ -93,7 +155,7 @@ export default defineComponent({
     };
 
     const handleSelectDate = (dateOnCalendar: number | null) => {
-      if (!dateOnCalendar) return;
+      if (!dateOnCalendar || isDateDisabled(dateOnCalendar)) return;
       selectedFullDate.value.timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
 
       selectedFullDate.value.label = setDatePickerLabel({
@@ -137,6 +199,7 @@ export default defineComponent({
       selectedFullDate,
       populateDateCalendar,
       isSelected,
+      isDateDisabled,
       handleSelectDate,
       getCalendarLang
     };
@@ -180,6 +243,15 @@ button {
 
     &:hover {
       color: #4390BC;
+    }
+  }
+
+  .disabled-date {
+    opacity: 0.5;
+    cursor: not-allowed;
+
+    &:hover {
+      color: #6a6c6d;
     }
   }
 

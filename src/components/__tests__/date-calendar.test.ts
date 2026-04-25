@@ -85,5 +85,45 @@ describe('Test Component DateCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
+  it('should disable weekend dates when disableWeekends is true', async () => {
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        disableWeekends: true
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
+    const weekendDateCell = dateCells.find((cell) => cell.text() === '2');
+    expect(weekendDateCell?.attributes('disabled')).toBeDefined();
+
+    await weekendDateCell?.trigger('click');
+    expect(wrapper.vm.selectedFullDate.timeValue).toBeUndefined();
+  });
+
+  it('should disable dates by min/max range and disabledDates', async () => {
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        minDate: '2023-09-10',
+        maxDate: '2023-09-20',
+        disabledDates: ['2023-09-11']
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
+    const beforeMinDateCell = dateCells.find((cell) => cell.text() === '9');
+    const disabledDateCell = dateCells.find((cell) => cell.text() === '11');
+    const validDateCell = dateCells.find((cell) => cell.text() === '12');
+    const afterMaxDateCell = dateCells.find((cell) => cell.text() === '21');
+
+    expect(beforeMinDateCell?.attributes('disabled')).toBeDefined();
+    expect(disabledDateCell?.attributes('disabled')).toBeDefined();
+    expect(validDateCell?.attributes('disabled')).toBeUndefined();
+    expect(afterMaxDateCell?.attributes('disabled')).toBeDefined();
+  });
+
   it.todo('show different color of the date today');
 });

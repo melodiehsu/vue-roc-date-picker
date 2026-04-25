@@ -35,6 +35,10 @@ app.use(ROCDatePicker);
 - `disabled`: 是否禁用日期選擇器。
 - `zIndex`: 元素的 z-index。
 - `showClearButton`: 是否顯示清除按鈕。
+- `minDate`: 可選日期下限（包含）。
+- `maxDate`: 可選日期上限（包含）。
+- `disableWeekends`: 是否禁用週六與週日。
+- `disabledDates`: 指定不可選日期清單。
 
 | Name                | Description                                | Type                   | Accepted Values                     | Default Value |
 |---------------------|--------------------------------------------|------------------------|-------------------------------------|---------------|
@@ -47,3 +51,7 @@ app.use(ROCDatePicker);
 | `disabled`          | Whether the date picker is disabled. | Boolean                | `true` or `false`                   | false         |
 | `zIndex`            | Z-index of the pop-up calendar.      | Number                 | Any valid positive integer          | 1             |
 | `showClearButton`   | Whether to show the clear button.    | Boolean                | `true` or `false`                   | true          |
+| `minDate`           | Minimum selectable date (inclusive). | Date \| String         | Valid date value                    | -             |
+| `maxDate`           | Maximum selectable date (inclusive). | Date \| String         | Valid date value                    | -             |
+| `disableWeekends`   | Disable Saturdays and Sundays.       | Boolean                | `true` or `false`                   | false         |
+| `disabledDates`     | Explicit list of disabled dates.     | (Date \| String)[]     | Valid date values                   | []            |
