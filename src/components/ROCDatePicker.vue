@@ -324,29 +324,29 @@ export default defineComponent({
     const initCalendar = () => {
       setCalendarVisibility(type.value);
 
-      if (defaultValue.value || modelValue.value) {
-        const timeValue = defaultValue.value || modelValue.value;
-        const defaultTime = new Date(timeValue as string | number | Date);
-        const defaultYear = defaultTime.getFullYear();
+      const timeValue = defaultValue.value ?? modelValue.value;
+      if (timeValue == null) return;
 
-        if ((yearType.value === YearType.RepublicEra) && (defaultYear <= REPUBLIC_ERA_START_YEAR)) {
-          yearType.value = YearType.CommonEra;
-        } else {
-          yearType.value = calendarYearType.value;
-        }
+      const defaultTime = new Date(timeValue);
+      if (Number.isNaN(defaultTime.getTime())) return;
 
-        selectedTime.value.label = setDatePickerLabel({
-          calendarYearType: yearType.value,
-          selectedDate: defaultTime,
-          formatYear: defaultYear,
-          datePickerType: type.value
-        });
+      const defaultYear = defaultTime.getFullYear();
 
-        selectedTime.value.timeValue = defaultTime;
+      yearType.value = yearType.value === YearType.RepublicEra && defaultYear <= REPUBLIC_ERA_START_YEAR
+        ? YearType.CommonEra
+        : calendarYearType.value;
 
-        monthOnCalendar.value = new Date(defaultTime).getMonth();
-        yearOnCalendar.value = new Date(defaultTime).getFullYear();
-      }
+      selectedTime.value.label = setDatePickerLabel({
+        calendarYearType: yearType.value,
+        selectedDate: defaultTime,
+        formatYear: defaultYear,
+        datePickerType: type.value
+      });
+
+      selectedTime.value.timeValue = defaultTime;
+
+      monthOnCalendar.value = defaultTime.getMonth();
+      yearOnCalendar.value = defaultYear;
     };
 
     const toggleCalender = () => {

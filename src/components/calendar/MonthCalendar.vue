@@ -32,6 +32,7 @@ import {
   computed,
   defineComponent, onMounted, ref, toRefs, type PropType
 } from 'vue';
+import dayjs from 'dayjs';
 
 export default defineComponent({
   props: {
@@ -61,16 +62,14 @@ export default defineComponent({
     const {
       calendarYear, defaultFullDate, calendarYearType, type
     } = toRefs(props);
-    const currentYear = new Date().getFullYear();
     const selectedFullDate = ref<SelectedTime>({});
-    const selectedYear = computed(() => {
-      if (!selectedFullDate.value.timeValue) return undefined;
-      return new Date(selectedFullDate.value.timeValue as Date).getFullYear();
+
+    const selectedDayjs = computed(() => {
+      const { timeValue } = selectedFullDate.value;
+      return timeValue ? dayjs(timeValue) : undefined;
     });
-    const selectedMonth = computed(() => {
-      if (!selectedFullDate.value.timeValue) return undefined;
-      return new Date(selectedFullDate.value.timeValue as Date).getMonth();
-    });
+    const selectedYear = computed(() => selectedDayjs.value?.year());
+    const selectedMonth = computed(() => selectedDayjs.value?.month());
 
     const isSelected = (month: number): boolean => {
       if (
@@ -85,13 +84,14 @@ export default defineComponent({
     };
 
     const handleSelectMonth = (monthOnCalendar: number) => {
-      selectedFullDate.value.timeValue = new Date(calendarYear.value, monthOnCalendar);
+      const timeValue = new Date(calendarYear.value, monthOnCalendar);
+      selectedFullDate.value.timeValue = timeValue;
 
       if (type.value === CalendarType.MONTH) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value || currentYear,
+          selectedDate: timeValue,
+          formatYear: timeValue.getFullYear(),
           datePickerType: CalendarType.MONTH
         });
       }
