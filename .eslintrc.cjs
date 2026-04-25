@@ -8,6 +8,7 @@ const createAliasSetting = require('@vue/eslint-config-airbnb/createAliasSetting
 
 module.exports = {
   root: true,
+  ignorePatterns: ['docs/', 'coverage/', 'dist/', 'dist-ssr/'],
   env: {
     browser: true,
     node: true,

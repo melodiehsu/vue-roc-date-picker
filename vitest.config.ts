@@ -11,7 +11,13 @@ export default mergeConfig(
       root: fileURLToPath(new URL('./', import.meta.url)),
       coverage: {
         enabled: true,
-        reporter: ['html']
+        reporter: ['html', 'text-summary', 'json'],
+        thresholds: {
+          lines: 70,
+          functions: 70,
+          branches: 65,
+          statements: 70
+        }
       }
     }
   })
