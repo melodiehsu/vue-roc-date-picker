@@ -6,13 +6,16 @@
           v-for="(month, index) in MONTHS"
           :key="index"
           :class="[
-            'month-cell cursor-pointer',
+            'month-cell',
             {
               'selected-month': isSelected(month),
+              'cursor-pointer': !isMonthDisabled(month),
+              'disabled-month': isMonthDisabled(month),
             },
           ]"
           data-test="month-cell"
           type="button"
+          :disabled="isMonthDisabled(month)"
           @click="handleSelectMonth(month)"
         >
           {{ getCalendarLang(lang).month[month] }}
@@ -24,7 +27,9 @@
 
 <script lang="ts">
 import { MONTHS } from '@/constants';
-import { getCalendarLang, setDatePickerLabel } from '@/utils';
+import {
+  getCalendarLang, isDateOutOfRange, setDatePickerLabel
+} from '@/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
@@ -57,6 +62,14 @@ export default defineComponent({
       type: Object as PropType<SelectedTime>,
       default: () => ({ ...DEFAULT_SELECTED_TIME })
     },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
+      default: ''
+    },
     type: {
       required: true,
       type: String as PropType<CalendarType>
@@ -65,7 +78,7 @@ export default defineComponent({
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, defaultFullDate, calendarYearType, type
+      calendarYear, defaultFullDate, calendarYearType, type, minDate, maxDate
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
 
@@ -88,7 +101,16 @@ export default defineComponent({
       return false;
     };
 
+    const isMonthDisabled = (month: number) => isDateOutOfRange({
+      targetDate: new Date(calendarYear.value, month, 1),
+      minDate: minDate.value,
+      maxDate: maxDate.value,
+      unit: 'month'
+    });
+
     const handleSelectMonth = (monthOnCalendar: number) => {
+      if (isMonthDisabled(monthOnCalendar)) return;
+
       const timeValue = new Date(calendarYear.value, monthOnCalendar);
       selectedFullDate.value.timeValue = timeValue;
 
@@ -114,10 +136,15 @@ export default defineComponent({
       { immediate: true }
     );
 
+    watch(defaultFullDate, () => {
+      selectedFullDate.value = defaultFullDate.value || {};
+    }, { deep: true });
+
     return {
       MONTHS,
       selectedFullDate,
       isSelected,
+      isMonthDisabled,
       handleSelectMonth,
       getCalendarLang
     };
@@ -152,8 +179,21 @@ button {
     }
   }
 
+  .disabled-month {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-month {
     font-weight: 600;
+    color: #4390BC;
+  }
+
+  .selected-month.disabled-month {
     color: #4390BC;
   }
 }

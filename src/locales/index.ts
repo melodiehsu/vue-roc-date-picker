@@ -38,6 +38,9 @@ export const TRANSLATE: Record<'zhTW' | 'en', LocaleDictionary> = {
     yearType: {
       RepublicEra: '民國',
       CommonEra: '西元'
+    },
+    action: {
+      today: '今天'
     }
   },
   en: {
@@ -67,6 +70,9 @@ export const TRANSLATE: Record<'zhTW' | 'en', LocaleDictionary> = {
     yearType: {
       RepublicEra: 'ROC',
       CommonEra: 'CE'
+    },
+    action: {
+      today: 'Today'
     }
   }
 };

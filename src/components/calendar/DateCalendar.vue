@@ -18,11 +18,15 @@
           :class="[
             'date-cell',
             {
-              'cursor-pointer': date, 'selected-date': isSelected(date),
+              'cursor-pointer': date && !isDateDisabled(date),
+              'selected-date': isSelected(date),
+              'today-date': isToday(date),
+              'disabled-date': date && isDateDisabled(date),
             },
           ]"
           data-test="date-cell"
           type="button"
+          :disabled="!date || isDateDisabled(date)"
           @click="handleSelectDate(date)"
         >
           {{ date }}
@@ -37,7 +41,9 @@ import { WEEK_DAYS } from '@/constants';
 import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
-import { getCalendarLang, setDatePickerLabel } from '@/utils';
+import {
+  getCalendarLang, isDateOutOfRange, setDatePickerLabel
+} from '@/utils';
 import dayjs from 'dayjs';
 import {
   computed,
@@ -70,12 +76,20 @@ export default defineComponent({
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
       default: () => ({ ...DEFAULT_SELECTED_TIME })
+    },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
+      default: ''
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, calendarMonth, calendarYearType, defaultFullDate
+      calendarYear, calendarMonth, calendarYearType, defaultFullDate, minDate, maxDate
     } = toRefs(props);
     const dateCells = ref<(number | null)[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
@@ -101,8 +115,27 @@ export default defineComponent({
       return false;
     };
 
+    const isToday = (date: number | null): boolean => {
+      if (!date) return false;
+
+      const today = dayjs();
+      const currentDate = dayjs(new Date(calendarYear.value, calendarMonth.value, date));
+
+      return currentDate.isSame(today, 'day');
+    };
+
+    const isDateDisabled = (date: number | null) => {
+      if (!date) return false;
+
+      return isDateOutOfRange({
+        targetDate: new Date(calendarYear.value, calendarMonth.value, date),
+        minDate: minDate.value,
+        maxDate: maxDate.value
+      });
+    };
+
     const handleSelectDate = (dateOnCalendar: number | null) => {
-      if (!dateOnCalendar) return;
+      if (!dateOnCalendar || isDateDisabled(dateOnCalendar)) return;
 
       const timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
       selectedFullDate.value.timeValue = timeValue;
@@ -142,6 +175,10 @@ export default defineComponent({
       { immediate: true }
     );
 
+    watch(defaultFullDate, () => {
+      selectedFullDate.value = defaultFullDate.value || {};
+    }, { deep: true });
+
     watch([calendarYear, calendarMonth], () => {
       populateDateCalendar();
     });
@@ -152,6 +189,8 @@ export default defineComponent({
       selectedFullDate,
       populateDateCalendar,
       isSelected,
+      isToday,
+      isDateDisabled,
       handleSelectDate,
       getCalendarLang
     };
@@ -198,6 +237,20 @@ button {
     }
   }
 
+  .today-date {
+    color: #4390BC;
+    font-weight: 600;
+  }
+
+  .disabled-date {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-date {
     position: relative;
     color: #ffffff;
@@ -218,6 +271,11 @@ button {
       border-radius: 50%;
       background: #4390BC;
     }
+  }
+
+  .selected-date.today-date,
+  .selected-date.disabled-date {
+    color: #ffffff;
   }
 }
 </style>
