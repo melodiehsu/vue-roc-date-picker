@@ -12,9 +12,8 @@ node_modules
 dist
 dist-ssr
 coverage
-docs
 *.local
-docs/assets
+*.tsbuildinfo
 
 /cypress/videos/
 /cypress/screenshots/

@@ -1,10 +1,13 @@
 import { fileURLToPath } from 'node:url';
-import { mergeConfig, defineConfig, configDefaults } from 'vitest/config';
+import type { UserConfig } from 'vite';
+import { mergeConfig, configDefaults } from 'vitest/config';
 import viteConfig from './vite.config';
 
+const typedViteConfig = viteConfig as UserConfig;
+
 export default mergeConfig(
-  viteConfig,
-  defineConfig({
+  typedViteConfig,
+  {
     test: {
       environment: 'jsdom',
       exclude: [...configDefaults.exclude, 'e2e/*'],
@@ -20,5 +23,5 @@ export default mergeConfig(
         }
       }
     }
-  })
+  }
 );
