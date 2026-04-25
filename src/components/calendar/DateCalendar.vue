@@ -75,9 +75,13 @@ export default defineComponent({
     const dateCells = ref<(number | null)[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
 
-    const selectedYear = computed(() => dayjs(selectedFullDate.value.timeValue).year());
-    const selectedMonth = computed(() => dayjs(selectedFullDate.value.timeValue).month());
-    const selectedDate = computed(() => dayjs(selectedFullDate.value.timeValue).date());
+    const selectedDayjs = computed(() => {
+      const { timeValue } = selectedFullDate.value;
+      return timeValue ? dayjs(timeValue) : undefined;
+    });
+    const selectedYear = computed(() => selectedDayjs.value?.year());
+    const selectedMonth = computed(() => selectedDayjs.value?.month());
+    const selectedDate = computed(() => selectedDayjs.value?.date());
 
     const isSelected = (date: number | null): boolean => {
       if (
@@ -94,12 +98,14 @@ export default defineComponent({
 
     const handleSelectDate = (dateOnCalendar: number | null) => {
       if (!dateOnCalendar) return;
-      selectedFullDate.value.timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
+
+      const timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
+      selectedFullDate.value.timeValue = timeValue;
 
       selectedFullDate.value.label = setDatePickerLabel({
         calendarYearType: calendarYearType.value,
-        selectedDate: selectedFullDate.value.timeValue,
-        formatYear: selectedYear.value,
+        selectedDate: timeValue,
+        formatYear: timeValue.getFullYear(),
         datePickerType: CalendarType.DATE
       });
 

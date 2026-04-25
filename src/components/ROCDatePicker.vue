@@ -194,10 +194,13 @@ import AngleRightIcon from './icons/AngleRightIcon.vue';
 import CalendarDayIcon from './icons/CalendarDayIcon.vue';
 import AnglesRightIcon from './icons/AnglesRightIcon.vue';
 
+// Constants
 const DEFAULT_SELECTED_TIME: SelectedTime = {
   label: '',
   timeValue: undefined
 };
+const REPUBLIC_ERA_START_YEAR = 1911;
+const REPUBLIC_ERA_START_YEAR_DECADE = 1910;
 
 export default defineComponent({
   components: {
@@ -214,7 +217,7 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: [Date, String],
+      type: [Date, String] as PropType<Date | String>,
       default: ''
     },
     lang: {
@@ -292,7 +295,7 @@ export default defineComponent({
       // if currently selecting year, return the year on calendar is larger than the decade
       if (isYearCalendarVisible.value) {
         const beginDecadeYearOnCalendar = yearOnCalendar.value - (yearOnCalendar.value % 10);
-        return beginDecadeYearOnCalendar >= 1910; // 1912 - (1912 % 10)
+        return beginDecadeYearOnCalendar >= REPUBLIC_ERA_START_YEAR_DECADE; // 1912 - (1912 % 10)
       }
       return getRepublicEraYear(yearOnCalendar.value) > 0;
     });
@@ -325,28 +328,29 @@ export default defineComponent({
     const initCalendar = () => {
       setCalendarVisibility(type.value);
 
-      if (defaultValue.value || modelValue.value) {
-        const defaultTime = new Date(defaultValue.value || modelValue.value);
-        const defaultYear = defaultTime.getFullYear();
+      const timeValue = defaultValue.value ?? modelValue.value;
+      if (timeValue == null) return;
 
-        if ((yearType.value === YearType.RepublicEra) && (defaultYear <= 1911)) {
-          yearType.value = YearType.CommonEra;
-        } else {
-          yearType.value = calendarYearType.value;
-        }
+      const defaultTime = new Date(timeValue);
+      if (Number.isNaN(defaultTime.getTime())) return;
 
-        selectedTime.value.label = setDatePickerLabel({
-          calendarYearType: yearType.value,
-          selectedDate: defaultTime,
-          formatYear: defaultYear,
-          datePickerType: type.value
-        });
+      const defaultYear = defaultTime.getFullYear();
 
-        selectedTime.value.timeValue = defaultTime;
+      yearType.value = yearType.value === YearType.RepublicEra && defaultYear <= REPUBLIC_ERA_START_YEAR
+        ? YearType.CommonEra
+        : calendarYearType.value;
 
-        monthOnCalendar.value = new Date(defaultTime).getMonth();
-        yearOnCalendar.value = new Date(defaultTime).getFullYear();
-      }
+      selectedTime.value.label = setDatePickerLabel({
+        calendarYearType: yearType.value,
+        selectedDate: defaultTime,
+        formatYear: defaultYear,
+        datePickerType: type.value
+      });
+
+      selectedTime.value.timeValue = defaultTime;
+
+      monthOnCalendar.value = defaultTime.getMonth();
+      yearOnCalendar.value = defaultYear;
     };
 
     const toggleCalendar = () => {

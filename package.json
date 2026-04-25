@@ -24,13 +24,15 @@
   ],
   "main": "./dist/vue-roc-date-picker.umd.js",
   "module": "./dist/vue-roc-date-picker.es.js",
-  "typings": "./src/interfaces/index.d.ts",
+  "typings": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/vue-roc-date-picker.es.js",
       "require": "./dist/vue-roc-date-picker.umd.js"
     },
-    "./dist/style.css": "./dist/style.css"
+    "./dist/style.css": "./dist/style.css",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "dev": "vite --port 5566 --open",

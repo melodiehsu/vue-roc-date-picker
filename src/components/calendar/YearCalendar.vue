@@ -28,6 +28,7 @@ import { CalendarType, YearType, type SelectedTime } from '@/interfaces';
 import {
   computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';
+import dayjs from 'dayjs';
 
 export default defineComponent({
   props: {
@@ -59,7 +60,12 @@ export default defineComponent({
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
+
+    const selectedDayjs = computed(() => {
+      const { timeValue } = selectedFullDate.value;
+      return timeValue ? dayjs(timeValue) : undefined;
+    });
+    const selectedYear = computed(() => selectedDayjs.value?.year());
 
     const populateYearCalendar = () => {
       years.value = [];
@@ -88,13 +94,14 @@ export default defineComponent({
     };
 
     const handleSelectYear = (yearOnCalendar: number) => {
-      selectedFullDate.value.timeValue = new Date(yearOnCalendar, 0);
+      const timeValue = new Date(yearOnCalendar, 0);
+      selectedFullDate.value.timeValue = timeValue;
 
       if (type.value === CalendarType.YEAR) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value,
+          selectedDate: timeValue,
+          formatYear: timeValue.getFullYear(),
           datePickerType: CalendarType.YEAR
         });
       }
