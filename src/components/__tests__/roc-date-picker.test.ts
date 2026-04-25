@@ -237,7 +237,7 @@ describe('Test Component ROCDatePicker', () => {
     wrapper.vm.clearSelectedTime();
     await wrapper.vm.$nextTick();
     expect(getInputText()).toBe('');
-    wrapper.setProps({ type: CalendarType.DATE });
+    await wrapper.setProps({ type: CalendarType.DATE });
 
     await datePickerInput!.trigger('click');
     const getMonthButton = () => wrapper.find('[data-test="month-button"]');
@@ -269,9 +269,10 @@ describe('Test Component ROCDatePicker', () => {
 
     wrapper.vm.clearSelectedTime();
     await wrapper.vm.$nextTick();
-    wrapper.setProps({ type: CalendarType.DATE });
+    await wrapper.setProps({ type: CalendarType.DATE });
 
     await datePickerInput!.trigger('click');
+    await wrapper.find('[data-test="year-button"]').trigger('click');
     await getYearCells().at(3)?.trigger('click');
 
     expect(wrapper.find('[data-test="date-calendar"]').exists()).toBe(false);
@@ -319,5 +320,86 @@ describe('Test Component ROCDatePicker', () => {
     // click next decade (1910-1919)
     await wrapper.find('[data-test="next-decade"]').trigger('click');
     expect(wrapper.find('[data-test="year-type-switch"]').exists()).toBe(true);
+  });
+
+  it('sync external modelValue and calendarYearType changes', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        modelValue: '2023-05-10'
+      }
+    });
+
+    await wrapper.setProps({ modelValue: '2024-06-15' });
+
+    expect(wrapper.vm.yearOnCalendar).toBe(2024);
+    expect(wrapper.vm.monthOnCalendar).toBe(5);
+    expect(wrapper.vm.selectedTime.label).toBe('113/06/15');
+
+    await wrapper.setProps({ calendarYearType: YearType.CommonEra });
+    expect(wrapper.vm.selectedTime.label).toBe('2024-06-15');
+  });
+
+  it('close calendar on outside click by default', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      attachTo: document.body
+    });
+
+    await wrapper.find('[data-test="date-picker-input"]').trigger('click');
+    expect(wrapper.vm.isCalendarVisible).toBe(true);
+
+    document.body.click();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.isCalendarVisible).toBe(false);
+    wrapper.unmount();
+  });
+
+  it('keep calendar open when closeOnClickOutside is disabled', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      attachTo: document.body,
+      props: {
+        closeOnClickOutside: false
+      }
+    });
+
+    await wrapper.find('[data-test="date-picker-input"]').trigger('click');
+    document.body.click();
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.isCalendarVisible).toBe(true);
+    wrapper.unmount();
+  });
+
+  it('close calendar on escape key', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      attachTo: document.body
+    });
+
+    await wrapper.find('[data-test="date-picker-input"]').trigger('click');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.isCalendarVisible).toBe(false);
+    wrapper.unmount();
+  });
+
+  it('select today from shortcut button', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        showTodayButton: true
+      }
+    });
+
+    await wrapper.find('[data-test="date-picker-input"]').trigger('click');
+    await wrapper.find('[data-test="today-button"]').trigger('click');
+
+    const today = new Date();
+    const selectedDate = wrapper.vm.selectedTime.timeValue as Date;
+
+    expect(selectedDate.getFullYear()).toBe(today.getFullYear());
+    expect(selectedDate.getMonth()).toBe(today.getMonth());
+    expect(selectedDate.getDate()).toBe(today.getDate());
+    expect(wrapper.vm.isCalendarVisible).toBe(false);
+    expect(wrapper.emitted('update:modelValue')).toBeTruthy();
   });
 });

@@ -59,6 +59,7 @@
               v-model="selectedDate"
               :type="CalendarType.DATE"
               :lang="lang"
+              show-today-button
             />
             <div class="selected-value">
               {{ selectedDate }}

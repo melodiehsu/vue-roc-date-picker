@@ -67,4 +67,29 @@ describe('Test Component MonthCalendar', () => {
     const { selectedFullDate } = wrapper.vm;
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
+
+  it('disable months outside min and max range', async () => {
+    const wrapper = mount(MonthCalendar, {
+      props: {
+        ...defaultProps,
+        type: CalendarType.MONTH,
+        minDate: '2023-03-01',
+        maxDate: '2023-10-01',
+        calendarYear: 2023
+      }
+    });
+
+    const monthCells = wrapper.findAll('[data-test="month-cell"]');
+    const disabledMonth = monthCells.at(1);
+    const enabledMonth = monthCells.at(2);
+
+    expect(disabledMonth?.attributes('disabled')).toBeDefined();
+    expect(enabledMonth?.attributes('disabled')).toBeUndefined();
+
+    await disabledMonth?.trigger('click');
+    expect(wrapper.emitted('click')).toBeFalsy();
+
+    await enabledMonth?.trigger('click');
+    expect(wrapper.emitted('click')).toBeTruthy();
+  });
 });

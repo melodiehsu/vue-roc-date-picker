@@ -6,13 +6,16 @@
           v-for="(year, index) in years"
           :key="index"
           :class="[
-            'year-cell cursor-pointer',
+            'year-cell',
             {
               'selected-year': isSelected(year),
+              'cursor-pointer': !isYearDisabled(year),
+              'disabled-year': isYearDisabled(year),
             },
           ]"
           data-test="year-cell"
           type="button"
+          :disabled="isYearDisabled(year)"
           @click="handleSelectYear(year)"
         >
           {{ calendarYearType === YearType.CommonEra ? year : getRepublicEraYear(year) }}
@@ -23,7 +26,9 @@
 </template>
 
 <script lang="ts">
-import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
+import {
+  getRepublicEraYear, isDateOutOfRange, setDatePickerLabel
+} from '@/utils';
 import { CalendarType, YearType, type SelectedTime } from '@/interfaces';
 import {
   computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
@@ -50,12 +55,20 @@ export default defineComponent({
     decadeRange: {
       required: true,
       type: Array as PropType<number[]>
+    },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
+      default: ''
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      defaultFullDate, calendarYearType, type, decadeRange
+      defaultFullDate, calendarYearType, type, decadeRange, minDate, maxDate
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
@@ -87,14 +100,23 @@ export default defineComponent({
       return false;
     };
 
+    const isYearDisabled = (year: number) => isDateOutOfRange({
+      targetDate: new Date(year, 0, 1),
+      minDate: minDate.value,
+      maxDate: maxDate.value,
+      unit: 'year'
+    });
+
     const handleSelectYear = (yearOnCalendar: number) => {
+      if (isYearDisabled(yearOnCalendar)) return;
+
       selectedFullDate.value.timeValue = new Date(yearOnCalendar, 0);
 
       if (type.value === CalendarType.YEAR) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
           selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value,
+          formatYear: yearOnCalendar,
           datePickerType: CalendarType.YEAR
         });
       }
@@ -113,13 +135,17 @@ export default defineComponent({
       populateYearCalendar();
     }, { deep: true });
 
+    watch(defaultFullDate, () => {
+      selectedFullDate.value = defaultFullDate.value || {};
+    }, { deep: true });
+
     return {
       YearType,
       years,
       selectedFullDate,
       isSelected,
+      isYearDisabled,
       handleSelectYear,
-      getCalendarLang,
       getRepublicEraYear
     };
   }
@@ -154,8 +180,21 @@ button {
     }
   }
 
+  .disabled-year {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-year {
     font-weight: 600;
+    color: #4390BC;
+  }
+
+  .selected-year.disabled-year {
     color: #4390BC;
   }
 }

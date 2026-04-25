@@ -2,6 +2,8 @@ import dayjs from 'dayjs';
 import { CalendarType, Language, YearType } from '@/interfaces';
 import locales from '../locales/index';
 
+type DateBoundaryUnit = 'day' | 'month' | 'year';
+
 const FORMAT_LOOKUP: Record<string, string> = {
   date: 'YYYY-MM-DD',
   month: 'YYYY-MM',
@@ -31,6 +33,46 @@ export const formatDate = (date: any, pattern: string) => {
   }
 
   return dayjs(date).format(pattern);
+};
+
+export const getValidDate = (dateValue: Date | string | undefined) => {
+  if (!dateValue) return undefined;
+
+  const parsedDate = dayjs(dateValue);
+  return parsedDate.isValid() ? parsedDate.toDate() : undefined;
+};
+
+export const isDateOutOfRange = ({
+  targetDate,
+  minDate,
+  maxDate,
+  unit = 'day'
+}: {
+  targetDate: Date | string | undefined,
+  minDate?: Date | string,
+  maxDate?: Date | string,
+  unit?: DateBoundaryUnit
+}) => {
+  const parsedTargetDate = getValidDate(targetDate);
+  if (!parsedTargetDate) return false;
+
+  const normalizedTargetDate = dayjs(parsedTargetDate).startOf(unit);
+  const normalizedMinDate = getValidDate(minDate)
+    ? dayjs(minDate).startOf(unit)
+    : undefined;
+  const normalizedMaxDate = getValidDate(maxDate)
+    ? dayjs(maxDate).startOf(unit)
+    : undefined;
+
+  if (normalizedMinDate && normalizedTargetDate.isBefore(normalizedMinDate)) {
+    return true;
+  }
+
+  if (normalizedMaxDate && normalizedTargetDate.isAfter(normalizedMaxDate)) {
+    return true;
+  }
+
+  return false;
 };
 
 export const getRepublicEraYear = (year: number) => year - 1911;
