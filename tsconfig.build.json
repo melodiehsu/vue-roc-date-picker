@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.app.json",
+  "include": [
+    "src/components/**/*",
+    "src/constants/**/*",
+    "src/interfaces/**/*",
+    "src/locales/**/*",
+    "src/utils/**/*",
+    "env.d.ts"
+  ],
+  "exclude": [
+    "src/**/__tests__/*",
+    "src/App.vue",
+    "src/main.ts"
+  ],
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "./src"
+  }
+}

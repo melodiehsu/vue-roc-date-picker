@@ -1,31 +1,30 @@
-import dayjs from 'dayjs';
+import dayjs, { type ConfigType } from 'dayjs';
 import { CalendarType, Language, YearType } from '@/interfaces';
 import locales from '../locales/index';
 
-const FORMAT_LOOKUP: Record<string, string> = {
-  date: 'YYYY-MM-DD',
-  month: 'YYYY-MM',
-  year: 'YYYY'
+const FORMAT_LOOKUP: Record<CalendarType, string> = {
+  [CalendarType.DATE]: 'YYYY-MM-DD',
+  [CalendarType.MONTH]: 'YYYY-MM',
+  [CalendarType.YEAR]: 'YYYY'
 };
 
-const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<string, string> = {
-  date: 'MM/DD',
-  month: 'MM',
-  year: ''
+const REPUBLIC_ERA_YEAR_FORMAT_LOOKUP: Record<CalendarType, string> = {
+  [CalendarType.DATE]: 'MM/DD',
+  [CalendarType.MONTH]: 'MM',
+  [CalendarType.YEAR]: ''
 };
 
 export const getCalendarLang = (lang: Language) => {
-  const langLookup: Record<string, any> = {
-    zhTW: locales.zhTW,
-    en: locales.en
+  const langLookup = {
+    [Language.ZH_TW]: locales.zhTW,
+    [Language.EN]: locales.en
   };
-  const unsupportedLang = lang in langLookup;
 
-  if (!lang || !unsupportedLang) return langLookup.en;
+  if (!lang || !(lang in langLookup)) return langLookup[Language.EN];
   return langLookup[lang];
 };
 
-export const formatDate = (date: any, pattern: string) => {
+export const formatDate = (date: ConfigType, pattern: string) => {
   if (!date) {
     return '';
   }
@@ -44,7 +43,7 @@ export const setDatePickerLabel = ({
   calendarYearType: YearType,
   selectedDate: Date,
   formatYear: number,
-  datePickerType: string
+  datePickerType: CalendarType
 }) => {
   const format = FORMAT_LOOKUP[datePickerType];
   const republicEraYearFormat = REPUBLIC_ERA_YEAR_FORMAT_LOOKUP[datePickerType];

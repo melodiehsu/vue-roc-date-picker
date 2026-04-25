@@ -30,8 +30,13 @@ import {
 } from '@/interfaces';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs, type PropType
+  defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
+
+const DEFAULT_SELECTED_TIME: SelectedTime = {
+  label: '',
+  timeValue: undefined
+};
 
 export default defineComponent({
   props: {
@@ -49,7 +54,7 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => {}
+      default: () => ({ ...DEFAULT_SELECTED_TIME })
     },
     type: {
       required: true,
@@ -79,13 +84,14 @@ export default defineComponent({
     };
 
     const handleSelectMonth = (monthOnCalendar: number) => {
-      selectedFullDate.value.timeValue = new Date(calendarYear.value, monthOnCalendar);
+      const selectedDate = new Date(calendarYear.value, monthOnCalendar);
+      selectedFullDate.value.timeValue = selectedDate;
 
       if (type.value === CalendarType.MONTH) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value,
+          selectedDate,
+          formatYear: selectedDate.getFullYear(),
           datePickerType: CalendarType.MONTH
         });
       }
@@ -93,11 +99,15 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    onMounted(() => {
-      if (defaultFullDate.value) {
-        selectedFullDate.value = defaultFullDate.value;
-      }
-    });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+      },
+      { immediate: true }
+    );
 
     return {
       MONTHS,
