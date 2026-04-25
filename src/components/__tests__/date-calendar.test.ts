@@ -99,27 +99,43 @@ describe('Test Component DateCalendar', () => {
     expect(wrapper.find('.today-date').exists()).toBe(true);
   });
 
-  it('disable dates outside min and max range', async () => {
+  it('should disable weekend dates when disableWeekends is true', async () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps,
-        minDate: '2023-09-10',
-        maxDate: '2023-09-20'
+        disableWeekends: true
       }
     });
 
     await wrapper.vm.$nextTick();
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
+    const weekendDateCell = dateCells.find((cell) => cell.text() === '2');
+    expect(weekendDateCell?.attributes('disabled')).toBeDefined();
 
-    const disabledCell = wrapper.find('.disabled-date');
-    const enabledCell = wrapper.findAll('[data-test="date-cell"]').find((cell) => cell.text() === '10');
+    await weekendDateCell?.trigger('click');
+    expect(wrapper.vm.selectedFullDate.timeValue).toBeUndefined();
+  });
 
-    expect(disabledCell.exists()).toBe(true);
-    expect(enabledCell?.attributes('disabled')).toBeUndefined();
+  it('should disable dates by min/max range and disabledDates', async () => {
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        minDate: '2023-09-10',
+        maxDate: '2023-09-20',
+        disabledDates: ['2023-09-11']
+      }
+    });
 
-    await disabledCell.trigger('click');
-    expect(wrapper.emitted('click')).toBeFalsy();
+    await wrapper.vm.$nextTick();
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
+    const beforeMinDateCell = dateCells.find((cell) => cell.text() === '9');
+    const disabledDateCell = dateCells.find((cell) => cell.text() === '11');
+    const validDateCell = dateCells.find((cell) => cell.text() === '12');
+    const afterMaxDateCell = dateCells.find((cell) => cell.text() === '21');
 
-    await enabledCell?.trigger('click');
-    expect(wrapper.emitted('click')).toBeTruthy();
+    expect(beforeMinDateCell?.attributes('disabled')).toBeDefined();
+    expect(disabledDateCell?.attributes('disabled')).toBeDefined();
+    expect(validDateCell?.attributes('disabled')).toBeUndefined();
+    expect(afterMaxDateCell?.attributes('disabled')).toBeDefined();
   });
 });

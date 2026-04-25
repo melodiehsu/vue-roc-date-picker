@@ -48,6 +48,8 @@ app.use(ROCDatePicker);
 - `showTodayButton`: 是否顯示今天快捷按鈕。
 - `closeOnClickOutside`: 點擊元件外部時是否自動關閉。
 - `closeOnEscape`: 按下 `Esc` 時是否自動關閉。
+- `disableWeekends`: 是否禁用週六與週日。
+- `disabledDates`: 指定不可選日期清單。
 
 | Name                | Description                                | Type                   | Accepted Values                     | Default Value |
 |---------------------|--------------------------------------------|------------------------|-------------------------------------|---------------|
@@ -65,3 +67,5 @@ app.use(ROCDatePicker);
 | `showTodayButton`    | Show a shortcut button that selects today. | Boolean           | `true` or `false`                   | false         |
 | `closeOnClickOutside` | Close the calendar when clicking outside. | Boolean           | `true` or `false`                   | true          |
 | `closeOnEscape`      | Close the calendar when pressing `Esc`.    | Boolean           | `true` or `false`                   | true          |
+| `disableWeekends`   | Disable Saturdays and Sundays.       | Boolean                | `true` or `false`                   | false         |
+| `disabledDates`     | Explicit list of disabled dates.     | (Date \| String)[]     | Valid date values                   | []            |
