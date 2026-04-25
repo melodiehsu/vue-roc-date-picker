@@ -1,10 +1,13 @@
 <template>
   <div>
     <div class="date-picker-container">
-      <button
+      <div
         class="input-container"
-        type="button"
-        @click="toggleCalender"
+        role="button"
+        tabindex="0"
+        @click="toggleCalendar"
+        @keydown.enter.prevent="toggleCalendar"
+        @keydown.space.prevent="toggleCalendar"
       >
         <div class="input-icon">
           <CalendarDayIcon />
@@ -32,7 +35,7 @@
         >
           <XmarkIcon />
         </button>
-      </button>
+      </div>
 
       <!-- calendar -->
       <div
@@ -90,7 +93,7 @@
               data-test="month-button"
               @click="setCalendarVisibility(CalendarType.MONTH)"
             >
-              {{ getCalendarLang(lang).month[monthOnCalendar] }}
+              {{ getMonthLabel(monthOnCalendar) }}
             </button>
           </div>
 
@@ -211,7 +214,7 @@ export default defineComponent({
   },
   props: {
     modelValue: {
-      type: Date || String,
+      type: [Date, String],
       default: ''
     },
     lang: {
@@ -293,6 +296,7 @@ export default defineComponent({
       }
       return getRepublicEraYear(yearOnCalendar.value) > 0;
     });
+    const getMonthLabel = (month: number) => Object.values(getCalendarLang(lang.value).month)[month] || '';
 
     const getDecadeRange = () => {
       const decadeStartYear: number = Math.floor(yearOnCalendar.value / 10) * 10;
@@ -345,7 +349,7 @@ export default defineComponent({
       }
     };
 
-    const toggleCalender = () => {
+    const toggleCalendar = () => {
       if (!disabled.value) isCalendarVisible.value = !isCalendarVisible.value;
     };
 
@@ -464,10 +468,11 @@ export default defineComponent({
       goToLastYear,
       goToNextMonth,
       goToLastMonth,
-      toggleCalender,
+      toggleCalendar,
       goToNextDecade,
       goToLastDecade,
       getCalendarLang,
+      getMonthLabel,
       handleDateChange,
       handleYearChange,
       clearSelectedTime,

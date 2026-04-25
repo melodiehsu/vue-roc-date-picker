@@ -41,7 +41,7 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => {}
+      default: () => ({})
     },
     type: {
       required: true,
