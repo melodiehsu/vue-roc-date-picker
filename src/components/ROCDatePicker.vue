@@ -160,6 +160,10 @@
             :calendar-year="yearOnCalendar"
             :calendar-month="monthOnCalendar"
             :default-full-date="selectedTime"
+            :min-date="minDate"
+            :max-date="maxDate"
+            :disable-weekends="disableWeekends"
+            :disabled-dates="disabledDates"
             @click="handleDateChange"
           />
         </div>
@@ -248,12 +252,33 @@ export default defineComponent({
     showClearButton: {
       type: Boolean,
       default: true
+    },
+    minDate: {
+      type: [Date, String],
+      default: undefined
+    },
+    maxDate: {
+      type: [Date, String],
+      default: undefined
+    },
+    disableWeekends: {
+      type: Boolean,
+      default: false
+    },
+    disabledDates: {
+      type: Array as PropType<(Date | string)[]>,
+      default: () => []
     }
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
     const {
-      type, defaultValue, disabled, calendarYearType, lang, modelValue
+      type,
+      defaultValue,
+      disabled,
+      calendarYearType,
+      lang,
+      modelValue
     } = toRefs(props);
     const isCalendarVisible = ref(false);
     const isDateCalendarVisible = ref(false);
