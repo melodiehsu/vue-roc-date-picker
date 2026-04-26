@@ -30,7 +30,6 @@
           :placeholder="placeholder"
           readonly
           :disabled="disabled"
-          readonly
           tabindex="-1"
         />
 
@@ -192,7 +191,7 @@
             :disabled="isTodayDisabled"
             @click="selectToday"
           >
-            {{ getCalendarLang(lang).action.today }}
+            {{ getCalendarLang(lang).actions.today }}
           </button>
         </div>
 
@@ -377,7 +376,7 @@ export default defineComponent({
     };
 
     const getResolvedYearType = (dateValue?: Date, preferredYearType = calendarYearType.value) => {
-      if (dateValue && preferredYearType === YearType.RepublicEra && dateValue.getFullYear() <= 1911) {
+      if (dateValue && preferredYearType === YearType.RepublicEra && dateValue.getFullYear() <= REPUBLIC_ERA_START_YEAR) {
         return YearType.CommonEra;
       }
 
@@ -514,7 +513,7 @@ export default defineComponent({
       }
 
       const resolvedYear = resolvedDate.getFullYear();
-      yearType.value = calendarYearType.value === YearType.RepublicEra && resolvedYear <= 1911
+      yearType.value = calendarYearType.value === YearType.RepublicEra && resolvedYear <= REPUBLIC_ERA_START_YEAR
         ? YearType.CommonEra
         : calendarYearType.value;
 
@@ -622,13 +621,20 @@ export default defineComponent({
       emit('update:modelValue', selectedTime.value.timeValue);
     };
 
-    const handleDocumentClick = (event: MouseEvent) => {
+    const handleDocumentClickOutside = (event: MouseEvent) => {
       const eventTarget = event.target as Node | null;
+      const eventPath = typeof event.composedPath === 'function' ? event.composedPath() : [];
+      const datePickerElement = datePickerRef.value;
+      const clickedInsideDatePicker = datePickerElement
+        ? eventPath.includes(datePickerElement)
+          || !!(eventTarget && datePickerElement.contains(eventTarget))
+        : false;
+
       if (
         !closeOnClickOutside.value
         || !isCalendarVisible.value
         || !eventTarget
-        || datePickerRef.value?.contains(eventTarget)
+        || clickedInsideDatePicker
       ) {
         return;
       }
@@ -647,13 +653,14 @@ export default defineComponent({
       syncSelectedTimeFromProps,
       { immediate: true }
     );
+
     onMounted(() => {
-      document.addEventListener('click', handleDocumentClick);
+      document.addEventListener('click', handleDocumentClickOutside);
       document.addEventListener('keydown', handleDocumentKeydown);
     });
 
     onBeforeUnmount(() => {
-      document.removeEventListener('click', handleDocumentClick);
+      document.removeEventListener('click', handleDocumentClickOutside);
       document.removeEventListener('keydown', handleDocumentKeydown);
     });
 

@@ -35,6 +35,25 @@ describe('Test Component ROCDatePicker', () => {
     );
   });
 
+  it('keeps year calendar open when moving from ROC 9-18 to 1-8', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        modelValue: new Date(1925, 0, 1),
+        calendarYearType: YearType.RepublicEra
+      }
+    });
+
+    const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
+    await datePickerInput!.trigger('click');
+    await wrapper.find('[data-test="year-button"]').trigger('click');
+
+    await wrapper.find('[data-test="last-decade"]').trigger('click');
+
+    expect(wrapper.vm.isCalendarVisible).toBe(true);
+    expect(wrapper.vm.isYearCalendarVisible).toBe(true);
+    expect(wrapper.vm.decadeRange).toStrictEqual([1910, 1919]);
+  });
+
   it('test click on go to last year button', async () => {
     const wrapper = mount(ROCDatePicker);
 
