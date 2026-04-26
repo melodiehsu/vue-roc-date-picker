@@ -6,13 +6,16 @@
           v-for="(year, index) in years"
           :key="index"
           :class="[
-            'year-cell cursor-pointer',
+            'year-cell',
             {
               'selected-year': isSelected(year),
+              'cursor-pointer': !isYearDisabled(year),
+              'disabled-year': isYearDisabled(year),
             },
           ]"
           data-test="year-cell"
           type="button"
+          :disabled="isYearDisabled(year)"
           @click="handleSelectYear(year)"
         >
           {{ calendarYearType === YearType.CommonEra ? year : getRepublicEraYear(year) }}
@@ -23,7 +26,9 @@
 </template>
 
 <script lang="ts">
-import { getRepublicEraYear, setDatePickerLabel } from '@/utils';
+import {
+  getRepublicEraYear, isDateOutOfRange, setDatePickerLabel
+} from '@/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
@@ -58,12 +63,20 @@ export default defineComponent({
     decadeRange: {
       required: true,
       type: Array as PropType<number[]>
+    },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
+      default: ''
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      defaultFullDate, calendarYearType, type, decadeRange
+      defaultFullDate, calendarYearType, type, decadeRange, minDate, maxDate
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
@@ -100,7 +113,16 @@ export default defineComponent({
       return false;
     };
 
+    const isYearDisabled = (year: number) => isDateOutOfRange({
+      targetDate: new Date(year, 0, 1),
+      minDate: minDate.value,
+      maxDate: maxDate.value,
+      unit: 'year'
+    });
+
     const handleSelectYear = (yearOnCalendar: number) => {
+      if (isYearDisabled(yearOnCalendar)) return;
+
       const timeValue = new Date(yearOnCalendar, 0);
       selectedFullDate.value.timeValue = timeValue;
 
@@ -135,6 +157,7 @@ export default defineComponent({
       years,
       selectedFullDate,
       isSelected,
+      isYearDisabled,
       handleSelectYear,
       getRepublicEraYear
     };
@@ -170,8 +193,21 @@ button {
     }
   }
 
+  .disabled-year {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-year {
     font-weight: 600;
+    color: #4390BC;
+  }
+
+  .selected-year.disabled-year {
     color: #4390BC;
   }
 }

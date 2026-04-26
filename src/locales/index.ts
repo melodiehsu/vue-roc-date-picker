@@ -7,6 +7,9 @@ export interface LocaleDictionary {
   month: LocaleMonth;
   week: LocaleWeek;
   yearType: Record<YearType, string>;
+  actions: {
+    today: string;
+  };
 }
 
 // TODO: i18n if possible
@@ -38,6 +41,9 @@ export const TRANSLATE: Record<'zhTW' | 'en', LocaleDictionary> = {
     yearType: {
       RepublicEra: '民國',
       CommonEra: '西元'
+    },
+    actions: {
+      today: '今天'
     }
   },
   en: {
@@ -67,6 +73,9 @@ export const TRANSLATE: Record<'zhTW' | 'en', LocaleDictionary> = {
     yearType: {
       RepublicEra: 'ROC',
       CommonEra: 'CE'
+    },
+    actions: {
+      today: 'Today'
     }
   }
 };

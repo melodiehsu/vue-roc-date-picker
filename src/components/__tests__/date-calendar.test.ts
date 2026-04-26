@@ -85,5 +85,41 @@ describe('Test Component DateCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
-  it.todo('show different color of the date today');
+  it('show different color of the date today', async () => {
+    const today = new Date();
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        calendarYear: today.getFullYear(),
+        calendarMonth: today.getMonth()
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('.today-date').exists()).toBe(true);
+  });
+
+  it('disable dates outside min and max range', async () => {
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        minDate: '2023-09-10',
+        maxDate: '2023-09-20'
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    const disabledCell = wrapper.find('.disabled-date');
+    const enabledCell = wrapper.findAll('[data-test="date-cell"]').find((cell) => cell.text() === '10');
+
+    expect(disabledCell.exists()).toBe(true);
+    expect(enabledCell?.attributes('disabled')).toBeUndefined();
+
+    await disabledCell.trigger('click');
+    expect(wrapper.emitted('click')).toBeFalsy();
+
+    await enabledCell?.trigger('click');
+    expect(wrapper.emitted('click')).toBeTruthy();
+  });
 });

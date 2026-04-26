@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="date-picker-container">
+    <div
+      ref="datePickerRef"
+      class="date-picker-container"
+    >
       <div
         class="input-container"
         :class="{ 'input-container--disabled': disabled }"
@@ -25,8 +28,8 @@
           ]"
           :value="selectedTime.label"
           :placeholder="placeholder"
-          :disabled="disabled"
           readonly
+          :disabled="disabled"
           tabindex="-1"
         />
 
@@ -106,7 +109,7 @@
 
           <div class="next-controller">
             <button
-              v-show="isDateCalendarVisible"
+              v-show="isDateCalendarVisible && canGoNextMonth"
               type="button"
               class="controller-button"
               data-test="next-month"
@@ -116,7 +119,7 @@
             </button>
 
             <button
-              v-if="isYearCalendarVisible"
+              v-if="isYearCalendarVisible && canGoNextDecade"
               type="button"
               class="controller-button"
               data-test="next-decade"
@@ -126,7 +129,7 @@
             </button>
 
             <button
-              v-else
+              v-else-if="!isYearCalendarVisible && canGoNextYear"
               type="button"
               class="controller-button"
               data-test="next-year"
@@ -145,6 +148,8 @@
             :default-full-date="selectedTime"
             :calendar-year="yearOnCalendar"
             :decade-range="decadeRange"
+            :min-date="minDate"
+            :max-date="maxDate"
             @click="handleYearChange"
           />
         </div>
@@ -156,6 +161,8 @@
             :calendar-year-type="yearType"
             :calendar-year="yearOnCalendar"
             :default-full-date="selectedTime"
+            :min-date="minDate"
+            :max-date="maxDate"
             @click="handleMonthChange"
           />
         </div>
@@ -167,8 +174,25 @@
             :calendar-year="yearOnCalendar"
             :calendar-month="monthOnCalendar"
             :default-full-date="selectedTime"
+            :min-date="minDate"
+            :max-date="maxDate"
             @click="handleDateChange"
           />
+        </div>
+
+        <div
+          v-if="showTodayButton && type === CalendarType.DATE"
+          class="calendar-footer"
+        >
+          <button
+            type="button"
+            class="today-button"
+            data-test="today-button"
+            :disabled="isTodayDisabled"
+            @click="selectToday"
+          >
+            {{ getCalendarLang(lang).actions.today }}
+          </button>
         </div>
 
         <YearTypeSwitch
@@ -184,10 +208,16 @@
 
 <script lang="ts">
 import {
-  computed, defineComponent, ref, toRefs, watch, type PropType
+  computed, defineComponent, onBeforeUnmount, onMounted, ref, toRefs, watch, type PropType
 } from 'vue';
 import dayjs, { type ConfigType } from 'dayjs';
-import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
+import {
+  getCalendarLang,
+  getRepublicEraYear,
+  getValidDate,
+  isDateOutOfRange,
+  setDatePickerLabel
+} from '@/utils';
 import {
   Language, YearType, type SelectedTime, CalendarType
 } from '@/interfaces';
@@ -247,7 +277,15 @@ export default defineComponent({
       default: CalendarType.DATE
     },
     defaultValue: {
-      type: String,
+      type: [Date, String],
+      default: ''
+    },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
       default: ''
     },
     disabled: {
@@ -261,13 +299,35 @@ export default defineComponent({
     showClearButton: {
       type: Boolean,
       default: true
+    },
+    showTodayButton: {
+      type: Boolean,
+      default: false
+    },
+    closeOnClickOutside: {
+      type: Boolean,
+      default: true
+    },
+    closeOnEscape: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['update:modelValue'],
   setup(props, { emit }) {
     const {
-      type, defaultValue, disabled, calendarYearType, lang, modelValue
+      type,
+      defaultValue,
+      disabled,
+      calendarYearType,
+      lang,
+      modelValue,
+      minDate,
+      maxDate,
+      closeOnClickOutside,
+      closeOnEscape
     } = toRefs(props);
+    const datePickerRef = ref<HTMLElement | null>(null);
     const isCalendarVisible = ref(false);
     const isDateCalendarVisible = ref(false);
     const isMonthCalendarVisible = ref(false);
@@ -284,7 +344,15 @@ export default defineComponent({
     const canGoLastYear = ref(true);
     const canGoLastMonth = ref(true);
     const canGoLastDecade = ref(true);
+    const canGoNextYear = ref(true);
+    const canGoNextMonth = ref(true);
+    const canGoNextDecade = ref(true);
     const selectedTime = ref<SelectedTime>({ ...DEFAULT_SELECTED_TIME });
+    const isTodayDisabled = computed(() => isDateOutOfRange({
+      targetDate: new Date(),
+      minDate: minDate.value,
+      maxDate: maxDate.value
+    }));
 
     const displayYear = computed(() => {
       const startYear = decadeRange?.value[0];
@@ -301,6 +369,45 @@ export default defineComponent({
         : `${startYearLabel}${getRepublicEraYear(yearOnCalendar.value)}${endYearLabel}`;
     });
 
+    const syncLabelByCurrentState = () => {
+      if (!selectedTime.value.timeValue) return;
+
+      selectedTime.value.label = setDatePickerLabel({
+        calendarYearType: yearType.value,
+        selectedDate: selectedTime.value.timeValue,
+        formatYear: selectedTime.value.timeValue.getFullYear(),
+        datePickerType: type.value
+      });
+    };
+
+    const getResolvedYearType = (dateValue?: Date, preferredYearType = calendarYearType.value) => {
+      if (dateValue && preferredYearType === YearType.RepublicEra && dateValue.getFullYear() <= REPUBLIC_ERA_START_YEAR) {
+        return YearType.CommonEra;
+      }
+
+      return preferredYearType;
+    };
+
+    const syncSelectedTime = (dateValue?: Date) => {
+      if (!dateValue) {
+        selectedTime.value = { ...DEFAULT_SELECTED_TIME };
+        return;
+      }
+
+      yearType.value = getResolvedYearType(dateValue);
+      selectedTime.value = {
+        label: setDatePickerLabel({
+          calendarYearType: yearType.value,
+          selectedDate: dateValue,
+          formatYear: dateValue.getFullYear(),
+          datePickerType: type.value
+        }),
+        timeValue: dateValue
+      };
+      monthOnCalendar.value = dateValue.getMonth();
+      yearOnCalendar.value = dateValue.getFullYear();
+    };
+
     const isSwitchAllowed = computed(() => {
       // if currently selecting year, return the year on calendar is larger than the decade
       if (isYearCalendarVisible.value) {
@@ -314,15 +421,75 @@ export default defineComponent({
     const getDecadeRange = () => {
       const decadeStartYear: number = Math.floor(yearOnCalendar.value / 10) * 10;
       decadeRange.value = [decadeStartYear, decadeStartYear + 9];
-
-      const republicEraYear = getRepublicEraYear(decadeRange.value[0]);
-      const isRepublicEra = yearType.value === YearType.RepublicEra;
-      canGoLastDecade.value = isRepublicEra
-        ? republicEraYear >= 1
-        : decadeRange.value[0] > 100;
     };
 
-    const getResolvedValue = () => modelValue.value ?? defaultValue.value;
+    const updateCalendarControls = () => {
+      const currentDecadeStart = Math.floor(yearOnCalendar.value / 10) * 10;
+      const nextYearValue = yearOnCalendar.value + 1;
+      const previousYearValue = yearOnCalendar.value - 1;
+      const previousMonthYear = monthOnCalendar.value === 0 ? yearOnCalendar.value - 1 : yearOnCalendar.value;
+      const previousMonthValue = monthOnCalendar.value === 0 ? 11 : monthOnCalendar.value - 1;
+      const nextMonthYear = monthOnCalendar.value === 11 ? yearOnCalendar.value + 1 : yearOnCalendar.value;
+      const nextMonthValue = (monthOnCalendar.value + 1) % 12;
+
+      canGoLastYear.value = !((yearType.value === YearType.RepublicEra
+        && yearOnCalendar.value <= 1912)
+        || currentDecadeStart <= 100
+        || isDateOutOfRange({
+          targetDate: new Date(
+            previousYearValue,
+            isMonthCalendarVisible.value ? 11 : monthOnCalendar.value,
+            1
+          ),
+          minDate: minDate.value,
+          unit: isMonthCalendarVisible.value ? 'year' : 'month'
+        })
+      );
+
+      canGoLastMonth.value = !(yearType.value === YearType.RepublicEra
+        && yearOnCalendar.value <= 1912
+        && monthOnCalendar.value === 0)
+        && !isDateOutOfRange({
+          targetDate: new Date(previousMonthYear, previousMonthValue, 1),
+          minDate: minDate.value,
+          unit: 'month'
+        });
+
+      canGoLastDecade.value = currentDecadeStart > 100
+        && !((yearType.value === YearType.RepublicEra)
+        && getRepublicEraYear(currentDecadeStart) < 1);
+      canGoLastDecade.value = canGoLastDecade.value && !isDateOutOfRange({
+        targetDate: new Date(currentDecadeStart - 1, 11, 31),
+        minDate: minDate.value,
+        unit: 'year'
+      });
+
+      canGoNextYear.value = !isDateOutOfRange({
+        targetDate: new Date(nextYearValue, monthOnCalendar.value, 1),
+        maxDate: maxDate.value,
+        unit: isMonthCalendarVisible.value ? 'year' : 'month'
+      });
+
+      canGoNextMonth.value = !isDateOutOfRange({
+        targetDate: new Date(nextMonthYear, nextMonthValue, 1),
+        maxDate: maxDate.value,
+        unit: 'month'
+      });
+
+      canGoNextDecade.value = !isDateOutOfRange({
+        targetDate: new Date(currentDecadeStart + 10, 0, 1),
+        maxDate: maxDate.value,
+        unit: 'year'
+      });
+    };
+
+    const getResolvedValue = () => {
+      if (modelValue.value === EMPTY_VALUE || modelValue.value == null) {
+        return defaultValue.value;
+      }
+
+      return modelValue.value;
+    };
     const getParsedDate = (value: ConfigType) => {
       if (value == null) return null;
       const parsedDate = dayjs(value);
@@ -340,6 +507,7 @@ export default defineComponent({
       [isDateCalendarVisible.value,
         isMonthCalendarVisible.value,
         isYearCalendarVisible.value] = visibilityMap[calendarType];
+      updateCalendarControls();
     };
 
     const syncSelectedTimeFromProps = () => {
@@ -356,7 +524,7 @@ export default defineComponent({
       }
 
       const resolvedYear = resolvedDate.getFullYear();
-      yearType.value = calendarYearType.value === YearType.RepublicEra && resolvedYear <= 1911
+      yearType.value = calendarYearType.value === YearType.RepublicEra && resolvedYear <= REPUBLIC_ERA_START_YEAR
         ? YearType.CommonEra
         : calendarYearType.value;
 
@@ -443,7 +611,8 @@ export default defineComponent({
     };
 
     const handleChangeYearType = (selectedYearType: YearType) => {
-      yearType.value = selectedYearType;
+      yearType.value = getResolvedYearType(selectedTime.value.timeValue, selectedYearType);
+      syncLabelByCurrentState();
       getDecadeRange();
     };
 
@@ -454,36 +623,100 @@ export default defineComponent({
       emit('update:modelValue', selectedTime.value.timeValue);
     };
 
+    const selectToday = () => {
+      if (isTodayDisabled.value) return;
+
+      const today = new Date();
+      syncSelectedTime(today);
+      isCalendarVisible.value = false;
+      emit('update:modelValue', selectedTime.value.timeValue);
+    };
+
+    const handleDocumentClickOutside = (event: MouseEvent) => {
+      const eventTarget = event.target as Node | null;
+      const eventPath = typeof event.composedPath === 'function' ? event.composedPath() : [];
+      const datePickerElement = datePickerRef.value;
+      const clickedInsideDatePicker = datePickerElement
+        ? eventPath.includes(datePickerElement)
+          || !!(eventTarget && datePickerElement.contains(eventTarget))
+        : false;
+
+      if (
+        !closeOnClickOutside.value
+        || !isCalendarVisible.value
+        || !eventTarget
+        || clickedInsideDatePicker
+      ) {
+        return;
+      }
+
+      isCalendarVisible.value = false;
+    };
+
+    const handleDocumentKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && closeOnEscape.value && isCalendarVisible.value) {
+        isCalendarVisible.value = false;
+      }
+    };
+
     watch(
       [modelValue, defaultValue, calendarYearType, type],
       syncSelectedTimeFromProps,
       { immediate: true }
     );
 
-    watch([yearOnCalendar, yearType], () => {
-      canGoLastYear.value = !((yearType.value === YearType.RepublicEra
-        && yearOnCalendar.value <= 1912)
-        || (decadeRange?.value[0] <= 100)
-      );
-    }, { immediate: true });
+    onMounted(() => {
+      document.addEventListener('click', handleDocumentClickOutside);
+      document.addEventListener('keydown', handleDocumentKeydown);
+    });
 
-    watch([yearOnCalendar, yearType, monthOnCalendar], () => {
-      canGoLastMonth.value = !(yearType.value === YearType.RepublicEra
-      && yearOnCalendar.value <= 1912
-      && monthOnCalendar.value === 0);
+    onBeforeUnmount(() => {
+      document.removeEventListener('click', handleDocumentClickOutside);
+      document.removeEventListener('keydown', handleDocumentKeydown);
+    });
+
+    watch(modelValue, (nextModelValue) => {
+      if (!nextModelValue) {
+        syncSelectedTime();
+        yearType.value = calendarYearType.value;
+        return;
+      }
+
+      syncSelectedTime(getValidDate(nextModelValue));
+    });
+
+    watch(calendarYearType, (nextYearType) => {
+      yearType.value = getResolvedYearType(selectedTime.value.timeValue, nextYearType);
+      syncLabelByCurrentState();
+      updateCalendarControls();
+    });
+
+    watch(type, (nextType) => {
+      setCalendarVisibility(nextType);
+      syncLabelByCurrentState();
+    });
+
+    watch([yearOnCalendar, yearType, monthOnCalendar, minDate, maxDate], () => {
+      getDecadeRange();
+      updateCalendarControls();
     }, { immediate: true });
 
     return {
+      datePickerRef,
       yearType,
       displayYear,
       decadeRange,
       selectedTime,
       canGoLastYear,
+      canGoNextYear,
       yearOnCalendar,
       canGoLastMonth,
+      canGoNextMonth,
       canGoLastDecade,
+      canGoNextDecade,
       monthOnCalendar,
       isSwitchAllowed,
+      isTodayDisabled,
       isCalendarVisible,
       isDateCalendarVisible,
       isMonthCalendarVisible,
@@ -504,7 +737,8 @@ export default defineComponent({
       handleMonthChange,
       getRepublicEraYear,
       handleChangeYearType,
-      setCalendarVisibility
+      setCalendarVisibility,
+      selectToday
     };
   }
 });
@@ -618,6 +852,26 @@ button {
     align-items: center;
     cursor: pointer;
     padding: 0 4px;
+  }
+}
+
+.calendar-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.today-button {
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  color: #4390BC;
+  font-size: 14px;
+
+  &:disabled {
+    cursor: not-allowed;
+    color: #a0a8ad;
   }
 }
 </style>

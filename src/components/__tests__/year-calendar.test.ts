@@ -108,4 +108,31 @@ describe('Test Component YearCalendar', () => {
     yearCell = yearCells[randomIndex].text();
     expect(yearCell).toBe(`${wrapper.vm.years[randomIndex]}`);
   });
+
+  it('disable years outside min and max range', async () => {
+    const wrapper = mount(YearCalendar, {
+      props: {
+        ...defaultProps,
+        decadeRange: [2020, 2029],
+        type: CalendarType.YEAR,
+        minDate: '2022-01-01',
+        maxDate: '2027-12-31'
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    const yearCells = wrapper.findAll('[data-test="year-cell"]');
+    const disabledYear = yearCells.at(1);
+    const enabledYear = yearCells.at(2);
+
+    expect(disabledYear?.attributes('disabled')).toBeDefined();
+    expect(enabledYear?.attributes('disabled')).toBeUndefined();
+
+    await disabledYear?.trigger('click');
+    expect(wrapper.emitted('click')).toBeFalsy();
+
+    await enabledYear?.trigger('click');
+    expect(wrapper.emitted('click')).toBeTruthy();
+  });
 });
