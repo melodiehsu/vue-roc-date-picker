@@ -176,6 +176,8 @@
             :default-full-date="selectedTime"
             :min-date="minDate"
             :max-date="maxDate"
+            :disable-weekends="disableWeekends"
+            :disabled-dates="disabledDates"
             @click="handleDateChange"
           />
         </div>
@@ -215,7 +217,7 @@ import {
   getCalendarLang,
   getRepublicEraYear,
   getValidDate,
-  isDateOutOfRange,
+  isDateOutsideRange,
   setDatePickerLabel
 } from '@/utils';
 import {
@@ -280,14 +282,6 @@ export default defineComponent({
       type: [Date, String],
       default: ''
     },
-    minDate: {
-      type: [Date, String],
-      default: ''
-    },
-    maxDate: {
-      type: [Date, String],
-      default: ''
-    },
     disabled: {
       type: Boolean,
       default: false
@@ -311,6 +305,22 @@ export default defineComponent({
     closeOnEscape: {
       type: Boolean,
       default: true
+    },
+    minDate: {
+      type: [Date, String],
+      default: undefined
+    },
+    maxDate: {
+      type: [Date, String],
+      default: undefined
+    },
+    disableWeekends: {
+      type: Boolean,
+      default: false
+    },
+    disabledDates: {
+      type: Array as PropType<(Date | string)[]>,
+      default: () => []
     }
   },
   emits: ['update:modelValue'],
@@ -348,7 +358,7 @@ export default defineComponent({
     const canGoNextMonth = ref(true);
     const canGoNextDecade = ref(true);
     const selectedTime = ref<SelectedTime>({ ...DEFAULT_SELECTED_TIME });
-    const isTodayDisabled = computed(() => isDateOutOfRange({
+    const isTodayDisabled = computed(() => isDateOutsideRange({
       targetDate: new Date(),
       minDate: minDate.value,
       maxDate: maxDate.value
@@ -435,7 +445,7 @@ export default defineComponent({
       canGoLastYear.value = !((yearType.value === YearType.RepublicEra
         && yearOnCalendar.value <= 1912)
         || currentDecadeStart <= 100
-        || isDateOutOfRange({
+        || isDateOutsideRange({
           targetDate: new Date(
             previousYearValue,
             isMonthCalendarVisible.value ? 11 : monthOnCalendar.value,
@@ -449,7 +459,7 @@ export default defineComponent({
       canGoLastMonth.value = !(yearType.value === YearType.RepublicEra
         && yearOnCalendar.value <= 1912
         && monthOnCalendar.value === 0)
-        && !isDateOutOfRange({
+        && !isDateOutsideRange({
           targetDate: new Date(previousMonthYear, previousMonthValue, 1),
           minDate: minDate.value,
           unit: 'month'
@@ -458,25 +468,25 @@ export default defineComponent({
       canGoLastDecade.value = currentDecadeStart > 100
         && !((yearType.value === YearType.RepublicEra)
         && getRepublicEraYear(currentDecadeStart) < 1);
-      canGoLastDecade.value = canGoLastDecade.value && !isDateOutOfRange({
+      canGoLastDecade.value = canGoLastDecade.value && !isDateOutsideRange({
         targetDate: new Date(currentDecadeStart - 1, 11, 31),
         minDate: minDate.value,
         unit: 'year'
       });
 
-      canGoNextYear.value = !isDateOutOfRange({
+      canGoNextYear.value = !isDateOutsideRange({
         targetDate: new Date(nextYearValue, monthOnCalendar.value, 1),
         maxDate: maxDate.value,
         unit: isMonthCalendarVisible.value ? 'year' : 'month'
       });
 
-      canGoNextMonth.value = !isDateOutOfRange({
+      canGoNextMonth.value = !isDateOutsideRange({
         targetDate: new Date(nextMonthYear, nextMonthValue, 1),
         maxDate: maxDate.value,
         unit: 'month'
       });
 
-      canGoNextDecade.value = !isDateOutOfRange({
+      canGoNextDecade.value = !isDateOutsideRange({
         targetDate: new Date(currentDecadeStart + 10, 0, 1),
         maxDate: maxDate.value,
         unit: 'year'

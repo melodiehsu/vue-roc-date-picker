@@ -3,7 +3,7 @@ import { CalendarType, YearType } from '@/interfaces';
 import { setDatePickerLabel } from '../index';
 
 describe('Test setDatePickerLabel', () => {
-  it('should return string of time according to different arguments', () => {
+  it('formats date picker labels for different calendar types', () => {
     const baseTestCase = {
       selectedDate: new Date('2023/09/11'),
       formatYear: 2023,

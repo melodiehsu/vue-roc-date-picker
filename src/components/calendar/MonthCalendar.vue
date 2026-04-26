@@ -28,7 +28,7 @@
 <script lang="ts">
 import { MONTHS } from '@/constants';
 import {
-  getCalendarLang, isDateOutOfRange, setDatePickerLabel
+  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
 } from '@/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
@@ -101,7 +101,7 @@ export default defineComponent({
       return false;
     };
 
-    const isMonthDisabled = (month: number) => isDateOutOfRange({
+    const isMonthDisabled = (month: number) => isCalendarDateDisabled({
       targetDate: new Date(calendarYear.value, month, 1),
       minDate: minDate.value,
       maxDate: maxDate.value,

@@ -54,7 +54,7 @@ export const getValidDate = (dateValue: Date | string | undefined) => {
   return parsedDate.isValid() ? parsedDate.toDate() : undefined;
 };
 
-export const isDateOutOfRange = ({
+export const isDateOutsideRange = ({
   targetDate,
   minDate,
   maxDate,
@@ -82,6 +82,50 @@ export const isDateOutOfRange = ({
 
   if (normalizedMaxDate && normalizedTargetDate.isAfter(normalizedMaxDate)) {
     return true;
+  }
+
+  return false;
+};
+
+export const isCalendarDateDisabled = ({
+  targetDate,
+  minDate,
+  maxDate,
+  unit = 'day',
+  disableWeekends = false,
+  disabledDates = []
+}: {
+  targetDate: Date | string | undefined,
+  minDate?: Date | string,
+  maxDate?: Date | string,
+  unit?: DateBoundaryUnit,
+  disableWeekends?: boolean,
+  disabledDates?: (Date | string)[]
+}) => {
+  const parsedTargetDate = getValidDate(targetDate);
+  if (!parsedTargetDate) return false;
+
+  if (isDateOutsideRange({
+    targetDate: parsedTargetDate,
+    minDate,
+    maxDate,
+    unit
+  })) {
+    return true;
+  }
+
+  if (unit === 'day' && disableWeekends && [0, 6].includes(dayjs(parsedTargetDate).day())) {
+    return true;
+  }
+
+  if (unit === 'day' && disabledDates.length > 0) {
+    const targetDateTimestamp = dayjs(parsedTargetDate).startOf('day').valueOf();
+    const disabledDateTimestamps = disabledDates
+      .map((date) => getValidDate(date))
+      .filter((date): date is Date => date !== undefined)
+      .map((date) => dayjs(date).startOf('day').valueOf());
+
+    return disabledDateTimestamps.includes(targetDateTimestamp);
   }
 
   return false;

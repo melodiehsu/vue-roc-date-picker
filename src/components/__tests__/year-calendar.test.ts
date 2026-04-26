@@ -12,7 +12,7 @@ describe('Test Component YearCalendar', () => {
     decadeRange: []
   };
 
-  it('populate years properly', async () => {
+  it('populates years correctly', async () => {
     const wrapper = mount(YearCalendar, {
       props: { ...defaultProps }
     });
@@ -30,7 +30,7 @@ describe('Test Component YearCalendar', () => {
     expect(wrapper.vm.years).not.toContain(1920);
   });
 
-  it('handle select year properly', async () => {
+  it('handles year selection', async () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,
@@ -69,7 +69,7 @@ describe('Test Component YearCalendar', () => {
     expect(emittedValues![0]).toEqual([wrapper.vm.selectedFullDate]);
   });
 
-  it('selectedFullDate equals to defaultFullDate if it exists', () => {
+  it('keeps selectedFullDate in sync with defaultFullDate', () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,
@@ -85,7 +85,7 @@ describe('Test Component YearCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
-  it('render years according to different year type', async () => {
+  it('renders years for each year type', async () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,
@@ -109,7 +109,7 @@ describe('Test Component YearCalendar', () => {
     expect(yearCell).toBe(`${wrapper.vm.years[randomIndex]}`);
   });
 
-  it('disable years outside min and max range', async () => {
+  it('disables years outside min and max range', async () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,

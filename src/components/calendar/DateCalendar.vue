@@ -42,7 +42,7 @@ import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
 import {
-  getCalendarLang, isDateOutOfRange, setDatePickerLabel
+  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
 } from '@/utils';
 import dayjs from 'dayjs';
 import {
@@ -78,19 +78,48 @@ export default defineComponent({
       default: () => ({ ...DEFAULT_SELECTED_TIME })
     },
     minDate: {
-      type: [Date, String],
-      default: ''
+      type: [Date, String] as PropType<Date | string | undefined>,
+      default: undefined
     },
     maxDate: {
-      type: [Date, String],
-      default: ''
+      type: [Date, String] as PropType<Date | string | undefined>,
+      default: undefined
+    },
+    disableWeekends: {
+      type: Boolean,
+      default: false
+    },
+    disabledDates: {
+      type: Array as PropType<(Date | string)[]>,
+      default: () => []
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, calendarMonth, calendarYearType, defaultFullDate, minDate, maxDate
+      calendarYear,
+      calendarMonth,
+      calendarYearType,
+      defaultFullDate,
+      minDate,
+      maxDate,
+      disableWeekends,
+      disabledDates
     } = toRefs(props);
+
+    const isDateDisabled = (dateOnCalendar: number | null) => {
+      if (!dateOnCalendar) return true;
+
+      return isCalendarDateDisabled({
+        targetDate: new Date(calendarYear.value, calendarMonth.value, dateOnCalendar),
+        minDate: minDate.value,
+        maxDate: maxDate.value,
+        unit: 'day',
+        disableWeekends: disableWeekends.value,
+        disabledDates: disabledDates.value
+      });
+    };
+
     const dateCells = ref<(number | null)[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
 
@@ -122,16 +151,6 @@ export default defineComponent({
       const currentDate = dayjs(new Date(calendarYear.value, calendarMonth.value, date));
 
       return currentDate.isSame(today, 'day');
-    };
-
-    const isDateDisabled = (date: number | null) => {
-      if (!date) return false;
-
-      return isDateOutOfRange({
-        targetDate: new Date(calendarYear.value, calendarMonth.value, date),
-        minDate: minDate.value,
-        maxDate: maxDate.value
-      });
     };
 
     const handleSelectDate = (dateOnCalendar: number | null) => {

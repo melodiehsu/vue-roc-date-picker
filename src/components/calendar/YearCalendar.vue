@@ -27,7 +27,7 @@
 
 <script lang="ts">
 import {
-  getRepublicEraYear, isDateOutOfRange, setDatePickerLabel
+  getRepublicEraYear, isDateOutsideRange, setDatePickerLabel
 } from '@/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
@@ -113,7 +113,7 @@ export default defineComponent({
       return false;
     };
 
-    const isYearDisabled = (year: number) => isDateOutOfRange({
+    const isYearDisabled = (year: number) => isDateOutsideRange({
       targetDate: new Date(year, 0, 1),
       minDate: minDate.value,
       maxDate: maxDate.value,
