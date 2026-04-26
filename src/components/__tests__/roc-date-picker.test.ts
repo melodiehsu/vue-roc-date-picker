@@ -5,7 +5,7 @@ import { CalendarType, Language, YearType } from '@/interfaces';
 import ROCDatePicker from '../ROCDatePicker.vue';
 
 describe('Test Component ROCDatePicker', () => {
-  it('init calendar properly', async () => {
+  it('renders initial calendar state', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         defaultValue: '1879-12-01'
@@ -19,7 +19,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(displayYear).toBe(`${wrapper.vm.yearOnCalendar}`);
   });
 
-  it('test click on go to last decade button', async () => {
+  it('navigates to previous decade', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -54,7 +54,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.decadeRange).toStrictEqual([1910, 1919]);
   });
 
-  it('test click on go to last year button', async () => {
+  it('navigates to previous year', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -66,7 +66,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.yearOnCalendar).toBe(originYear - 1);
   });
 
-  it('test click on go to last month button', async () => {
+  it('navigates to previous month', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         defaultValue: '2023-01-01'
@@ -94,7 +94,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.monthOnCalendar).toBe(originMonth - 1);
   });
 
-  it('test click on go to next decade button', async () => {
+  it('navigates to next decade', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -110,7 +110,7 @@ describe('Test Component ROCDatePicker', () => {
     );
   });
 
-  it('test click on go to next year button', async () => {
+  it('navigates to next year', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -122,7 +122,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.yearOnCalendar).toBe(originYear + 1);
   });
 
-  it('test click on go to next month button', async () => {
+  it('navigates to next month', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         defaultValue: '2023-12-01'
@@ -148,7 +148,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.monthOnCalendar).toBe(originMonth + 1);
   });
 
-  it('render year display properly and test year button', async () => {
+  it('renders year label and toggles year calendar', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -189,7 +189,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(getYearButtonText()).toBe(`${wrapper.vm.yearOnCalendar}`);
   });
 
-  it('render month display properly and test month button', async () => {
+  it('renders month label and toggles month calendar', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -208,7 +208,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(monthButtonStyles.display).toBe('none');
   });
 
-  it('should not show calendar when date picker is disabled', async () => {
+  it('does not open when disabled', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         disabled: true
@@ -251,7 +251,19 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.yearOnCalendar).toBe(2024);
   });
 
-  it('test select date', async () => {
+  it('uses defaultValue when modelValue is empty', () => {
+    const wrapper = mount(ROCDatePicker, {
+      props: {
+        defaultValue: new Date(2023, 0, 15)
+      }
+    });
+
+    expect(wrapper.vm.selectedTime.timeValue).toStrictEqual(new Date(2023, 0, 15));
+    expect(wrapper.vm.yearOnCalendar).toBe(2023);
+    expect(wrapper.vm.monthOnCalendar).toBe(0);
+  });
+
+  it('selects a date', async () => {
     const wrapper = mount(ROCDatePicker);
 
     const datePickerInput = wrapper.find('[data-test="date-picker-input"]');
@@ -267,7 +279,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.isCalendarVisible).toBe(false);
   });
 
-  it('test select month', async () => {
+  it('selects a month', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: { type: CalendarType.MONTH }
     });
@@ -299,7 +311,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.find('[data-test="year-calendar"]').exists()).toBe(false);
   });
 
-  it('test select year', async () => {
+  it('selects a year', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: { type: CalendarType.YEAR }
     });
@@ -337,7 +349,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.find('[data-test="year-calendar"]').exists()).toBe(false);
   });
 
-  it('watch canGoLastMonth', async () => {
+  it('hides the previous month control at range start', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: { defaultValue: '1912-01-12' }
     });
@@ -352,7 +364,7 @@ describe('Test Component ROCDatePicker', () => {
   });
 
   // see: issue #1
-  it('render year type switch properly', async () => {
+  it('shows the year type switch when the decade is selectable', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         defaultValue: '1900-01-01'
@@ -385,7 +397,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toStrictEqual([undefined]);
   });
 
-  it('sync external modelValue and calendarYearType changes', async () => {
+  it('syncs external modelValue and calendarYearType changes', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         modelValue: '2023-05-10'
@@ -402,7 +414,7 @@ describe('Test Component ROCDatePicker', () => {
     expect(wrapper.vm.selectedTime.label).toBe('2024-06-15');
   });
 
-  it('close calendar on outside click by default', async () => {
+  it('closes the calendar on outside click by default', async () => {
     const wrapper = mount(ROCDatePicker, {
       attachTo: document.body
     });
@@ -417,7 +429,7 @@ describe('Test Component ROCDatePicker', () => {
     wrapper.unmount();
   });
 
-  it('keep calendar open when closeOnClickOutside is disabled', async () => {
+  it('keeps the calendar open when closeOnClickOutside is disabled', async () => {
     const wrapper = mount(ROCDatePicker, {
       attachTo: document.body,
       props: {
@@ -433,7 +445,7 @@ describe('Test Component ROCDatePicker', () => {
     wrapper.unmount();
   });
 
-  it('close calendar on escape key', async () => {
+  it('closes the calendar on escape key by default', async () => {
     const wrapper = mount(ROCDatePicker, {
       attachTo: document.body
     });
@@ -446,7 +458,23 @@ describe('Test Component ROCDatePicker', () => {
     wrapper.unmount();
   });
 
-  it('select today from shortcut button', async () => {
+  it('keeps the calendar open when closeOnEscape is disabled', async () => {
+    const wrapper = mount(ROCDatePicker, {
+      attachTo: document.body,
+      props: {
+        closeOnEscape: false
+      }
+    });
+
+    await wrapper.find('[data-test="date-picker-input"]').trigger('click');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.vm.isCalendarVisible).toBe(true);
+    wrapper.unmount();
+  });
+
+  it('selects today from shortcut button', async () => {
     const wrapper = mount(ROCDatePicker, {
       props: {
         showTodayButton: true

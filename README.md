@@ -5,7 +5,8 @@ A date picker UI component displays year in Republic Era or Common Era.<br>
 
 Built-in common date picker features:
 - `minDate` / `maxDate` range limit
-- click outside / `Esc` to close
+- click outside to close
+- `Esc` to close
 - external `v-model` sync
 - optional `Today` shortcut button
 - highlight current date in date view
@@ -46,6 +47,7 @@ app.use(ROCDatePicker);
 - `showClearButton`: 是否顯示清除按鈕。
 - `showTodayButton`: 是否顯示今天快捷按鈕。
 - `closeOnClickOutside`: 點擊元件外部時是否自動關閉。
+- `closeOnEscape`: 按下 `Esc` 時是否自動關閉。
 
 | Name                | Description                                | Type                   | Accepted Values                     | Default Value |
 |---------------------|--------------------------------------------|------------------------|-------------------------------------|---------------|
@@ -60,5 +62,6 @@ app.use(ROCDatePicker);
 | `disabled`          | Whether the date picker is disabled. | Boolean                | `true` or `false`                   | false         |
 | `zIndex`            | Z-index of the pop-up calendar.      | Number                 | Any valid positive integer          | 1             |
 | `showClearButton`   | Whether to show the clear button.    | Boolean                | `true` or `false`                   | true          |
-| `showTodayButton`   | Show a shortcut button that selects today. | Boolean           | `true` or `false`                   | false         |
+| `showTodayButton`    | Show a shortcut button that selects today. | Boolean           | `true` or `false`                   | false         |
 | `closeOnClickOutside` | Close the calendar when clicking outside. | Boolean           | `true` or `false`                   | true          |
+| `closeOnEscape`      | Close the calendar when pressing `Esc`.    | Boolean           | `true` or `false`                   | true          |

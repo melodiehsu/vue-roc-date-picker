@@ -307,6 +307,10 @@ export default defineComponent({
     closeOnClickOutside: {
       type: Boolean,
       default: true
+    },
+    closeOnEscape: {
+      type: Boolean,
+      default: true
     }
   },
   emits: ['update:modelValue'],
@@ -320,7 +324,8 @@ export default defineComponent({
       modelValue,
       minDate,
       maxDate,
-      closeOnClickOutside
+      closeOnClickOutside,
+      closeOnEscape
     } = toRefs(props);
     const datePickerRef = ref<HTMLElement | null>(null);
     const isCalendarVisible = ref(false);
@@ -478,7 +483,13 @@ export default defineComponent({
       });
     };
 
-    const getResolvedValue = () => modelValue.value ?? defaultValue.value;
+    const getResolvedValue = () => {
+      if (modelValue.value === EMPTY_VALUE || modelValue.value == null) {
+        return defaultValue.value;
+      }
+
+      return modelValue.value;
+    };
     const getParsedDate = (value: ConfigType) => {
       if (value == null) return null;
       const parsedDate = dayjs(value);
@@ -643,7 +654,7 @@ export default defineComponent({
     };
 
     const handleDocumentKeydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isCalendarVisible.value) {
+      if (event.key === 'Escape' && closeOnEscape.value && isCalendarVisible.value) {
         isCalendarVisible.value = false;
       }
     };
