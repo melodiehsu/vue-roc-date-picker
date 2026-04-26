@@ -13,7 +13,7 @@ describe('Test Component MonthCalendar', () => {
     calendarYear: new Date().getFullYear()
   };
 
-  it('render month calendar properly', async () => {
+  it('renders month calendar', async () => {
     const wrapper = mount(MonthCalendar, {
       props: { ...defaultProps }
     });
@@ -24,7 +24,7 @@ describe('Test Component MonthCalendar', () => {
     });
   });
 
-  it('handle select month properly', async () => {
+  it('handles month selection', async () => {
     const wrapper = mount(MonthCalendar, {
       props: {
         ...defaultProps
@@ -53,7 +53,7 @@ describe('Test Component MonthCalendar', () => {
     expect(labelPattern.test(selectedTimeLabel)).toBe(true);
   });
 
-  it('selectedFullDate equals to defaultFullDate if it exists', () => {
+  it('keeps selectedFullDate in sync with defaultFullDate', () => {
     const wrapper = mount(MonthCalendar, {
       props: {
         ...defaultProps,
@@ -68,7 +68,7 @@ describe('Test Component MonthCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
-  it('disable months outside min and max range', async () => {
+  it('disables months outside min and max range', async () => {
     const wrapper = mount(MonthCalendar, {
       props: {
         ...defaultProps,

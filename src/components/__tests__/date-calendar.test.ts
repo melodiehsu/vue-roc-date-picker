@@ -14,7 +14,7 @@ describe('Test Component DateCalendar', () => {
     calendarYearType: YearType.RepublicEra
   };
 
-  it('populate date cells properly', async () => {
+  it('populates date cells correctly', async () => {
     const wrapper = mount(DateCalendar, {
       props: { ...defaultProps }
     });
@@ -32,7 +32,7 @@ describe('Test Component DateCalendar', () => {
     expect(wrapper.vm.dateCells[6]).toBe(1);
   });
 
-  it('handle select date properly', async () => {
+  it('handles date selection', async () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps
@@ -70,7 +70,7 @@ describe('Test Component DateCalendar', () => {
     });
   });
 
-  it('selectedFullDate equals to defaultFullDate if it exists', () => {
+  it('keeps selectedFullDate in sync with defaultFullDate', () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps,
@@ -85,7 +85,7 @@ describe('Test Component DateCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
-  it('show different color of the date today', async () => {
+  it('highlights today\'s date', async () => {
     const today = new Date();
     const wrapper = mount(DateCalendar, {
       props: {
@@ -99,7 +99,7 @@ describe('Test Component DateCalendar', () => {
     expect(wrapper.find('.today-date').exists()).toBe(true);
   });
 
-  it('should disable weekend dates when disableWeekends is true', async () => {
+  it('disables weekend dates when disableWeekends is true', async () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps,
@@ -116,7 +116,7 @@ describe('Test Component DateCalendar', () => {
     expect(wrapper.vm.selectedFullDate.timeValue).toBeUndefined();
   });
 
-  it('should disable dates by min/max range and disabledDates', async () => {
+  it('disables dates by min/max range and disabledDates', async () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps,

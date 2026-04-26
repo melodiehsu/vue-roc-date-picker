@@ -4,15 +4,15 @@ import { Language } from '@/interfaces';
 import { getCalendarLang } from '../index';
 
 describe('Test getCalendarLang', () => {
-  it('pass \'zhTW\' returns zhTW locale', () => {
+  it('returns zhTW locale for zhTW', () => {
     expect(getCalendarLang(Language.ZH_TW)).toEqual(TRANSLATE.zhTW);
   });
 
-  it('pass \'en\' returns en locale', () => {
+  it('returns en locale for en', () => {
     expect(getCalendarLang(Language.EN)).toEqual(TRANSLATE.en);
   });
 
-  it('pass unsupported language returns en locale', () => {
+  it('falls back to en locale for unsupported language', () => {
     // @ts-ignore
     expect(getCalendarLang('zhCN')).toEqual(TRANSLATE.en);
   });
