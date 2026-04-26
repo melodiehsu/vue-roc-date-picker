@@ -28,7 +28,7 @@
 <script lang="ts">
 import { MONTHS } from '@/constants';
 import {
-  getCalendarLang, isDateDisabled as isCalendarDateDisabled, setDatePickerLabel
+  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
 } from '@/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime

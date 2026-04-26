@@ -42,7 +42,7 @@ import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
 import {
-  getCalendarLang, isDateDisabled as isCalendarDateDisabled, setDatePickerLabel
+  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
 } from '@/utils';
 import dayjs from 'dayjs';
 import {

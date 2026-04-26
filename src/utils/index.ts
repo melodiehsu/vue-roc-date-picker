@@ -89,7 +89,7 @@ export const isDateOutsideRange = ({
 
 export const isDateOutOfRange = isDateOutsideRange;
 
-export const isDateDisabled = ({
+export const isCalendarDateDisabled = ({
   targetDate,
   minDate,
   maxDate,
