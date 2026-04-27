@@ -1,149 +1,685 @@
 <template>
-  <div>
-    <div class="wrapper">
-      <div class="container">
-        <h1>
-          {{ lang === 'zhTW' ? '民國年日曆' : 'ROC Date Picker' }}
-        </h1>
+  <div class="demo-page">
+    <main class="demo-shell">
+      <div class="demo-card__hero">
+        <div class="demo-card__hero-top">
+          <h1 class="demo-card__title">
+            {{ demoCopy.title }}
+          </h1>
 
-        <div class="lang-selector">
-          <button
-            v-if="lang === Language.EN"
-            type="button"
-            class="controller"
-            @click="switchLang"
-          >
-            <RotateIcon style="margin-right: 6px;" />
-            <div>English</div>
-          </button>
-
-          <button
-            v-if="lang === Language.ZH_TW"
-            type="button"
-            class="controller"
-            @click="switchLang"
-          >
-            <RotateIcon style="margin-right: 6px;" />
-            <div>繁體中文</div>
-          </button>
+          <div class="demo-language-switcher">
+            <div class="demo-language-switcher__label">
+              {{ demoCopy.demoLanguageLabel }}
+            </div>
+            <div class="demo-language-switcher__actions">
+              <select
+                v-model="demoLang"
+                class="demo-language-switcher__select"
+                :aria-label="demoCopy.demoLanguageLabel"
+              >
+                <option
+                  disabled
+                  hidden
+                  value=""
+                >
+                  {{ demoCopy.demoLanguagePlaceholder }}
+                </option>
+                <option
+                  v-for="option in demoLanguageOptions"
+                  :key="option"
+                  :value="option"
+                >
+                  {{ demoCopy.demoLanguageOptionLabels[option] }}
+                </option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div class="date-picker-examples">
-          <div class="date-picker">
-            <span>{{ lang === Language.ZH_TW ? '年曆' : 'Year' }}</span>
-            <ROCDatePicker
-              v-model="selectedYear"
-              :type="CalendarType.YEAR"
-              :lang="lang"
-            />
-            <div class="selected-value">
-              {{ selectedYear }}
+        <p class="demo-card__description">
+          {{ demoCopy.description }}
+        </p>
+      </div>
+
+      <div class="demo-layout">
+        <aside class="settings-panel">
+          <div class="settings-block">
+            <div class="settings-block__title">
+              {{ demoCopy.sections.basicDisplay }}
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                type
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.type }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--3">
+                  <button
+                    v-for="option in typeOptions"
+                    :key="option"
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': previewType === option }"
+                    :aria-pressed="previewType === option"
+                    @click="previewType = option"
+                  >
+                    {{ demoCopy.typeLabels[option] }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                lang
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.lang }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    v-for="option in pickerLangOptions"
+                    :key="option"
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': previewLang === option }"
+                    :aria-pressed="previewLang === option"
+                    @click="previewLang = option"
+                  >
+                    {{ demoCopy.pickerLangLabels[option] }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                calendarYearType
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.calendarYearType }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    v-for="option in yearTypeOptions"
+                    :key="option"
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': previewYearType === option }"
+                    :aria-pressed="previewYearType === option"
+                    @click="previewYearType = option"
+                  >
+                    {{ demoCopy.yearTypeLabels[option] }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="date-picker">
-            <span>{{ lang === Language.ZH_TW ? '月曆' : 'Month' }}</span>
-            <ROCDatePicker
-              v-model="selectedMonth"
-              :type="CalendarType.MONTH"
-              :lang="lang"
-            />
-            <div class="selected-value">
-              {{ selectedMonth }}
+          <div class="settings-block">
+            <div class="settings-block__title">
+              {{ demoCopy.sections.behavior }}
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                disabled
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.disabled }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': !isDisabled }"
+                    :aria-pressed="!isDisabled"
+                    @click="isDisabled = false"
+                  >
+                    {{ demoCopy.booleanLabels.off }}
+                  </button>
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': isDisabled }"
+                    :aria-pressed="isDisabled"
+                    @click="isDisabled = true"
+                  >
+                    {{ demoCopy.booleanLabels.on }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                showClearButton
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.showClearButton }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': showClearButton }"
+                    :aria-pressed="showClearButton"
+                    @click="showClearButton = true"
+                  >
+                    {{ demoCopy.booleanLabels.on }}
+                  </button>
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': !showClearButton }"
+                    :aria-pressed="!showClearButton"
+                    @click="showClearButton = false"
+                  >
+                    {{ demoCopy.booleanLabels.off }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                showTodayButton
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.showTodayButton }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': showTodayButton }"
+                    :aria-pressed="showTodayButton"
+                    @click="showTodayButton = true"
+                  >
+                    {{ demoCopy.booleanLabels.on }}
+                  </button>
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': !showTodayButton }"
+                    :aria-pressed="!showTodayButton"
+                    @click="showTodayButton = false"
+                  >
+                    {{ demoCopy.booleanLabels.off }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                closeOnClickOutside
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.closeOnClickOutside }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': closeOnClickOutside }"
+                    :aria-pressed="closeOnClickOutside"
+                    @click="closeOnClickOutside = true"
+                  >
+                    {{ demoCopy.booleanLabels.on }}
+                  </button>
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': !closeOnClickOutside }"
+                    :aria-pressed="!closeOnClickOutside"
+                    @click="closeOnClickOutside = false"
+                  >
+                    {{ demoCopy.booleanLabels.off }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                closeOnEscape
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.closeOnEscape }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': closeOnEscape }"
+                    :aria-pressed="closeOnEscape"
+                    @click="closeOnEscape = true"
+                  >
+                    {{ demoCopy.booleanLabels.on }}
+                  </button>
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': !closeOnEscape }"
+                    :aria-pressed="!closeOnEscape"
+                    @click="closeOnEscape = false"
+                  >
+                    {{ demoCopy.booleanLabels.off }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                disableWeekends
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.disableWeekends }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--2">
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': disableWeekends }"
+                    :aria-pressed="disableWeekends"
+                    @click="disableWeekends = true"
+                  >
+                    {{ demoCopy.booleanLabels.on }}
+                  </button>
+                  <button
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': !disableWeekends }"
+                    :aria-pressed="!disableWeekends"
+                    @click="disableWeekends = false"
+                  >
+                    {{ demoCopy.booleanLabels.off }}
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="date-picker">
-            <span>{{ lang === Language.ZH_TW ? '日曆' : 'Date' }}</span>
-            <ROCDatePicker
-              v-model="selectedDate"
-              :type="CalendarType.DATE"
-              :lang="lang"
-            />
-            <div class="selected-value">
-              {{ selectedDate }}
+          <div class="settings-block">
+            <div class="settings-block__title">
+              {{ demoCopy.sections.range }}
             </div>
+
+            <div class="prop-item">
+              <div class="prop-item__name">
+                minDate / maxDate
+              </div>
+              <p class="prop-item__description">
+                {{ demoCopy.propDescriptions.range }}
+              </p>
+              <div class="prop-item__controls">
+                <div class="segmented-control segmented-control--3">
+                  <button
+                    v-for="option in rangeOptions"
+                    :key="option"
+                    type="button"
+                    class="segmented-control__button"
+                    :class="{ 'is-active': rangePreset === option }"
+                    :aria-pressed="rangePreset === option"
+                    @click="setRangePreset(option)"
+                  >
+                    {{ demoCopy.rangeLabels[option] }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <p class="settings-block__hint">
+              {{ demoCopy.rangeHint }}
+            </p>
           </div>
+        </aside>
+
+        <div class="preview-panel-shell">
+          <section class="preview-panel">
+            <div class="preview-panel__header">
+              <div class="preview-panel__title">
+                {{ demoCopy.previewTitle }}
+              </div>
+              <div class="preview-panel__state-list">
+                <div
+                  v-for="item in previewStateItems"
+                  :key="item.label"
+                  class="preview-state-row"
+                >
+                  <div class="preview-state-row__label">
+                    {{ item.label }}
+                  </div>
+                  <div class="preview-state-row__value">
+                    {{ item.value }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="preview-tip">
+              <ul class="preview-tip__list">
+                <li
+                  v-for="(tip, tipIndex) in demoCopy.previewTips"
+                  :key="tipIndex"
+                  class="preview-tip__item"
+                >
+                  <template v-for="(segment, index) in tip.segments" :key="index">
+                    <code
+                      v-if="segment.kind === 'code'"
+                      class="inline-code"
+                    >
+                      {{ segment.value }}
+                    </code>
+                    <span v-else>
+                      {{ segment.value }}
+                    </span>
+                  </template>
+                </li>
+              </ul>
+            </div>
+
+            <div class="preview-panel__surface">
+              <ROCDatePicker
+                v-model="selectedValue"
+                :type="previewType"
+                :lang="previewLang"
+                :calendar-year-type="previewYearType"
+                :placeholder="placeholderText"
+                :disabled="isDisabled"
+                :show-clear-button="showClearButton"
+                :show-today-button="showTodayButton"
+                :close-on-click-outside="closeOnClickOutside"
+                :close-on-escape="closeOnEscape"
+                :min-date="minDate"
+                :max-date="maxDate"
+                :disable-weekends="disableWeekends"
+              />
+            </div>
+
+            <div class="preview-panel__meta">
+              <div class="preview-chip">
+                <span class="preview-chip__label">{{ demoCopy.previewChipLabels.vModel }}</span>
+                <span class="preview-chip__value">{{ selectedValueLabel }}</span>
+              </div>
+
+              <div class="preview-chip">
+                <span class="preview-chip__label">{{ demoCopy.previewChipLabels.range }}</span>
+                <span class="preview-chip__value">{{ rangeSummary }}</span>
+              </div>
+            </div>
+
+            <p class="preview-panel__note">
+              {{ demoCopy.previewNote }}
+            </p>
+          </section>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref } from 'vue';
+import dayjs from 'dayjs';
 import ROCDatePicker from './components/ROCDatePicker.vue';
-import RotateIcon from './components/icons/RotateIcon.vue';
-import { CalendarType, Language } from './interfaces';
+import { CalendarType, Language, YearType } from './interfaces';
+import {
+  DEMO_COPY,
+  type DemoLang,
+  type RangePreset
+} from './locales/demo';
 
 export default defineComponent({
   components: {
-    ROCDatePicker,
-    RotateIcon
+    ROCDatePicker
   },
   setup() {
-    const selectedYear = ref();
-    const selectedMonth = ref();
-    const selectedDate = ref();
+    const demoLanguageOptions: DemoLang[] = [Language.ZH_TW, Language.EN];
+    const typeOptions: CalendarType[] = [CalendarType.YEAR, CalendarType.MONTH, CalendarType.DATE];
+    const pickerLangOptions: DemoLang[] = [Language.ZH_TW, Language.EN];
+    const yearTypeOptions: YearType[] = [YearType.RepublicEra, YearType.CommonEra];
+    const rangeOptions: RangePreset[] = ['none', 'currentYear', 'rollingWindow'];
 
-    const getSelectedYear = (time: Date) => {
-      selectedYear.value = time;
+    const demoLang = ref<DemoLang>(Language.ZH_TW);
+    const previewType = ref<CalendarType>(CalendarType.DATE);
+    const previewLang = ref<Language>(Language.ZH_TW);
+    const previewYearType = ref<YearType>(YearType.RepublicEra);
+    const selectedValue = ref<Date | undefined>(new Date());
+
+    const isDisabled = ref(false);
+    const showClearButton = ref(true);
+    const showTodayButton = ref(false);
+    const closeOnClickOutside = ref(true);
+    const closeOnEscape = ref(true);
+    const disableWeekends = ref(false);
+    const rangePreset = ref<RangePreset>('none');
+
+    const demoCopy = computed(() => DEMO_COPY[demoLang.value]);
+
+    const placeholderText = computed(() => {
+      const isZhTW = previewLang.value === Language.ZH_TW;
+
+      if (previewType.value === CalendarType.YEAR) {
+        return isZhTW ? '請選擇年份' : 'Select a year';
+      }
+
+      if (previewType.value === CalendarType.MONTH) {
+        return isZhTW ? '請選擇月份' : 'Select a month';
+      }
+
+      return isZhTW ? '請選擇日期' : 'Select a date';
+    });
+
+    const minDate = computed(() => {
+      if (rangePreset.value === 'currentYear') {
+        return dayjs().startOf('year').toDate();
+      }
+
+      if (rangePreset.value === 'rollingWindow') {
+        return dayjs().subtract(6, 'month').startOf('day').toDate();
+      }
+
+      return undefined;
+    });
+
+    const maxDate = computed(() => {
+      if (rangePreset.value === 'currentYear') {
+        return dayjs().endOf('year').toDate();
+      }
+
+      if (rangePreset.value === 'rollingWindow') {
+        return dayjs().endOf('day').toDate();
+      }
+
+      return undefined;
+    });
+
+    const selectedValueFormatMap: Record<CalendarType, string> = {
+      [CalendarType.YEAR]: 'YYYY',
+      [CalendarType.MONTH]: 'YYYY-MM',
+      [CalendarType.DATE]: 'YYYY-MM-DD'
     };
 
-    const getSelectedMonth = (time: Date) => {
-      selectedMonth.value = time;
-    };
+    const selectedValueLabel = computed(() => {
+      if (!selectedValue.value) {
+        return demoLang.value === Language.ZH_TW ? '尚未選擇' : 'No selection yet';
+      }
 
-    const getSelectedDate = (time: Date) => {
-      selectedDate.value = time;
-    };
+      return dayjs(selectedValue.value).format(selectedValueFormatMap[previewType.value]);
+    });
 
-    const lang = ref(Language.ZH_TW);
+    const rangeSummary = computed(() => {
+      if (!minDate.value && !maxDate.value) {
+        return demoLang.value === Language.ZH_TW ? '不限' : 'Unlimited';
+      }
 
-    const switchLang = () => {
-      if (lang.value === Language.EN) {
-        lang.value = Language.ZH_TW;
-      } else {
-        lang.value = Language.EN;
+      const format = 'YYYY-MM-DD';
+      const minLabel = minDate.value ? dayjs(minDate.value).format(format) : '...';
+      const maxLabel = maxDate.value ? dayjs(maxDate.value).format(format) : '...';
+
+      return `${minLabel} ~ ${maxLabel}`;
+    });
+
+    const previewStateItems = computed(() => [
+      {
+        label: demoCopy.value.previewStateLabels.mode,
+        value: demoCopy.value.typeLabels[previewType.value]
+      },
+      {
+        label: demoCopy.value.previewStateLabels.lang,
+        value: previewLang.value
+      },
+      {
+        label: demoCopy.value.previewStateLabels.yearType,
+        value: demoCopy.value.yearTypeLabels[previewYearType.value]
+      }
+    ]);
+
+    const setRangePreset = (preset: RangePreset) => {
+      rangePreset.value = preset;
+
+      if (preset === 'currentYear') {
+        selectedValue.value = dayjs().startOf('year').toDate();
+        return;
+      }
+
+      if (preset === 'rollingWindow') {
+        selectedValue.value = dayjs().subtract(1, 'month').startOf('day').toDate();
       }
     };
 
     return {
-      Language,
-      lang,
-      selectedYear,
-      selectedMonth,
-      selectedDate,
-      CalendarType,
-      switchLang,
-      getSelectedYear,
-      getSelectedMonth,
-      getSelectedDate
+      demoLanguageOptions,
+      typeOptions,
+      pickerLangOptions,
+      yearTypeOptions,
+      rangeOptions,
+      demoLang,
+      previewType,
+      previewLang,
+      previewYearType,
+      selectedValue,
+      isDisabled,
+      showClearButton,
+      showTodayButton,
+      closeOnClickOutside,
+      closeOnEscape,
+      disableWeekends,
+      rangePreset,
+      placeholderText,
+      minDate,
+      maxDate,
+      selectedValueLabel,
+      rangeSummary,
+      previewStateItems,
+      setRangePreset,
+      demoCopy
     };
   }
 });
 </script>
 
 <style scoped lang="scss">
-.wrapper {
+.demo-page {
   width: 100%;
-  height: 100vh;
-  background: #d8d1f6;
+  min-height: 100vh;
+  --demo-page-bg-color: #f6f8fb;
+  background-color: var(--demo-page-bg-color);
 }
 
-.container {
+.demo-shell {
   width: 100%;
-  height: 100%;
+  padding: 48px 24px 56px;
+}
+
+.demo-card__hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  transform: translateY(-200px);
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
+.demo-card__hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.demo-card__title {
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.demo-card__description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+.demo-language-switcher {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.demo-language-switcher__label {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.demo-language-switcher__actions {
+  width: auto;
+}
+
+.demo-language-switcher__select {
+  width: 114px;
+  min-height: 38px;
+  padding: 0 36px 0 12px;
+  border: 1px solid #d7dee8;
+  border-radius: 10px;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #7b8798 50%),
+    linear-gradient(135deg, #7b8798 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 16px,
+    calc(100% - 12px) 16px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  color: #1f2d3d;
+  font-size: 13px;
+  line-height: 1.2;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+.demo-language-switcher__select:focus {
+  outline: none;
+  border-color: #c7d7e6;
+  box-shadow: 0 0 0 2px rgba(36, 92, 134, 0.08);
 }
 
 button {
@@ -151,43 +687,429 @@ button {
   border-style: none;
 }
 
-span {
-  margin-bottom: 10px;
+.demo-layout {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(320px, 390px) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
 }
 
-.lang-selector{
-  margin-bottom: 20px;
+.settings-panel,
+.preview-panel {
+  border: 1px solid #e8edf3;
+  border-radius: 16px;
+  background: #fbfcfe;
 }
 
-.date-picker-examples {
-  width: 70%;
-  display: flex;
-  justify-content: space-around;
+.settings-panel {
+  padding: 18px;
 }
 
-.controller {
-  display: flex;
-  align-items: center;
-  padding: 2px;
-  color: #6a6c6d;
+.settings-block + .settings-block {
+  margin-top: 22px;
+}
+
+.settings-block__title {
+  margin-bottom: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #334155;
+}
+
+.prop-item {
+  padding: 14px 14px 16px;
+  border: 1px solid #e8edf3;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.prop-item + .prop-item {
+  margin-top: 12px;
+}
+
+.prop-item__name {
+  font-size: 14px;
+  line-height: 1.3;
+  font-weight: 600;
+  color: #1f2d3d;
+  letter-spacing: 0.01em;
+}
+
+.prop-item__description {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #6b7280;
+}
+
+.prop-item__controls {
+  margin-top: 12px;
+}
+
+.settings-block__hint {
+  margin-top: 12px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8a94a6;
+}
+
+.segmented-control {
+  display: grid;
+  gap: 8px;
+}
+
+.segmented-control--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.segmented-control--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.segmented-control__button {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid #d7dee8;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #556173;
+  font-size: 13px;
+  line-height: 1.2;
   cursor: pointer;
 }
 
-.date-picker {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 300px;
+.segmented-control__button.is-active {
+  border-color: #c7d7e6;
+  background: #eef5fb;
+  color: #245c86;
+  font-weight: 600;
 }
 
-.selected-value {
+.preview-panel {
+  padding: 24px;
+  border: 1px solid #e8edf3;
+  border-radius: 16px;
+  background: #fbfcfe;
+}
+
+.preview-panel-shell {
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  z-index: 2;
+  isolation: isolate;
+}
+
+.preview-panel-shell::before {
+  content: '';
   position: absolute;
-  width: 100%;
-  padding: 0px 10px;
-  left: 10px;
-  top: 80px;
-  line-height: 1.2;
+  z-index: -1;
+  inset: -24px -16px auto -16px;
+  height: 24px;
+  border-radius: 18px 18px 0 0;
+  background-color: var(--demo-page-bg-color);
+  pointer-events: none;
+}
+
+.preview-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.preview-panel__title {
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #1f2d3d;
+}
+
+.preview-panel__state-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.preview-tip {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  border: 1px solid #dde6ef;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f7fafc 100%);
+}
+
+.preview-tip__list {
+  display: grid;
+  gap: 8px;
+}
+
+.preview-tip__item {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3f4b5c;
+}
+
+.inline-code {
+  display: inline-block;
+  padding: 0 5px;
+  border-radius: 6px;
+  background: #e7eef5;
+  color: #234154;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, monospace;
+  font-size: 0.92em;
+  white-space: nowrap;
+}
+
+.preview-state-row {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+
+.preview-state-row__label {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6b7280;
+}
+
+.preview-state-row__value {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #1f2d3d;
+  font-weight: 500;
+}
+
+.preview-panel__surface {
+  min-height: 220px;
+  padding: 24px;
+  border: 1px solid #e6ebf2;
+  border-radius: 14px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-panel__meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.preview-chip {
+  padding: 12px 14px;
+  border: 1px solid #e6ebf2;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.preview-chip__label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #8a94a6;
+}
+
+.preview-chip__value {
+  display: block;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #1f2d3d;
+  word-break: break-word;
+}
+
+.preview-panel__note {
+  margin-top: 14px;
+  min-height: 1px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #8a94a6;
+}
+
+@media (max-width: 960px) {
+  .demo-card__hero {
+    margin-bottom: 24px;
+  }
+
+  .demo-card__hero-top {
+    gap: 16px;
+  }
+
+  .demo-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .preview-panel-shell {
+    order: -1;
+    position: sticky;
+    top: 24px;
+  }
+
+  .preview-tip {
+    padding: 12px 14px;
+  }
+
+  .preview-panel__state-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    row-gap: 6px;
+    justify-items: center;
+  }
+
+  .preview-state-row {
+    display: contents;
+  }
+
+  .preview-state-row__label,
+  .preview-state-row__value {
+    text-align: center;
+  }
+
+  .preview-state-row:nth-child(1) .preview-state-row__label,
+  .preview-state-row:nth-child(2) .preview-state-row__label,
+  .preview-state-row:nth-child(3) .preview-state-row__label {
+    grid-row: 1;
+  }
+
+  .preview-state-row:nth-child(1) .preview-state-row__value,
+  .preview-state-row:nth-child(2) .preview-state-row__value,
+  .preview-state-row:nth-child(3) .preview-state-row__value {
+    grid-row: 2;
+  }
+
+  .preview-state-row:nth-child(1) .preview-state-row__label,
+  .preview-state-row:nth-child(1) .preview-state-row__value {
+    grid-column: 1;
+  }
+
+  .preview-state-row:nth-child(2) .preview-state-row__label,
+  .preview-state-row:nth-child(2) .preview-state-row__value {
+    grid-column: 2;
+  }
+
+  .preview-state-row:nth-child(3) .preview-state-row__label,
+  .preview-state-row:nth-child(3) .preview-state-row__value {
+    grid-column: 3;
+  }
+
+  .preview-panel__surface {
+    min-height: 0;
+  }
+
+  .preview-chip {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .preview-chip__label {
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .preview-chip__value {
+    text-align: right;
+  }
+}
+
+@media (max-width: 640px) {
+  .demo-shell {
+    padding: 20px 12px;
+  }
+
+  .demo-card__hero {
+    margin-bottom: 20px;
+    gap: 10px;
+  }
+
+  .demo-card__hero-top {
+    display: contents;
+  }
+
+  .demo-card__title {
+    order: 1;
+    font-size: 24px;
+  }
+
+  .demo-card__description {
+    order: 2;
+  }
+
+  .demo-language-switcher {
+    order: 3;
+    align-self: flex-end;
+    gap: 4px;
+  }
+
+  .demo-language-switcher__actions {
+    margin-top: 0;
+  }
+
+  .demo-language-switcher__select {
+    min-height: 40px;
+    width: 114px;
+    padding-right: 38px;
+    background-position:
+      calc(100% - 18px) 17px,
+      calc(100% - 12px) 17px;
+  }
+
+  .settings-panel,
+  .preview-panel {
+    padding: 16px;
+  }
+
+  .preview-state-row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .preview-panel__meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .preview-panel__surface {
+    padding: 18px 12px;
+  }
+
+  .preview-tip {
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 10px 12px;
+  }
+
+  .preview-tip__list {
+    gap: 6px;
+  }
+
+  .preview-tip__item {
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .inline-code {
+    font-size: 0.9em;
+    padding: 0 4px;
+  }
+
+  .preview-panel-shell {
+    top: 16px;
+  }
+
+  .preview-panel-shell::before {
+    inset: -16px -12px auto -12px;
+    height: 16px;
+    border-radius: 16px 16px 0 0;
+  }
 }
 </style>

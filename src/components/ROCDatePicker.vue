@@ -784,24 +784,45 @@ button {
 
   &--disabled {
     cursor: not-allowed;
+    background: #f5f7fa;
+    border-color: #d9e0e6;
+    color: #9aa3ab;
+
+    .input-icon {
+      opacity: 0.55;
+    }
+
+    .date-picker-input {
+      background: #f5f7fa;
+      color: #9aa3ab;
+      -webkit-text-fill-color: #9aa3ab;
+      opacity: 1;
+    }
   }
 
   .input-icon {
     padding: 0 4px;
   }
 
-  .date-picker-input {
-    width: 100%;
-    height: 100%;
-    padding: 2px;
-    background: #ffffff;
-    border-style: none;
-    cursor: inherit;
+    .date-picker-input {
+      width: 100%;
+      height: 100%;
+      padding: 2px;
+      background: #ffffff;
+      border-style: none;
+      cursor: inherit;
 
-    &:focus {
-      outline-style: none;
+      &:focus {
+        outline-style: none;
+      }
+
+      &:disabled {
+        background: #f5f7fa;
+        color: #9aa3ab;
+        -webkit-text-fill-color: #9aa3ab;
+        opacity: 1;
+      }
     }
-  }
 
   .clear-input-button {
     display: none;
