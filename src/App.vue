@@ -422,6 +422,30 @@
               </div>
             </div>
 
+            <div class="preview-panel__snippet">
+              <div class="preview-panel__snippet-actions">
+                <button
+                  type="button"
+                  class="preview-panel__copy-button"
+                  :class="{ 'is-copied': isSnippetCopied }"
+                  :aria-label="isSnippetCopied ? 'Copied' : 'Copy code'"
+                  :title="isSnippetCopied ? 'copied!' : 'Copy code'"
+                  @click="copyRocDatePickerSnippet"
+                >
+                  <span
+                    v-if="isSnippetCopied"
+                    class="preview-panel__copy-tooltip"
+                    aria-hidden="true"
+                  >
+                    copied!
+                  </span>
+                  <CopyIcon v-if="!isSnippetCopied" />
+                </button>
+              </div>
+
+              <pre class="preview-panel__snippet-code"><code class="html hljs xml"><SnippetCode :lines="highlightedSnippetLines" /></code></pre>
+            </div>
+
             <p class="preview-panel__note">
               {{ demoCopy.previewNote }}
             </p>
@@ -433,19 +457,25 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import {
+  computed, defineComponent, onBeforeUnmount, ref
+} from 'vue';
 import dayjs from 'dayjs';
 import ROCDatePicker from './components/ROCDatePicker.vue';
+import SnippetCode from './components/SnippetCode.vue';
 import { CalendarType, Language, YearType } from './interfaces';
 import {
   DEMO_COPY,
   type DemoLang,
   type RangePreset
 } from './locales/demo';
+import CopyIcon from './components/icons/CopyIcon.vue';
 
 export default defineComponent({
   components: {
-    ROCDatePicker
+    ROCDatePicker,
+    CopyIcon,
+    SnippetCode
   },
   setup() {
     const demoLanguageOptions: DemoLang[] = [Language.ZH_TW, Language.EN];
@@ -463,12 +493,28 @@ export default defineComponent({
     const isDisabled = ref(false);
     const showClearButton = ref(true);
     const showTodayButton = ref(false);
-    const closeOnClickOutside = ref(true);
+    const closeOnClickOutside = ref(false);
     const closeOnEscape = ref(true);
     const disableWeekends = ref(false);
     const rangePreset = ref<RangePreset>('none');
+    const isSnippetCopied = ref(false);
+    let snippetCopyTimer: number | undefined;
 
     const demoCopy = computed(() => DEMO_COPY[demoLang.value]);
+
+    const toVueStringLiteral = (value: string) => `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
+    const toVueOptionalStringPropLine = (name: string, value: string, defaultValue: string) => (
+      value === defaultValue ? undefined : `  :${name}=${toVueStringLiteral(value)}`
+    );
+    const toVueBooleanPropLine = (name: string, value: boolean) => (value ? `  ${name}` : undefined);
+
+    const toVueDateStringLiteral = (value: Date | undefined) => {
+      if (!value) {
+        return undefined;
+      }
+
+      return toVueStringLiteral(dayjs(value).format('YYYY-MM-DD'));
+    };
 
     const placeholderText = computed(() => {
       const isZhTW = previewLang.value === Language.ZH_TW;
@@ -506,6 +552,75 @@ export default defineComponent({
       }
 
       return undefined;
+    });
+
+    const rocDatePickerSnippet = computed(() => {
+      const propLines = [
+        '  v-model="selectedValue"',
+        `  :type="${toVueStringLiteral(previewType.value)}"`,
+        toVueOptionalStringPropLine('lang', previewLang.value, Language.ZH_TW),
+        `  :calendar-year-type="${toVueStringLiteral(previewYearType.value)}"`,
+        `  :placeholder="${toVueStringLiteral(placeholderText.value)}"`,
+        toVueBooleanPropLine('disabled', isDisabled.value),
+        toVueBooleanPropLine('show-clear-button', showClearButton.value),
+        toVueBooleanPropLine('show-today-button', showTodayButton.value),
+        toVueBooleanPropLine('close-on-click-outside', closeOnClickOutside.value),
+        toVueBooleanPropLine('close-on-escape', closeOnEscape.value),
+        toVueBooleanPropLine('disable-weekends', disableWeekends.value)
+      ].filter((line): line is string => Boolean(line));
+
+      const minDateLiteral = toVueDateStringLiteral(minDate.value);
+      const maxDateLiteral = toVueDateStringLiteral(maxDate.value);
+
+      if (minDateLiteral) {
+        propLines.push(`  :min-date=${minDateLiteral}`);
+      }
+
+      if (maxDateLiteral) {
+        propLines.push(`  :max-date=${maxDateLiteral}`);
+      }
+
+      return ['<ROCDatePicker', ...propLines.filter((line): line is string => Boolean(line)), '/>'].join('\n');
+    });
+
+    const highlightedSnippetLines = computed(() => {
+      const lines = rocDatePickerSnippet.value.split('\n');
+
+      return lines.map((line, index) => {
+        if (index === 0) {
+          return [
+            { class: 'hljs-tag', value: '<' },
+            { class: 'hljs-name', value: 'ROCDatePicker' }
+          ];
+        }
+
+        const trimmedLine = line.trimStart();
+        const indentation = line.slice(0, line.length - trimmedLine.length);
+
+        if (trimmedLine === '/>') {
+          return [
+            { value: indentation },
+            { class: 'hljs-tag', value: '/>' }
+          ];
+        }
+
+        const assignmentMatch = trimmedLine.match(/^(:?[\w-]+)=(.+)$/);
+
+        if (assignmentMatch) {
+          const [, name, rawValue] = assignmentMatch;
+          return [
+            { value: indentation },
+            { class: 'hljs-attr', value: name },
+            { value: '=' },
+            { class: 'hljs-string', value: rawValue }
+          ];
+        }
+
+        return [
+          { value: indentation },
+          { class: 'hljs-attr', value: trimmedLine }
+        ];
+      });
     });
 
     const selectedValueFormatMap: Record<CalendarType, string> = {
@@ -562,6 +677,48 @@ export default defineComponent({
       }
     };
 
+    const clearSnippetCopyTimer = () => {
+      if (snippetCopyTimer !== undefined) {
+        window.clearTimeout(snippetCopyTimer);
+        snippetCopyTimer = undefined;
+      }
+    };
+
+    const copyRocDatePickerSnippet = async () => {
+      const textArea = document.createElement('textarea');
+
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(rocDatePickerSnippet.value);
+        } else {
+          textArea.value = rocDatePickerSnippet.value;
+          textArea.setAttribute('readonly', 'true');
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+        }
+
+        isSnippetCopied.value = true;
+        clearSnippetCopyTimer();
+        snippetCopyTimer = window.setTimeout(() => {
+          isSnippetCopied.value = false;
+          snippetCopyTimer = undefined;
+        }, 1500);
+      } catch {
+        isSnippetCopied.value = false;
+      } finally {
+        if (textArea.parentNode) {
+          textArea.parentNode.removeChild(textArea);
+        }
+      }
+    };
+
+    onBeforeUnmount(() => {
+      clearSnippetCopyTimer();
+    });
+
     return {
       demoLanguageOptions,
       typeOptions,
@@ -587,7 +744,11 @@ export default defineComponent({
       rangeSummary,
       previewStateItems,
       setRangePreset,
-      demoCopy
+      demoCopy,
+      rocDatePickerSnippet,
+      highlightedSnippetLines,
+      isSnippetCopied,
+      copyRocDatePickerSnippet
     };
   }
 });
@@ -829,8 +990,12 @@ button {
 
 .preview-panel__state-list {
   display: grid;
-  gap: 8px;
   margin-top: 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 6px;
+  justify-items: center;
 }
 
 .preview-tip {
@@ -865,16 +1030,41 @@ button {
 }
 
 .preview-state-row {
-  display: grid;
-  grid-template-columns: 110px minmax(0, 1fr);
-  gap: 12px;
-  align-items: baseline;
+  display: contents;
+}
+
+.preview-state-row:nth-child(1) .preview-state-row__label,
+.preview-state-row:nth-child(2) .preview-state-row__label,
+.preview-state-row:nth-child(3) .preview-state-row__label {
+  grid-row: 1;
+}
+
+.preview-state-row:nth-child(1) .preview-state-row__value,
+.preview-state-row:nth-child(2) .preview-state-row__value,
+.preview-state-row:nth-child(3) .preview-state-row__value {
+  grid-row: 2;
+}
+
+.preview-state-row:nth-child(1) .preview-state-row__label,
+.preview-state-row:nth-child(1) .preview-state-row__value {
+  grid-column: 1;
+}
+
+.preview-state-row:nth-child(2) .preview-state-row__label,
+.preview-state-row:nth-child(2) .preview-state-row__value {
+  grid-column: 2;
+}
+
+.preview-state-row:nth-child(3) .preview-state-row__label,
+.preview-state-row:nth-child(3) .preview-state-row__value {
+  grid-column: 3;
 }
 
 .preview-state-row__label {
   font-size: 13px;
   line-height: 1.4;
   color: #6b7280;
+  text-align: center;
 }
 
 .preview-state-row__value {
@@ -882,10 +1072,11 @@ button {
   line-height: 1.4;
   color: #1f2d3d;
   font-weight: 500;
+  text-align: center;
 }
 
 .preview-panel__surface {
-  min-height: 220px;
+  min-height: 100px;
   padding: 24px;
   border: 1px solid #e6ebf2;
   border-radius: 14px;
@@ -900,6 +1091,128 @@ button {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin-top: 16px;
+}
+
+.preview-panel__snippet {
+  position: relative;
+  margin-top: 16px;
+  padding: 16px 16px 14px;
+  border: 1px solid #dde6ef;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fbfdff 0%, #f7fafc 100%);
+}
+
+.preview-panel__snippet-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.preview-panel__copy-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid #d7dee8;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #526171;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  line-height: 0;
+  overflow: hidden;
+  transition:
+    width 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.preview-panel__copy-button.is-copied {
+  width: 104px;
+  border-color: #a7c5ad;
+  background: #e8f1e8;
+  color: #3f6f4b;
+  cursor: default;
+  box-shadow: 0 6px 16px rgba(63, 111, 75, 0.14);
+}
+
+.preview-panel__copy-tooltip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 0 0 2px;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.preview-panel__copy-button:hover {
+  color: #245c86;
+  border-color: #c7d7e6;
+}
+
+.preview-panel__copy-button svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  overflow: visible;
+}
+
+.preview-panel__snippet-code {
+  margin: 0;
+  padding: 24px;
+  overflow: auto;
+  white-space: pre;
+  color: #d4d4d4;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+  line-height: 1.2;
+  background:
+    linear-gradient(180deg, rgba(18, 24, 37, 0.98) 0%, rgba(15, 20, 31, 0.98) 100%);
+  border-radius: 12px;
+  border: 1px solid #1f2937;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.preview-panel__snippet-line {
+  display: block;
+  line-height: 1.2;
+}
+
+.preview-panel__snippet-code :deep(.hljs-tag) {
+  color: #7dd3fc;
+}
+
+.preview-panel__snippet-code :deep(.hljs-name) {
+  color: #93c5fd;
+}
+
+.preview-panel__snippet-code :deep(.hljs-attr) {
+  color: #c4b5fd;
+}
+
+.preview-panel__snippet-code :deep(.hljs-string) {
+  color: #86efac;
+}
+
+.preview-panel__snippet-code :deep(.hljs-tag),
+.preview-panel__snippet-code :deep(.hljs-name),
+.preview-panel__snippet-code :deep(.hljs-attr),
+.preview-panel__snippet-code :deep(.hljs-string) {
+  font-weight: 500;
 }
 
 .preview-chip {
@@ -956,49 +1269,8 @@ button {
     padding: 12px 14px;
   }
 
-  .preview-panel__state-list {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: auto auto;
-    column-gap: 12px;
-    row-gap: 6px;
-    justify-items: center;
-  }
-
-  .preview-state-row {
-    display: contents;
-  }
-
-  .preview-state-row__label,
-  .preview-state-row__value {
-    text-align: center;
-  }
-
-  .preview-state-row:nth-child(1) .preview-state-row__label,
-  .preview-state-row:nth-child(2) .preview-state-row__label,
-  .preview-state-row:nth-child(3) .preview-state-row__label {
-    grid-row: 1;
-  }
-
-  .preview-state-row:nth-child(1) .preview-state-row__value,
-  .preview-state-row:nth-child(2) .preview-state-row__value,
-  .preview-state-row:nth-child(3) .preview-state-row__value {
-    grid-row: 2;
-  }
-
-  .preview-state-row:nth-child(1) .preview-state-row__label,
-  .preview-state-row:nth-child(1) .preview-state-row__value {
-    grid-column: 1;
-  }
-
-  .preview-state-row:nth-child(2) .preview-state-row__label,
-  .preview-state-row:nth-child(2) .preview-state-row__value {
-    grid-column: 2;
-  }
-
-  .preview-state-row:nth-child(3) .preview-state-row__label,
-  .preview-state-row:nth-child(3) .preview-state-row__value {
-    grid-column: 3;
+  .preview-panel__snippet {
+    display: none;
   }
 
   .preview-panel__surface {
