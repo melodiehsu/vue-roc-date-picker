@@ -6,13 +6,16 @@
           v-for="(year, index) in years"
           :key="index"
           :class="[
-            'year-cell cursor-pointer',
+            'year-cell',
             {
               'selected-year': isSelected(year),
+              'cursor-pointer': !isYearDisabled(year),
+              'disabled-year': isYearDisabled(year),
             },
           ]"
           data-test="year-cell"
           type="button"
+          :disabled="isYearDisabled(year)"
           @click="handleSelectYear(year)"
         >
           {{ calendarYearType === YearType.CommonEra ? year : getRepublicEraYear(year) }}
@@ -23,17 +26,27 @@
 </template>
 
 <script lang="ts">
-import { getCalendarLang, getRepublicEraYear, setDatePickerLabel } from '@/utils';
-import { CalendarType, YearType, type SelectedTime } from '@/interfaces';
 import {
-  computed, defineComponent, onMounted, ref, toRefs, watch, type PropType
+  getRepublicEraYear, isDateOutsideRange, setDatePickerLabel
+} from '@/utils';
+import {
+  CalendarType, Language, YearType, type SelectedTime
+} from '@/interfaces';
+import {
+  computed, defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
+import dayjs from 'dayjs';
+
+const DEFAULT_SELECTED_TIME: SelectedTime = {
+  label: '',
+  timeValue: undefined
+};
 
 export default defineComponent({
   props: {
     lang: {
       required: true,
-      type: String
+      type: String as PropType<Language>
     },
     calendarYearType: {
       required: true,
@@ -41,7 +54,7 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => {}
+      default: () => ({ ...DEFAULT_SELECTED_TIME })
     },
     type: {
       required: true,
@@ -50,16 +63,29 @@ export default defineComponent({
     decadeRange: {
       required: true,
       type: Array as PropType<number[]>
+    },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
+      default: ''
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      defaultFullDate, calendarYearType, type, decadeRange
+      defaultFullDate, calendarYearType, type, decadeRange, minDate, maxDate
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
     const years = ref<number[]>([]);
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
+
+    const selectedDayjs = computed(() => {
+      const { timeValue } = selectedFullDate.value;
+      return timeValue ? dayjs(timeValue) : undefined;
+    });
+    const selectedYear = computed(() => selectedDayjs.value?.year());
 
     const populateYearCalendar = () => {
       years.value = [];
@@ -87,14 +113,24 @@ export default defineComponent({
       return false;
     };
 
+    const isYearDisabled = (year: number) => isDateOutsideRange({
+      targetDate: new Date(year, 0, 1),
+      minDate: minDate.value,
+      maxDate: maxDate.value,
+      unit: 'year'
+    });
+
     const handleSelectYear = (yearOnCalendar: number) => {
-      selectedFullDate.value.timeValue = new Date(yearOnCalendar, 0);
+      if (isYearDisabled(yearOnCalendar)) return;
+
+      const timeValue = new Date(yearOnCalendar, 0);
+      selectedFullDate.value.timeValue = timeValue;
 
       if (type.value === CalendarType.YEAR) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value,
+          selectedDate: timeValue,
+          formatYear: timeValue.getFullYear(),
           datePickerType: CalendarType.YEAR
         });
       }
@@ -102,24 +138,27 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    onMounted(() => {
-      populateYearCalendar();
-      if (defaultFullDate.value) {
-        selectedFullDate.value = defaultFullDate.value;
-      }
-    });
-
     watch(decadeRange, () => {
       populateYearCalendar();
-    }, { deep: true });
+    }, { deep: true, immediate: true });
+
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+      },
+      { immediate: true }
+    );
 
     return {
       YearType,
       years,
       selectedFullDate,
       isSelected,
+      isYearDisabled,
       handleSelectYear,
-      getCalendarLang,
       getRepublicEraYear
     };
   }
@@ -154,8 +193,21 @@ button {
     }
   }
 
+  .disabled-year {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-year {
     font-weight: 600;
+    color: #4390BC;
+  }
+
+  .selected-year.disabled-year {
     color: #4390BC;
   }
 }

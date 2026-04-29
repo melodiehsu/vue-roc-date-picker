@@ -6,13 +6,16 @@
           v-for="(month, index) in MONTHS"
           :key="index"
           :class="[
-            'month-cell cursor-pointer',
+            'month-cell',
             {
               'selected-month': isSelected(month),
+              'cursor-pointer': !isMonthDisabled(month),
+              'disabled-month': isMonthDisabled(month),
             },
           ]"
           data-test="month-cell"
           type="button"
+          :disabled="isMonthDisabled(month)"
           @click="handleSelectMonth(month)"
         >
           {{ getCalendarLang(lang).month[month] }}
@@ -24,14 +27,22 @@
 
 <script lang="ts">
 import { MONTHS } from '@/constants';
-import { getCalendarLang, setDatePickerLabel } from '@/utils';
+import {
+  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
+} from '@/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs, type PropType
+  defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
+import dayjs from 'dayjs';
+
+const DEFAULT_SELECTED_TIME: SelectedTime = {
+  label: '',
+  timeValue: undefined
+};
 
 export default defineComponent({
   props: {
@@ -49,7 +60,15 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => {}
+      default: () => ({ ...DEFAULT_SELECTED_TIME })
+    },
+    minDate: {
+      type: [Date, String],
+      default: ''
+    },
+    maxDate: {
+      type: [Date, String],
+      default: ''
     },
     type: {
       required: true,
@@ -59,12 +78,16 @@ export default defineComponent({
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, defaultFullDate, calendarYearType, type
+      calendarYear, defaultFullDate, calendarYearType, type, minDate, maxDate
     } = toRefs(props);
-
     const selectedFullDate = ref<SelectedTime>({});
-    const selectedYear = computed(() => new Date(selectedFullDate.value.timeValue as Date).getFullYear());
-    const selectedMonth = computed(() => new Date(selectedFullDate.value.timeValue as Date).getMonth());
+
+    const selectedDayjs = computed(() => {
+      const { timeValue } = selectedFullDate.value;
+      return timeValue ? dayjs(timeValue) : undefined;
+    });
+    const selectedYear = computed(() => selectedDayjs.value?.year());
+    const selectedMonth = computed(() => selectedDayjs.value?.month());
 
     const isSelected = (month: number): boolean => {
       if (
@@ -78,14 +101,24 @@ export default defineComponent({
       return false;
     };
 
+    const isMonthDisabled = (month: number) => isCalendarDateDisabled({
+      targetDate: new Date(calendarYear.value, month, 1),
+      minDate: minDate.value,
+      maxDate: maxDate.value,
+      unit: 'month'
+    });
+
     const handleSelectMonth = (monthOnCalendar: number) => {
-      selectedFullDate.value.timeValue = new Date(calendarYear.value, monthOnCalendar);
+      if (isMonthDisabled(monthOnCalendar)) return;
+
+      const timeValue = new Date(calendarYear.value, monthOnCalendar);
+      selectedFullDate.value.timeValue = timeValue;
 
       if (type.value === CalendarType.MONTH) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
-          selectedDate: selectedFullDate.value.timeValue,
-          formatYear: selectedYear.value,
+          selectedDate: timeValue,
+          formatYear: timeValue.getFullYear(),
           datePickerType: CalendarType.MONTH
         });
       }
@@ -93,16 +126,25 @@ export default defineComponent({
       emit('click', selectedFullDate.value);
     };
 
-    onMounted(() => {
-      if (defaultFullDate.value) {
-        selectedFullDate.value = defaultFullDate.value;
-      }
-    });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+      },
+      { immediate: true }
+    );
+
+    watch(defaultFullDate, () => {
+      selectedFullDate.value = defaultFullDate.value || {};
+    }, { deep: true });
 
     return {
       MONTHS,
       selectedFullDate,
       isSelected,
+      isMonthDisabled,
       handleSelectMonth,
       getCalendarLang
     };
@@ -137,8 +179,21 @@ button {
     }
   }
 
+  .disabled-month {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-month {
     font-weight: 600;
+    color: #4390BC;
+  }
+
+  .selected-month.disabled-month {
     color: #4390BC;
   }
 }

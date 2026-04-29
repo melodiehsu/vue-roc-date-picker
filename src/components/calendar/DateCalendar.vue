@@ -18,11 +18,15 @@
           :class="[
             'date-cell',
             {
-              'cursor-pointer': date, 'selected-date': isSelected(date),
+              'cursor-pointer': date && !isDateDisabled(date),
+              'selected-date': isSelected(date),
+              'today-date': isToday(date),
+              'disabled-date': date && isDateDisabled(date),
             },
           ]"
           data-test="date-cell"
           type="button"
+          :disabled="!date || isDateDisabled(date)"
           @click="handleSelectDate(date)"
         >
           {{ date }}
@@ -37,12 +41,19 @@ import { WEEK_DAYS } from '@/constants';
 import {
   CalendarType, Language, YearType, type SelectedTime
 } from '@/interfaces';
-import { getCalendarLang, setDatePickerLabel } from '@/utils';
+import {
+  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
+} from '@/utils';
 import dayjs from 'dayjs';
 import {
   computed,
-  defineComponent, onMounted, ref, toRefs, watch, type PropType
+  defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
+
+const DEFAULT_SELECTED_TIME: SelectedTime = {
+  label: '',
+  timeValue: undefined
+};
 
 export default defineComponent({
   props: {
@@ -64,20 +75,61 @@ export default defineComponent({
     },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
-      default: () => {}
+      default: () => ({ ...DEFAULT_SELECTED_TIME })
+    },
+    minDate: {
+      type: [Date, String] as PropType<Date | string | undefined>,
+      default: undefined
+    },
+    maxDate: {
+      type: [Date, String] as PropType<Date | string | undefined>,
+      default: undefined
+    },
+    disableWeekends: {
+      type: Boolean,
+      default: false
+    },
+    disabledDates: {
+      type: Array as PropType<(Date | string)[]>,
+      default: () => []
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, calendarMonth, calendarYearType, defaultFullDate
+      calendarYear,
+      calendarMonth,
+      calendarYearType,
+      defaultFullDate,
+      minDate,
+      maxDate,
+      disableWeekends,
+      disabledDates
     } = toRefs(props);
+
+    const isDateDisabled = (dateOnCalendar: number | null) => {
+      if (!dateOnCalendar) return true;
+
+      return isCalendarDateDisabled({
+        targetDate: new Date(calendarYear.value, calendarMonth.value, dateOnCalendar),
+        minDate: minDate.value,
+        maxDate: maxDate.value,
+        unit: 'day',
+        disableWeekends: disableWeekends.value,
+        disabledDates: disabledDates.value
+      });
+    };
+
     const dateCells = ref<(number | null)[]>([]);
     const selectedFullDate = ref<SelectedTime>({});
 
-    const selectedYear = computed(() => dayjs(selectedFullDate.value.timeValue).year());
-    const selectedMonth = computed(() => dayjs(selectedFullDate.value.timeValue).month());
-    const selectedDate = computed(() => dayjs(selectedFullDate.value.timeValue).date());
+    const selectedDayjs = computed(() => {
+      const { timeValue } = selectedFullDate.value;
+      return timeValue ? dayjs(timeValue) : undefined;
+    });
+    const selectedYear = computed(() => selectedDayjs.value?.year());
+    const selectedMonth = computed(() => selectedDayjs.value?.month());
+    const selectedDate = computed(() => selectedDayjs.value?.date());
 
     const isSelected = (date: number | null): boolean => {
       if (
@@ -92,14 +144,25 @@ export default defineComponent({
       return false;
     };
 
+    const isToday = (date: number | null): boolean => {
+      if (!date) return false;
+
+      const today = dayjs();
+      const currentDate = dayjs(new Date(calendarYear.value, calendarMonth.value, date));
+
+      return currentDate.isSame(today, 'day');
+    };
+
     const handleSelectDate = (dateOnCalendar: number | null) => {
-      if (!dateOnCalendar) return;
-      selectedFullDate.value.timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
+      if (!dateOnCalendar || isDateDisabled(dateOnCalendar)) return;
+
+      const timeValue = new Date(calendarYear.value, calendarMonth.value, dateOnCalendar);
+      selectedFullDate.value.timeValue = timeValue;
 
       selectedFullDate.value.label = setDatePickerLabel({
         calendarYearType: calendarYearType.value,
-        selectedDate: selectedFullDate.value.timeValue,
-        formatYear: selectedYear.value,
+        selectedDate: timeValue,
+        formatYear: timeValue.getFullYear(),
         datePickerType: CalendarType.DATE
       });
 
@@ -120,12 +183,20 @@ export default defineComponent({
       ];
     };
 
-    onMounted(() => {
-      if (defaultFullDate.value) {
-        selectedFullDate.value = defaultFullDate.value;
-      }
-      populateDateCalendar();
-    });
+    watch(
+      () => defaultFullDate.value?.timeValue,
+      (timeValue) => {
+        selectedFullDate.value = timeValue
+          ? { ...defaultFullDate.value }
+          : { ...DEFAULT_SELECTED_TIME };
+        populateDateCalendar();
+      },
+      { immediate: true }
+    );
+
+    watch(defaultFullDate, () => {
+      selectedFullDate.value = defaultFullDate.value || {};
+    }, { deep: true });
 
     watch([calendarYear, calendarMonth], () => {
       populateDateCalendar();
@@ -137,6 +208,8 @@ export default defineComponent({
       selectedFullDate,
       populateDateCalendar,
       isSelected,
+      isToday,
+      isDateDisabled,
       handleSelectDate,
       getCalendarLang
     };
@@ -183,6 +256,20 @@ button {
     }
   }
 
+  .today-date {
+    color: #4390BC;
+    font-weight: 600;
+  }
+
+  .disabled-date {
+    cursor: not-allowed;
+    color: #c3c7ca;
+
+    &:hover {
+      color: #c3c7ca;
+    }
+  }
+
   .selected-date {
     position: relative;
     color: #ffffff;
@@ -203,6 +290,11 @@ button {
       border-radius: 50%;
       background: #4390BC;
     }
+  }
+
+  .selected-date.today-date,
+  .selected-date.disabled-date {
+    color: #ffffff;
   }
 }
 </style>

@@ -1,5 +1,19 @@
+import { type YearType } from '@/interfaces';
+
+export type LocaleMonth = Record<number, string>;
+export type LocaleWeek = Record<number, string>;
+
+export interface LocaleDictionary {
+  month: LocaleMonth;
+  week: LocaleWeek;
+  yearType: Record<YearType, string>;
+  actions: {
+    today: string;
+  };
+}
+
 // TODO: i18n if possible
-export const TRANSLATE = {
+export const TRANSLATE: Record<'zhTW' | 'en', LocaleDictionary> = {
   zhTW: {
     month: {
       0: '一月',
@@ -27,6 +41,9 @@ export const TRANSLATE = {
     yearType: {
       RepublicEra: '民國',
       CommonEra: '西元'
+    },
+    actions: {
+      today: '今天'
     }
   },
   en: {
@@ -56,6 +73,9 @@ export const TRANSLATE = {
     yearType: {
       RepublicEra: 'ROC',
       CommonEra: 'CE'
+    },
+    actions: {
+      today: 'Today'
     }
   }
 };

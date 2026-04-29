@@ -14,7 +14,7 @@ describe('Test Component DateCalendar', () => {
     calendarYearType: YearType.RepublicEra
   };
 
-  it('populate date cells properly', async () => {
+  it('populates date cells correctly', async () => {
     const wrapper = mount(DateCalendar, {
       props: { ...defaultProps }
     });
@@ -32,7 +32,7 @@ describe('Test Component DateCalendar', () => {
     expect(wrapper.vm.dateCells[6]).toBe(1);
   });
 
-  it('handle select date properly', async () => {
+  it('handles date selection', async () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps
@@ -70,7 +70,7 @@ describe('Test Component DateCalendar', () => {
     });
   });
 
-  it('selectedFullDate equals to defaultFullDate if it exists', () => {
+  it('keeps selectedFullDate in sync with defaultFullDate', () => {
     const wrapper = mount(DateCalendar, {
       props: {
         ...defaultProps,
@@ -85,5 +85,57 @@ describe('Test Component DateCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
-  it.todo('show different color of the date today');
+  it('highlights today\'s date', async () => {
+    const today = new Date();
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        calendarYear: today.getFullYear(),
+        calendarMonth: today.getMonth()
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+    expect(wrapper.find('.today-date').exists()).toBe(true);
+  });
+
+  it('disables weekend dates when disableWeekends is true', async () => {
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        disableWeekends: true
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
+    const weekendDateCell = dateCells.find((cell) => cell.text() === '2');
+    expect(weekendDateCell?.attributes('disabled')).toBeDefined();
+
+    await weekendDateCell?.trigger('click');
+    expect(wrapper.vm.selectedFullDate.timeValue).toBeUndefined();
+  });
+
+  it('disables dates by min/max range and disabledDates', async () => {
+    const wrapper = mount(DateCalendar, {
+      props: {
+        ...defaultProps,
+        minDate: '2023-09-10',
+        maxDate: '2023-09-20',
+        disabledDates: ['2023-09-11']
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+    const dateCells = wrapper.findAll('[data-test="date-cell"]');
+    const beforeMinDateCell = dateCells.find((cell) => cell.text() === '9');
+    const disabledDateCell = dateCells.find((cell) => cell.text() === '11');
+    const validDateCell = dateCells.find((cell) => cell.text() === '12');
+    const afterMaxDateCell = dateCells.find((cell) => cell.text() === '21');
+
+    expect(beforeMinDateCell?.attributes('disabled')).toBeDefined();
+    expect(disabledDateCell?.attributes('disabled')).toBeDefined();
+    expect(validDateCell?.attributes('disabled')).toBeUndefined();
+    expect(afterMaxDateCell?.attributes('disabled')).toBeDefined();
+  });
 });

@@ -2,6 +2,14 @@
 
 A date picker UI component displays year in Republic Era or Common Era.<br>
 以 Vue3 + Typescript 開發，一個可顯示民國 / 西元年的日期選擇器 UI 套件
+
+Built-in common date picker features:
+- `minDate` / `maxDate` range limit
+- click outside to close
+- `Esc` to close
+- external `v-model` sync
+- optional `Today` shortcut button
+- highlight current date in date view
 ### [Demo](https://melodiehsu.github.io/vue-roc-date-picker/)
 
 ## Installation 安裝
@@ -32,18 +40,32 @@ app.use(ROCDatePicker);
 - `placeholder`: 佔位符文本。
 - `type`: 日期選擇器的類型。
 - `defaultValue`: 默認值。
+- `minDate`: 最小可選日期。
+- `maxDate`: 最大可選日期。
 - `disabled`: 是否禁用日期選擇器。
 - `zIndex`: 元素的 z-index。
 - `showClearButton`: 是否顯示清除按鈕。
+- `showTodayButton`: 是否顯示今天快捷按鈕。
+- `closeOnClickOutside`: 點擊元件外部時是否自動關閉。
+- `closeOnEscape`: 按下 `Esc` 時是否自動關閉。
+- `disableWeekends`: 是否禁用週六與週日。
+- `disabledDates`: 指定不可選日期清單。
 
 | Name                | Description                                | Type                   | Accepted Values                     | Default Value |
 |---------------------|--------------------------------------------|------------------------|-------------------------------------|---------------|
-| `model-value / v-model`| Binding value.                        | String                 | Any valid string value               | ''            |
+| `model-value / v-model`| Binding value.                        | `Date \| string`       | Any valid date value                 | ''            |
 | `lang`              | Language selection.                   | String                 | 'en', 'zhTW'                        | 'zhTW'        |
 | `calendarYearType`  | Year type selection.                  | String                 | 'CommonEra', 'RepublicEra'         | 'RepublicEra' |
 | `placeholder`       | Placeholder text.                     | String                 | Any valid string value               | ''            |
 | `type`              | Type of date picker.                 | String                 | 'year', 'month', 'date'             | 'date'        |
-| `defaultValue`      | Default date of calendar.            | String                 | Valid date string (e.g., '2023-09-28') | ''            |
+| `defaultValue`      | Default date of calendar.            | `Date \| string`       | Valid date value (e.g., '2023-09-28') | ''            |
+| `minDate`           | Earliest selectable date.            | `Date \| string`       | Valid date value                     | ''            |
+| `maxDate`           | Latest selectable date.              | `Date \| string`       | Valid date value                     | ''            |
 | `disabled`          | Whether the date picker is disabled. | Boolean                | `true` or `false`                   | false         |
 | `zIndex`            | Z-index of the pop-up calendar.      | Number                 | Any valid positive integer          | 1             |
 | `showClearButton`   | Whether to show the clear button.    | Boolean                | `true` or `false`                   | true          |
+| `showTodayButton`    | Show a shortcut button that selects today. | Boolean           | `true` or `false`                   | false         |
+| `closeOnClickOutside` | Close the calendar when clicking outside. | Boolean           | `true` or `false`                   | true          |
+| `closeOnEscape`      | Close the calendar when pressing `Esc`.    | Boolean           | `true` or `false`                   | true          |
+| `disableWeekends`   | Disable Saturdays and Sundays.       | Boolean                | `true` or `false`                   | false         |
+| `disabledDates`     | Explicit list of disabled dates.     | (Date \| String)[]     | Valid date values                   | []            |

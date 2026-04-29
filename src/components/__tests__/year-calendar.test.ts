@@ -12,7 +12,7 @@ describe('Test Component YearCalendar', () => {
     decadeRange: []
   };
 
-  it('populate years properly', async () => {
+  it('populates years correctly', async () => {
     const wrapper = mount(YearCalendar, {
       props: { ...defaultProps }
     });
@@ -30,7 +30,7 @@ describe('Test Component YearCalendar', () => {
     expect(wrapper.vm.years).not.toContain(1920);
   });
 
-  it('handle select year properly', async () => {
+  it('handles year selection', async () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,
@@ -69,7 +69,7 @@ describe('Test Component YearCalendar', () => {
     expect(emittedValues![0]).toEqual([wrapper.vm.selectedFullDate]);
   });
 
-  it('selectedFullDate equals to defaultFullDate if it exists', () => {
+  it('keeps selectedFullDate in sync with defaultFullDate', () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,
@@ -85,7 +85,7 @@ describe('Test Component YearCalendar', () => {
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
   });
 
-  it('render years according to different year type', async () => {
+  it('renders years for each year type', async () => {
     const wrapper = mount(YearCalendar, {
       props: {
         ...defaultProps,
@@ -107,5 +107,32 @@ describe('Test Component YearCalendar', () => {
 
     yearCell = yearCells[randomIndex].text();
     expect(yearCell).toBe(`${wrapper.vm.years[randomIndex]}`);
+  });
+
+  it('disables years outside min and max range', async () => {
+    const wrapper = mount(YearCalendar, {
+      props: {
+        ...defaultProps,
+        decadeRange: [2020, 2029],
+        type: CalendarType.YEAR,
+        minDate: '2022-01-01',
+        maxDate: '2027-12-31'
+      }
+    });
+
+    await wrapper.vm.$nextTick();
+
+    const yearCells = wrapper.findAll('[data-test="year-cell"]');
+    const disabledYear = yearCells.at(1);
+    const enabledYear = yearCells.at(2);
+
+    expect(disabledYear?.attributes('disabled')).toBeDefined();
+    expect(enabledYear?.attributes('disabled')).toBeUndefined();
+
+    await disabledYear?.trigger('click');
+    expect(wrapper.emitted('click')).toBeFalsy();
+
+    await enabledYear?.trigger('click');
+    expect(wrapper.emitted('click')).toBeTruthy();
   });
 });

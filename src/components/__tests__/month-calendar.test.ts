@@ -13,7 +13,7 @@ describe('Test Component MonthCalendar', () => {
     calendarYear: new Date().getFullYear()
   };
 
-  it('render month calendar properly', async () => {
+  it('renders month calendar', async () => {
     const wrapper = mount(MonthCalendar, {
       props: { ...defaultProps }
     });
@@ -24,7 +24,7 @@ describe('Test Component MonthCalendar', () => {
     });
   });
 
-  it('handle select month properly', async () => {
+  it('handles month selection', async () => {
     const wrapper = mount(MonthCalendar, {
       props: {
         ...defaultProps
@@ -53,7 +53,7 @@ describe('Test Component MonthCalendar', () => {
     expect(labelPattern.test(selectedTimeLabel)).toBe(true);
   });
 
-  it('selectedFullDate equals to defaultFullDate if it exists', () => {
+  it('keeps selectedFullDate in sync with defaultFullDate', () => {
     const wrapper = mount(MonthCalendar, {
       props: {
         ...defaultProps,
@@ -66,5 +66,30 @@ describe('Test Component MonthCalendar', () => {
 
     const { selectedFullDate } = wrapper.vm;
     expect(selectedFullDate).toStrictEqual(wrapper.vm.defaultFullDate);
+  });
+
+  it('disables months outside min and max range', async () => {
+    const wrapper = mount(MonthCalendar, {
+      props: {
+        ...defaultProps,
+        type: CalendarType.MONTH,
+        minDate: '2023-03-01',
+        maxDate: '2023-10-01',
+        calendarYear: 2023
+      }
+    });
+
+    const monthCells = wrapper.findAll('[data-test="month-cell"]');
+    const disabledMonth = monthCells.at(1);
+    const enabledMonth = monthCells.at(2);
+
+    expect(disabledMonth?.attributes('disabled')).toBeDefined();
+    expect(enabledMonth?.attributes('disabled')).toBeUndefined();
+
+    await disabledMonth?.trigger('click');
+    expect(wrapper.emitted('click')).toBeFalsy();
+
+    await enabledMonth?.trigger('click');
+    expect(wrapper.emitted('click')).toBeTruthy();
   });
 });
