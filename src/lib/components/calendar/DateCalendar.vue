@@ -1,27 +1,29 @@
 <template>
   <div>
-    <div class="calendar-wrapper" data-test="date-calendar">
-      <div class="week-day-container">
+    <div
+      class="roc-date-picker__date-calendar"
+      data-test="date-calendar"
+    >
+      <div class="roc-date-picker__week-day-container">
         <div
           v-for="day in WEEK_DAYS"
           :key="day"
-          class="week-day-cell cursor-default"
+          class="roc-date-picker__week-day-cell"
         >
           {{ getCalendarLang(lang).week[day] }}
         </div>
       </div>
 
-      <div class="date-container">
+      <div class="roc-date-picker__date-container">
         <button
           v-for="(date, index) in dateCells"
           :key="index"
           :class="[
-            'date-cell',
+            'roc-date-picker__date-cell',
             {
-              'cursor-pointer': date && !isDateDisabled(date),
-              'selected-date': isSelected(date),
-              'today-date': isToday(date),
-              'disabled-date': date && isDateDisabled(date),
+              'roc-date-picker__selected-date': isSelected(date),
+              'roc-date-picker__today-date': isToday(date),
+              'roc-date-picker__disabled-date': date && isDateDisabled(date),
             },
           ]"
           data-test="date-cell"
@@ -218,7 +220,18 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-button {
+.roc-date-picker__date-calendar {
+  width: 100%;
+  height: 100%;
+  color: #6a6c6d;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.roc-date-picker__date-calendar button {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -232,30 +245,28 @@ button {
   color: #6a6c6d;
   cursor: pointer;
 }
-.calendar-wrapper {
-  width: 100%;
-  height: 100%;
-}
 
-.week-day-container {
+.roc-date-picker__week-day-container {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   justify-items: stretch;
   padding: 4px 8px;
   border-bottom: 1px solid #CFCFCF;
 
-  .week-day-cell {
+  .roc-date-picker__week-day-cell {
     text-align: center;
+    cursor: default;
   }
 }
 
-.date-container {
+.roc-date-picker__date-container {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
   justify-items: stretch;
   padding: 8px;
 
-  .date-cell {
+  .roc-date-picker__date-cell {
+    cursor: pointer;
     padding: 10px;
     text-align: center;
 
@@ -264,12 +275,12 @@ button {
     }
   }
 
-  .today-date {
+  .roc-date-picker__today-date {
     color: #4390BC;
     font-weight: 600;
   }
 
-  .disabled-date {
+  .roc-date-picker__disabled-date {
     cursor: not-allowed;
     color: #c3c7ca;
 
@@ -278,7 +289,7 @@ button {
     }
   }
 
-  .selected-date {
+  .roc-date-picker__selected-date {
     position: relative;
     color: #ffffff;
 
@@ -300,8 +311,8 @@ button {
     }
   }
 
-  .selected-date.today-date,
-  .selected-date.disabled-date {
+  .roc-date-picker__selected-date.roc-date-picker__today-date,
+  .roc-date-picker__selected-date.roc-date-picker__disabled-date {
     color: #ffffff;
   }
 }

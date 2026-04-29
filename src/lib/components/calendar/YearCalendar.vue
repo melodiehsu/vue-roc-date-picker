@@ -1,16 +1,18 @@
 <template>
   <div>
-    <div class="calendar-wrapper" data-test="year-calendar">
-      <div class="year-container">
+    <div
+      class="roc-date-picker__year-calendar"
+      data-test="year-calendar"
+    >
+      <div class="roc-date-picker__year-container">
         <button
           v-for="(year, index) in years"
           :key="index"
           :class="[
-            'year-cell',
+            'roc-date-picker__year-cell',
             {
-              'selected-year': isSelected(year),
-              'cursor-pointer': !isYearDisabled(year),
-              'disabled-year': isYearDisabled(year),
+              'roc-date-picker__selected-year': isSelected(year),
+              'roc-date-picker__disabled-year': isYearDisabled(year),
             },
           ]"
           data-test="year-cell"
@@ -166,7 +168,18 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-button {
+.roc-date-picker__year-calendar {
+  width: 100%;
+  height: 100%;
+  color: #6a6c6d;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.roc-date-picker__year-calendar button {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -181,18 +194,14 @@ button {
   cursor: pointer;
 }
 
-.calendar-wrapper {
-  width: 100%;
-  height: 100%;
-}
-
-.year-container {
+.roc-date-picker__year-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   justify-items: stretch;
   padding: 8px;
 
-  .year-cell {
+  .roc-date-picker__year-cell {
+    cursor: pointer;
     padding: 8px 4px;
     text-align: center;
 
@@ -201,7 +210,7 @@ button {
     }
   }
 
-  .disabled-year {
+  .roc-date-picker__disabled-year {
     cursor: not-allowed;
     color: #c3c7ca;
 
@@ -210,12 +219,12 @@ button {
     }
   }
 
-  .selected-year {
+  .roc-date-picker__selected-year {
     font-weight: 600;
     color: #4390BC;
   }
 
-  .selected-year.disabled-year {
+  .roc-date-picker__selected-year.roc-date-picker__disabled-year {
     color: #4390BC;
   }
 }

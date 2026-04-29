@@ -1,9 +1,12 @@
 <template>
   <div>
-    <div v-if="isVisible" class="wrapper">
+    <div
+      v-if="isVisible"
+      class="roc-date-picker__year-type-switch"
+    >
       <button
         type="button"
-        class="controller"
+        class="roc-date-picker__year-type-switch-button"
         data-test="year-type-switch"
         @click="changeYearType"
       >
@@ -60,7 +63,20 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-button {
+.roc-date-picker__year-type-switch {
+  width: auto;
+  padding: 0;
+  display: inline-flex;
+  justify-content: flex-end;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6a6c6d;
+}
+
+.roc-date-picker__year-type-switch button {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -77,20 +93,11 @@ button {
   cursor: pointer;
 }
 
-.wrapper {
-  width: 100%;
-  padding: 0 12px;
-  font-size: 14px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.controller {
+.roc-date-picker__year-type-switch-button {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 0;
-  color: #6a6c6d;
+  padding: 2px 8px;
   white-space: nowrap;
 }
 </style>

@@ -2,11 +2,11 @@
   <div>
     <div
       ref="datePickerRef"
-      class="date-picker-container"
+      class="roc-date-picker"
     >
       <div
-        class="input-container"
-        :class="{ 'input-container--disabled': disabled }"
+        class="roc-date-picker__input-container"
+        :class="{ 'roc-date-picker__input-container--disabled': disabled }"
         tabindex="0"
         role="button"
         aria-haspopup="dialog"
@@ -16,16 +16,13 @@
         @keydown.enter.prevent="toggleCalendar"
         @keydown.space.prevent="toggleCalendar"
       >
-        <div class="input-icon">
+        <div class="roc-date-picker__input-icon">
           <CalendarDayIcon />
         </div>
 
         <input
-          class="date-picker-input"
+          class="roc-date-picker__input"
           data-test="date-picker-input"
-          :class="[
-            `${ disabled ? 'cursor-not-allowed' : 'cursor-pointer' }`,
-          ]"
           :value="selectedTime.label"
           :placeholder="placeholder"
           readonly
@@ -37,9 +34,9 @@
           v-show="showClearButton"
           type="button"
           aria-label="Clear selected date"
-          :class="['clear-input-button',
+          :class="['roc-date-picker__clear-button',
                    {
-                     'clear-input-button--hover': !disabled && selectedTime.label,
+                     'roc-date-picker__clear-button--hover': !disabled && selectedTime.label,
                    }]"
           @click.stop="clearSelectedTime"
         >
@@ -50,15 +47,15 @@
       <!-- calendar -->
       <div
         v-if="isCalendarVisible"
-        class="calendar-container"
+        class="roc-date-picker__calendar"
         :style="{ 'z-index': zIndex }"
       >
-        <div class="calendar-header">
-          <div class="prev-controller">
+        <div class="roc-date-picker__calendar-header">
+          <div class="roc-date-picker__prev-controller">
             <button
               v-if="isYearCalendarVisible && canGoLastDecade"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="last-decade"
               @click="goToLastDecade"
             >
@@ -68,7 +65,7 @@
             <button
               v-if="!isYearCalendarVisible && canGoLastYear"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="last-year"
               @click="goToLastYear"
             >
@@ -78,7 +75,7 @@
             <button
               v-show="isDateCalendarVisible && canGoLastMonth"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="last-month"
               @click="goToLastMonth"
             >
@@ -86,10 +83,10 @@
             </button>
           </div>
 
-          <div class="year-month-controller">
+          <div class="roc-date-picker__year-month-controller">
             <button
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="year-button"
               @click="setCalendarVisibility(CalendarType.YEAR)"
             >
@@ -99,7 +96,7 @@
             <button
               v-show="isDateCalendarVisible"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="month-button"
               @click="setCalendarVisibility(CalendarType.MONTH)"
             >
@@ -107,11 +104,11 @@
             </button>
           </div>
 
-          <div class="next-controller">
+          <div class="roc-date-picker__next-controller">
             <button
               v-show="isDateCalendarVisible && canGoNextMonth"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="next-month"
               @click="goToNextMonth"
             >
@@ -121,7 +118,7 @@
             <button
               v-if="isYearCalendarVisible && canGoNextDecade"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="next-decade"
               @click="goToNextDecade"
             >
@@ -131,7 +128,7 @@
             <button
               v-else-if="!isYearCalendarVisible && canGoNextYear"
               type="button"
-              class="controller-button"
+              class="roc-date-picker__controller-button"
               data-test="next-year"
               @click="goToNextYear"
             >
@@ -183,26 +180,31 @@
         </div>
 
         <div
-          v-if="showTodayButton && type === CalendarType.DATE"
-          class="calendar-footer"
+          v-if="(showTodayButton && type === CalendarType.DATE) || isSwitchAllowed"
+          class="roc-date-picker__calendar-actions"
+          :class="{
+            'roc-date-picker__calendar-actions--single': !(showTodayButton && type === CalendarType.DATE),
+          }"
         >
           <button
+            v-if="showTodayButton && type === CalendarType.DATE"
             type="button"
-            class="today-button"
+            class="roc-date-picker__today-button"
             data-test="today-button"
             :disabled="isTodayDisabled"
             @click="selectToday"
           >
             {{ getCalendarLang(lang).actions.today }}
           </button>
-        </div>
 
-        <YearTypeSwitch
-          :calendar-year-type="yearType"
-          :is-visible="isSwitchAllowed"
-          :lang="lang"
-          @click="handleChangeYearType"
-        />
+          <YearTypeSwitch
+            v-if="isSwitchAllowed"
+            :calendar-year-type="yearType"
+            :is-visible="isSwitchAllowed"
+            :lang="lang"
+            @click="handleChangeYearType"
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -755,7 +757,19 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-button {
+.roc-date-picker {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #6a6c6d;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.roc-date-picker button {
   appearance: none;
   -webkit-appearance: none;
   box-sizing: border-box;
@@ -769,13 +783,7 @@ button {
   cursor: pointer;
 }
 
-.date-picker-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.input-container {
+.roc-date-picker__input-container {
   width: 100%;
   height: 100%;
   padding: 4px;
@@ -797,11 +805,11 @@ button {
     border-color: #d9e0e6;
     color: #9aa3ab;
 
-    .input-icon {
+    .roc-date-picker__input-icon {
       opacity: 0.55;
     }
 
-    .date-picker-input {
+    .roc-date-picker__input {
       background: #f5f7fa;
       color: #9aa3ab;
       -webkit-text-fill-color: #9aa3ab;
@@ -809,17 +817,17 @@ button {
     }
   }
 
-  .input-icon {
+  .roc-date-picker__input-icon {
     padding: 0 4px;
   }
 
-    .date-picker-input {
+  .roc-date-picker__input {
       width: 100%;
       height: 100%;
       padding: 2px;
       background: #ffffff;
       border-style: none;
-      cursor: inherit;
+      cursor: pointer;
 
       &:focus {
         outline-style: none;
@@ -830,10 +838,11 @@ button {
         color: #9aa3ab;
         -webkit-text-fill-color: #9aa3ab;
         opacity: 1;
+        cursor: not-allowed;
       }
     }
 
-  .clear-input-button {
+  .roc-date-picker__clear-button {
     display: none;
     position: absolute;
     cursor: pointer;
@@ -843,14 +852,14 @@ button {
   }
 
   &:hover {
-    .clear-input-button--hover {
+    .roc-date-picker__clear-button--hover {
       display: flex;
       align-items: center;
     }
   }
 }
 
-.calendar-container {
+.roc-date-picker__calendar {
   position: absolute;
   border-radius: 4px;
   top: 120%;
@@ -861,25 +870,25 @@ button {
   width: 300px;
 }
 
-.calendar-header {
+.roc-date-picker__calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 8px 2px;
 
-  .prev-controller, .next-controller {
+  .roc-date-picker__prev-controller, .roc-date-picker__next-controller {
     display: flex;
     align-items: center;
     height: 100%;
   }
 
-  .year-month-controller {
+  .roc-date-picker__year-month-controller {
     display: flex;
     flex-grow: 1;
     justify-content: center;
     transform: translate(0, -1px);
 
-    .controller-button {
+    .roc-date-picker__controller-button {
       font-size: 16px;
       &:hover {
         color: #4390BC;
@@ -887,7 +896,7 @@ button {
     }
   }
 
-  .controller-button {
+  .roc-date-picker__controller-button {
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -895,26 +904,33 @@ button {
   }
 }
 
-.calendar-footer {
+.roc-date-picker__calendar-actions {
   display: flex;
-  justify-content: flex-end;
-  padding: 4px 8px 0;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px 0;
   border-top: 1px solid #f0f0f0;
+  gap: 12px;
+
+  button.roc-date-picker__today-button {
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: #4390BC;
+    font-size: 14px;
+    background: transparent;
+    border: 0;
+    font: inherit;
+    line-height: 1;
+
+    &:disabled {
+      cursor: not-allowed;
+      color: #a0a8ad;
+    }
+  }
 }
 
-.today-button {
-  cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 4px;
-  color: #4390BC;
-  font-size: 14px;
-  background: transparent;
-  border: 0;
-  font: inherit;
-
-  &:disabled {
-    cursor: not-allowed;
-    color: #a0a8ad;
-  }
+.roc-date-picker__calendar-actions--single {
+  justify-content: flex-end;
 }
 </style>
