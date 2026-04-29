@@ -37,13 +37,13 @@
 </template>
 
 <script lang="ts">
-import { WEEK_DAYS } from '@/constants';
+import { WEEK_DAYS } from '@/lib/constants';
 import {
   CalendarType, Language, YearType, type SelectedTime
-} from '@/interfaces';
+} from '@/lib/interfaces';
 import {
   getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
-} from '@/utils';
+} from '@/lib/utils';
 import dayjs from 'dayjs';
 import {
   computed,
@@ -219,10 +219,18 @@ export default defineComponent({
 
 <style scoped lang="scss">
 button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   background: transparent;
-  border-style: none;
+  border: 0;
+  font: inherit;
+  line-height: 1;
   font-size: 16px;
   color: #6a6c6d;
+  cursor: pointer;
 }
 .calendar-wrapper {
   width: 100%;

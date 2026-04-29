@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, it } from 'vitest';
-import { getRepublicEraYear } from '@/utils';
-import { CalendarType, Language, YearType } from '@/interfaces';
+import { getRepublicEraYear } from '@/lib/utils';
+import { CalendarType, Language, YearType } from '@/lib/interfaces';
 import ROCDatePicker from '../ROCDatePicker.vue';
 
 describe('Test Component ROCDatePicker', () => {

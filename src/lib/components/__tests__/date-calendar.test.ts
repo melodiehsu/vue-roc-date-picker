@@ -2,7 +2,7 @@ import {
   describe, it, expect
 } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { Language, YearType } from '@/interfaces';
+import { Language, YearType } from '@/lib/interfaces';
 import DateCalendar from '../calendar/DateCalendar.vue';
 
 describe('Test Component DateCalendar', () => {

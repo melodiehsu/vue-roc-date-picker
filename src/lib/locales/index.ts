@@ -1,4 +1,4 @@
-import { type YearType } from '@/interfaces';
+import { type YearType } from '@/lib/interfaces';
 
 export type LocaleMonth = Record<number, string>;
 export type LocaleWeek = Record<number, string>;

@@ -219,10 +219,10 @@ import {
   getValidDate,
   isDateOutsideRange,
   setDatePickerLabel
-} from '@/utils';
+} from '@/lib/utils';
 import {
   Language, YearType, type SelectedTime, CalendarType
-} from '@/interfaces';
+} from '@/lib/interfaces';
 import DateCalendar from './calendar/DateCalendar.vue';
 import MonthCalendar from './calendar/MonthCalendar.vue';
 import YearCalendar from './calendar/YearCalendar.vue';
@@ -756,8 +756,17 @@ export default defineComponent({
 
 <style scoped lang="scss">
 button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   background: transparent;
-  border-style: none;
+  border: 0;
+  font: inherit;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
 }
 
 .date-picker-container {
@@ -899,6 +908,9 @@ button {
   border-radius: 4px;
   color: #4390BC;
   font-size: 14px;
+  background: transparent;
+  border: 0;
+  font: inherit;
 
   &:disabled {
     cursor: not-allowed;

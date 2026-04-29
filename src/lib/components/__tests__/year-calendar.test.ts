@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { getRepublicEraYear } from '@/utils';
-import { CalendarType, Language, YearType } from '@/interfaces';
+import { getRepublicEraYear } from '@/lib/utils';
+import { CalendarType, Language, YearType } from '@/lib/interfaces';
 import YearCalendar from '../calendar/YearCalendar.vue';
 
 describe('Test Component YearCalendar', () => {

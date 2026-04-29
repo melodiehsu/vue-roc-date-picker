@@ -16,8 +16,8 @@
 
 <script lang="ts">
 import { defineComponent, toRefs, type PropType } from 'vue';
-import { getCalendarLang } from '@/utils';
-import { Language, YearType } from '@/interfaces';
+import { getCalendarLang } from '@/lib/utils';
+import { Language, YearType } from '@/lib/interfaces';
 import RotateIcon from './icons/RotateIcon.vue';
 
 export default defineComponent({
@@ -61,8 +61,20 @@ export default defineComponent({
 
 <style scoped lang="scss">
 button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
-  border-style: none;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
 }
 
 .wrapper {
@@ -76,8 +88,9 @@ button {
 .controller {
   display: flex;
   align-items: center;
-  padding: 2px;
+  gap: 6px;
+  padding: 2px 0;
   color: #6a6c6d;
-  cursor: pointer;
+  white-space: nowrap;
 }
 </style>

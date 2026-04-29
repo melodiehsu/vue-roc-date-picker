@@ -1,24 +1,24 @@
 <template>
   <div>
-    <div class="calendar-wrapper" data-test="month-calendar">
-      <div class="month-container">
+    <div class="calendar-wrapper" data-test="year-calendar">
+      <div class="year-container">
         <button
-          v-for="(month, index) in MONTHS"
+          v-for="(year, index) in years"
           :key="index"
           :class="[
-            'month-cell',
+            'year-cell',
             {
-              'selected-month': isSelected(month),
-              'cursor-pointer': !isMonthDisabled(month),
-              'disabled-month': isMonthDisabled(month),
+              'selected-year': isSelected(year),
+              'cursor-pointer': !isYearDisabled(year),
+              'disabled-year': isYearDisabled(year),
             },
           ]"
-          data-test="month-cell"
+          data-test="year-cell"
           type="button"
-          :disabled="isMonthDisabled(month)"
-          @click="handleSelectMonth(month)"
+          :disabled="isYearDisabled(year)"
+          @click="handleSelectYear(year)"
         >
-          {{ getCalendarLang(lang).month[month] }}
+          {{ calendarYearType === YearType.CommonEra ? year : getRepublicEraYear(year) }}
         </button>
       </div>
     </div>
@@ -26,16 +26,14 @@
 </template>
 
 <script lang="ts">
-import { MONTHS } from '@/constants';
 import {
-  getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
-} from '@/utils';
+  getRepublicEraYear, isDateOutsideRange, setDatePickerLabel
+} from '@/lib/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
-} from '@/interfaces';
+} from '@/lib/interfaces';
 import {
-  computed,
-  defineComponent, ref, toRefs, watch, type PropType
+  computed, defineComponent, ref, toRefs, watch, type PropType
 } from 'vue';
 import dayjs from 'dayjs';
 
@@ -46,21 +44,25 @@ const DEFAULT_SELECTED_TIME: SelectedTime = {
 
 export default defineComponent({
   props: {
-    calendarYearType: {
-      required: true,
-      type: String as PropType<YearType>
-    },
-    calendarYear: {
-      required: true,
-      type: Number
-    },
     lang: {
       required: true,
       type: String as PropType<Language>
     },
+    calendarYearType: {
+      required: true,
+      type: String as PropType<YearType>
+    },
     defaultFullDate: {
       type: Object as PropType<SelectedTime>,
       default: () => ({ ...DEFAULT_SELECTED_TIME })
+    },
+    type: {
+      required: true,
+      type: String as PropType<CalendarType>
+    },
+    decadeRange: {
+      required: true,
+      type: Array as PropType<number[]>
     },
     minDate: {
       type: [Date, String],
@@ -69,31 +71,41 @@ export default defineComponent({
     maxDate: {
       type: [Date, String],
       default: ''
-    },
-    type: {
-      required: true,
-      type: String as PropType<CalendarType>
     }
   },
   emits: ['click'],
   setup(props, { emit }) {
     const {
-      calendarYear, defaultFullDate, calendarYearType, type, minDate, maxDate
+      defaultFullDate, calendarYearType, type, decadeRange, minDate, maxDate
     } = toRefs(props);
     const selectedFullDate = ref<SelectedTime>({});
+    const years = ref<number[]>([]);
 
     const selectedDayjs = computed(() => {
       const { timeValue } = selectedFullDate.value;
       return timeValue ? dayjs(timeValue) : undefined;
     });
     const selectedYear = computed(() => selectedDayjs.value?.year());
-    const selectedMonth = computed(() => selectedDayjs.value?.month());
 
-    const isSelected = (month: number): boolean => {
+    const populateYearCalendar = () => {
+      years.value = [];
+
+      for (let yearCount = 0; yearCount < 10; yearCount += 1) {
+        years.value.push(decadeRange.value[0] + yearCount);
+      }
+
+      if (
+        (calendarYearType.value === YearType.RepublicEra)
+        && ((years.value[0] - 1911) < 1)
+      ) {
+        years.value = years.value.filter((year) => year > 1911);
+      }
+    };
+
+    const isSelected = (year: number): boolean => {
       if (
         selectedFullDate.value.timeValue
-        && calendarYear.value === selectedYear.value
-        && month === selectedMonth.value
+        && year === selectedYear.value
       ) {
         return true;
       }
@@ -101,30 +113,34 @@ export default defineComponent({
       return false;
     };
 
-    const isMonthDisabled = (month: number) => isCalendarDateDisabled({
-      targetDate: new Date(calendarYear.value, month, 1),
+    const isYearDisabled = (year: number) => isDateOutsideRange({
+      targetDate: new Date(year, 0, 1),
       minDate: minDate.value,
       maxDate: maxDate.value,
-      unit: 'month'
+      unit: 'year'
     });
 
-    const handleSelectMonth = (monthOnCalendar: number) => {
-      if (isMonthDisabled(monthOnCalendar)) return;
+    const handleSelectYear = (yearOnCalendar: number) => {
+      if (isYearDisabled(yearOnCalendar)) return;
 
-      const timeValue = new Date(calendarYear.value, monthOnCalendar);
+      const timeValue = new Date(yearOnCalendar, 0);
       selectedFullDate.value.timeValue = timeValue;
 
-      if (type.value === CalendarType.MONTH) {
+      if (type.value === CalendarType.YEAR) {
         selectedFullDate.value.label = setDatePickerLabel({
           calendarYearType: calendarYearType.value,
           selectedDate: timeValue,
           formatYear: timeValue.getFullYear(),
-          datePickerType: CalendarType.MONTH
+          datePickerType: CalendarType.YEAR
         });
       }
 
       emit('click', selectedFullDate.value);
     };
+
+    watch(decadeRange, () => {
+      populateYearCalendar();
+    }, { deep: true, immediate: true });
 
     watch(
       () => defaultFullDate.value?.timeValue,
@@ -136,17 +152,14 @@ export default defineComponent({
       { immediate: true }
     );
 
-    watch(defaultFullDate, () => {
-      selectedFullDate.value = defaultFullDate.value || {};
-    }, { deep: true });
-
     return {
-      MONTHS,
+      YearType,
+      years,
       selectedFullDate,
       isSelected,
-      isMonthDisabled,
-      handleSelectMonth,
-      getCalendarLang
+      isYearDisabled,
+      handleSelectYear,
+      getRepublicEraYear
     };
   }
 });
@@ -154,23 +167,32 @@ export default defineComponent({
 
 <style scoped lang="scss">
 button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
   background: transparent;
-  border-style: none;
+  border: 0;
+  font: inherit;
+  line-height: 1;
   font-size: 16px;
   color: #6a6c6d;
+  cursor: pointer;
 }
+
 .calendar-wrapper {
   width: 100%;
   height: 100%;
 }
 
-.month-container {
+.year-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   justify-items: stretch;
   padding: 8px;
 
-  .month-cell {
+  .year-cell {
     padding: 8px 4px;
     text-align: center;
 
@@ -179,7 +201,7 @@ button {
     }
   }
 
-  .disabled-month {
+  .disabled-year {
     cursor: not-allowed;
     color: #c3c7ca;
 
@@ -188,12 +210,12 @@ button {
     }
   }
 
-  .selected-month {
+  .selected-year {
     font-weight: 600;
     color: #4390BC;
   }
 
-  .selected-month.disabled-month {
+  .selected-year.disabled-year {
     color: #4390BC;
   }
 }

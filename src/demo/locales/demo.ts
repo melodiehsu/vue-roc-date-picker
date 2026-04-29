@@ -1,4 +1,4 @@
-import { type CalendarType, type Language, type YearType } from '../interfaces';
+import { type CalendarType, type Language, type YearType } from '../../lib/interfaces';
 
 export type DemoLang = Language;
 export type RangePreset = 'none' | 'currentYear' | 'rollingWindow';
