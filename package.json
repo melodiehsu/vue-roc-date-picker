@@ -1,6 +1,6 @@
 {
   "name": "vue3-roc-date-picker",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A date picker UI component displays year in Republic Era or Common Era",
   "keywords": [
     "vue3",
@@ -31,7 +31,8 @@
       "import": "./dist/vue-roc-date-picker.es.js",
       "require": "./dist/vue-roc-date-picker.umd.js"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./dist/style.css": "./dist/style.css"
   },
   "scripts": {
     "dev": "vite --port 5566 --open",
