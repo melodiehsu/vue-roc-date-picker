@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { TRANSLATE } from '@/locales';
-import { Language } from '@/interfaces';
+import { TRANSLATE } from '@/lib/locales';
+import { Language } from '@/lib/interfaces';
 import { getCalendarLang } from '../index';
 
 describe('Test getCalendarLang', () => {

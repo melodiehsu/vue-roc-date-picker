@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
-import { MONTHS } from '@/constants';
-import { getCalendarLang } from '@/utils';
-import { CalendarType, Language, YearType } from '@/interfaces';
+import { MONTHS } from '@/lib/constants';
+import { getCalendarLang } from '@/lib/utils';
+import { CalendarType, Language, YearType } from '@/lib/interfaces';
 import MonthCalendar from '../calendar/MonthCalendar.vue';
 
 describe('Test Component MonthCalendar', () => {

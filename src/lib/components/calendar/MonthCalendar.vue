@@ -1,16 +1,18 @@
 <template>
   <div>
-    <div class="calendar-wrapper" data-test="month-calendar">
-      <div class="month-container">
+    <div
+      class="roc-date-picker__month-calendar"
+      data-test="month-calendar"
+    >
+      <div class="roc-date-picker__month-container">
         <button
           v-for="(month, index) in MONTHS"
           :key="index"
           :class="[
-            'month-cell',
+            'roc-date-picker__month-cell',
             {
-              'selected-month': isSelected(month),
-              'cursor-pointer': !isMonthDisabled(month),
-              'disabled-month': isMonthDisabled(month),
+              'roc-date-picker__selected-month': isSelected(month),
+              'roc-date-picker__disabled-month': isMonthDisabled(month),
             },
           ]"
           data-test="month-cell"
@@ -26,13 +28,13 @@
 </template>
 
 <script lang="ts">
-import { MONTHS } from '@/constants';
+import { MONTHS } from '@/lib/constants';
 import {
   getCalendarLang, isCalendarDateDisabled, setDatePickerLabel
-} from '@/utils';
+} from '@/lib/utils';
 import {
   CalendarType, Language, YearType, type SelectedTime
-} from '@/interfaces';
+} from '@/lib/interfaces';
 import {
   computed,
   defineComponent, ref, toRefs, watch, type PropType
@@ -153,24 +155,40 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-button {
-  background: transparent;
-  border-style: none;
-  font-size: 16px;
-  color: #6a6c6d;
-}
-.calendar-wrapper {
+.roc-date-picker__month-calendar {
   width: 100%;
   height: 100%;
+  color: #6a6c6d;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
-.month-container {
+.roc-date-picker__month-calendar button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  font: inherit;
+  line-height: 1;
+  font-size: 16px;
+  color: #6a6c6d;
+  cursor: pointer;
+}
+
+.roc-date-picker__month-container {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   justify-items: stretch;
   padding: 8px;
 
-  .month-cell {
+  .roc-date-picker__month-cell {
+    cursor: pointer;
     padding: 8px 4px;
     text-align: center;
 
@@ -179,7 +197,7 @@ button {
     }
   }
 
-  .disabled-month {
+  .roc-date-picker__disabled-month {
     cursor: not-allowed;
     color: #c3c7ca;
 
@@ -188,12 +206,12 @@ button {
     }
   }
 
-  .selected-month {
+  .roc-date-picker__selected-month {
     font-weight: 600;
     color: #4390BC;
   }
 
-  .selected-month.disabled-month {
+  .roc-date-picker__selected-month.roc-date-picker__disabled-month {
     color: #4390BC;
   }
 }

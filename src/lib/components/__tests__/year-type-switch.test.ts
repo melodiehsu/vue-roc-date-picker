@@ -2,8 +2,8 @@ import { mount } from '@vue/test-utils';
 import {
   describe, expect, it
 } from 'vitest';
-import { getCalendarLang } from '@/utils';
-import { Language, YearType } from '@/interfaces';
+import { getCalendarLang } from '@/lib/utils';
+import { Language, YearType } from '@/lib/interfaces';
 import YearTypeSwitch from '../YearTypeSwitch.vue';
 
 describe('Test Component YearTypeSwitch', () => {

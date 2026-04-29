@@ -1,9 +1,12 @@
 <template>
   <div>
-    <div v-if="isVisible" class="wrapper">
+    <div
+      v-if="isVisible"
+      class="roc-date-picker__year-type-switch"
+    >
       <button
         type="button"
-        class="controller"
+        class="roc-date-picker__year-type-switch-button"
         data-test="year-type-switch"
         @click="changeYearType"
       >
@@ -16,8 +19,8 @@
 
 <script lang="ts">
 import { defineComponent, toRefs, type PropType } from 'vue';
-import { getCalendarLang } from '@/utils';
-import { Language, YearType } from '@/interfaces';
+import { getCalendarLang } from '@/lib/utils';
+import { Language, YearType } from '@/lib/interfaces';
 import RotateIcon from './icons/RotateIcon.vue';
 
 export default defineComponent({
@@ -60,24 +63,41 @@ export default defineComponent({
 </script>
 
 <style scoped lang="scss">
-button {
-  background: transparent;
-  border-style: none;
-}
-
-.wrapper {
-  width: 100%;
-  padding: 0 12px;
-  font-size: 14px;
-  display: flex;
+.roc-date-picker__year-type-switch {
+  width: auto;
+  padding: 0;
+  display: inline-flex;
   justify-content: flex-end;
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+    Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6a6c6d;
 }
 
-.controller {
+.roc-date-picker__year-type-switch button {
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  line-height: 1;
+  color: inherit;
+  cursor: pointer;
+}
+
+.roc-date-picker__year-type-switch-button {
   display: flex;
   align-items: center;
-  padding: 2px;
-  color: #6a6c6d;
-  cursor: pointer;
+  gap: 6px;
+  padding: 2px 8px;
+  white-space: nowrap;
 }
 </style>

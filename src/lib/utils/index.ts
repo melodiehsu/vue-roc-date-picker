@@ -1,5 +1,5 @@
 import dayjs, { type ConfigType } from 'dayjs';
-import { CalendarType, Language, YearType } from '@/interfaces';
+import { CalendarType, Language, YearType } from '@/lib/interfaces';
 import locales from '../locales/index';
 import type { LocaleDictionary } from '../locales/index';
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { CalendarType, YearType } from '@/interfaces';
+import { CalendarType, YearType } from '@/lib/interfaces';
 import { setDatePickerLabel } from '../index';
 
 describe('Test setDatePickerLabel', () => {

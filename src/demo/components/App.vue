@@ -461,15 +461,15 @@ import {
   computed, defineComponent, onBeforeUnmount, ref
 } from 'vue';
 import dayjs from 'dayjs';
-import ROCDatePicker from './components/ROCDatePicker.vue';
-import SnippetCode from './components/SnippetCode.vue';
-import { CalendarType, Language, YearType } from './interfaces';
+import ROCDatePicker from '../../lib/components/ROCDatePicker.vue';
+import SnippetCode from './SnippetCode.vue';
+import { CalendarType, Language, YearType } from '../../lib/interfaces';
 import {
   DEMO_COPY,
   type DemoLang,
   type RangePreset
-} from './locales/demo';
-import CopyIcon from './components/icons/CopyIcon.vue';
+} from '../locales/demo';
+import CopyIcon from './icons/CopyIcon.vue';
 
 export default defineComponent({
   components: {

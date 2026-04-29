@@ -6,10 +6,10 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   plugins: [vue()],
-  build: {
+    build: {
     target: 'esnext',
     lib: {
-      entry: resolve(__dirname, './src/components/index.ts'),
+      entry: resolve(__dirname, './src/lib/components/index.ts'),
       name: 'VueRocDatePicker',
       fileName: (format) => `vue-roc-date-picker.${format}.js`
     },
